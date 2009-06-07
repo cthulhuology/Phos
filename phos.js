@@ -96,8 +96,7 @@ Object.prototype.debug = function() {
 	alert(out);
 }
 Object.prototype.has = function(a) {
-	for (var i = 0; i < a.length; ++i)
-		if (this == a[i]) return true;
+	for (var i = 0; i < a.length; ++i) if (this == a[i]) return true;
 	return false;
 }
 
@@ -111,11 +110,10 @@ function toJson(o,seen) {
 		'function' : function(x,l) { return '"' + x.toString().replace(/"/g,'\\"') + '"' },
 		'object' : function (x,l) {
 			if (x == null) return "null";
-			if (typeof(x.indexOf) == 'function') return "[ " + (x.map(toJson).join(', ')) + " ]";
+			if (typeof(x.indexOf) == 'function') return "[ "+(x.map(toJson).join(', '))+" ]";
 			var retval = [];
-			for (var i in x) 
-				if (x.hasOwnProperty(i)) 
-					retval.push( '"' + i + '": ' + (l.has(x[i]) ? "null" : toJson(x[i],l.push(x[i]))));
+			for (var i in x) if (x.hasOwnProperty(i)) 
+				retval.push('"'+i+'": '+(l.has(x[i])? "null":toJson(x[i],l.push(x[i]))));
 			return '{ ' + retval.join(', ') + ' }';
 		},
 		'number' : function (x,l) { return '' + x },
@@ -555,17 +553,11 @@ var Widget = let(Box, {
 		Screen.widgets.expunge(this);
 		return this;
 	},
-	release: function() { 	// Override this method, not remove for adding custom code
-		return this.remove();
-	},
+	release: function() { return this.remove() },// Override this method for custom code
 	instance: function() {
 		Screen.widgets.push(this);
-		this.draw();
 		return this;
 	},	
-	restore: function() { // Override this method, not instance for adding custom code
-		return this.instance();
-	},
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
 	onKey: function() { 
