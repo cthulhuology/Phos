@@ -276,18 +276,18 @@ var Display = let(Box, {
 		_body.add(this.canvas);
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
+		Mouse.handle('scroll',this);
 		return this;
+	},
+	scroll: function(e) {
+		this.to(e.w,e.h);
 	},
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Screen Object
-var Screen = let({
+var Screen = let(Box,{
 	ctx: null,
-	x: 0,
-	y: 0,
-	w: 0,
-	h: 0,
 	rad: 10,
 	delay: 40,
 	timer: null,
@@ -296,31 +296,21 @@ var Screen = let({
 	size: 16,
 	family: 'Arial',
 	colorizer: false,
-	fg: "none",
-	bg: "none",
-	fontstyle: "normal",
-	lw: 1,
 	init: function() {
 		this.ctx = Display.canvas.getContext('2d');
 		this.timer = setTimeout("Screen.animate()",this.delay);
 	},
 	as: function(w) {
-		this.x = w.x;
-		this.y = w.y;
-		this.w = w.w;
-		this.h = w.h;
-		this.ctx.moveTo(this.x,this.y);
-		return this;
+		this.at(w.x,w.y);
+		return this.by(w.w,w.h);
 	},
 	to: function(x,y) {
-		this.x += x;
-		this.y += y;
-		this.ctx.moveTo(this.x,this.y);
+		return this.at(this.x+x,this.y+y);
 		return this;
 	},
 	at: function(x,y) {
-		this.x = x;
-		this.y = y;
+		this.x = x - Display.x;
+		this.y = y - Display.y;
 		this.ctx.moveTo(this.x,this.y);
 		return this;
 	},
@@ -334,7 +324,6 @@ var Screen = let({
 		return this;
 	},
 	lineWidth: function(w) {
-		this.lw = w;
 		this.ctx.lineWidth = w;
 		return this;
 	},
@@ -373,10 +362,6 @@ var Screen = let({
 		this.ctx.closePath();
 		return this;
 	},
-	style: function(s) {
-		this.fontstyle = s;
-		return this;
-	},
 	print: function (tx) {
 		if (!_doc) return this;
 		var xo = this.x;
@@ -405,15 +390,15 @@ var Screen = let({
 		this.ctx.drawImage(img.data,img.x,img.y,img.w,img.h,this.x,this.y,this.w,this.h);
 		return this;
 	},
-	red: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "red"; return this },
-	yellow: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "yellow"; return this },
-	green: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "green"; return this },
-	blue: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "blue"; return this },
-	orange: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "orange"; return this },
-	purple: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "purple" ; return this},
-	black: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "black"; return this },
-	gray: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "gray"; return this },
-	white: function() { this.ctx.fillStyle = this.ctx.strokeStyle = this.fg = "white"; return this },
+	red: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "red"; return this },
+	yellow: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "yellow"; return this },
+	green: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "green"; return this },
+	blue: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "blue"; return this },
+	orange: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "orange"; return this },
+	purple: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "purple" ; return this},
+	black: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "black"; return this },
+	gray: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "gray"; return this },
+	white: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "white"; return this },
 	fill: function() {
 		this.ctx.rect(this.x,this.y,this.w,this.h);
 		this.ctx.fill();
@@ -429,14 +414,11 @@ var Screen = let({
 		return this;
 	},
 	background: function(r,g,b) {
-		this.bg = 'rgb(' + r + ',' + g + ',' + b + ')';
-		_body.style.background = this.bg;
+		_body.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
 		return this;
 	},
 	color: function(r,g,b) {
-		this.fg  = "rgb(" + r + "," + g + "," + b + ")";
-		this.ctx.strokeStyle = this.fg;
-		this.ctx.fillStyle = this.fg;
+		this.ctx.strokeStyle = this.ctx.fillStyle =  "rgb(" + r + "," + g + "," + b + ")";
 		return this;
 	},
 	animate: function() {
@@ -452,8 +434,7 @@ var Screen = let({
 		});
 	},
 	schedule: function(t) {
-		if (typeof(t.timer) == "function")
-			this.timers.push(t);
+		if (typeof(t.timer) == "function") this.timers.push(t);
 		return this;
 	}
 });
@@ -465,8 +446,8 @@ var Event = let(Box,{
 	init: function(e) {
 		var ev = Event.clone();
 		ev.key = Keyboard.map(e.keyCode, e.type == 'keydown');
-		ev.at(e.clientX,e.clientY);
-		ev.by(e.wheelDeltaX/40,e.wheelDeltaY/40);
+		ev.at(e.clientX + Display.x,e.clientY + Display.y);
+		ev.by(Math.floor(e.wheelDeltaX/40),Math.floor(e.wheelDeltaY/40));
 		return ev;
 	},
 });
@@ -480,15 +461,13 @@ var Device = let({
 			this.handlers[arguments[i]] = [];
 	},
 	dispatch: function(n,e) {
-		for (var i in this.handlers[n])
-			if (typeof(this.handlers[n][i][n]) == 'function')
-				this.handlers[n][i][n](Event.init(e));
+		this.handlers[n].every(function(v,i) {
+			if (typeof(v[n]) == 'function') v[n](Event.init(e)) }); 
 	},
 	handle: function(e,w) { this.handlers[e].push(w); return this },
 	remove: function(e,w) {
 		for (var j in this.handlers[e])
-			if (this.handlers[e][j] == w) 
-				this.handlers[e].splice(j,1);
+			if (this.handlers[e][j] == w) this.handlers[e].splice(j,1);
 		return this;
 	},
 });
@@ -552,14 +531,13 @@ var Mouse = let(Device, {
 	move: function(e) { Mouse.dispatch('move',e) },
 	down: function(e) { Mouse.dispatch('down',e) },
 	up: function(e) { Mouse.dispatch('up',e) },
-	wheel: function(e) { Mouse.dispatch('wheel',e) },
 	scroll: function(e) { Mouse.dispatch('scroll',e) },
 	init: function () { 
-		_root.listen('mouseover',Mouse.over).listen('mousemove',Mouse.move).listen('mousedown',Mouse.down).listen('mouseup',Mouse.up).listen('mousewheel',Mouse.wheel).listen('onscroll',Mouse.scroll);
+		_root.listen('mouseover',Mouse.over).listen('mousemove',Mouse.move).listen('mousedown',Mouse.down).listen('mouseup',Mouse.up).listen('mousewheel',Mouse.scroll).listen('onscroll',Mouse.scroll);
 		return this;
 	},
 });
-Mouse.manage('over','move','down','up','wheel','scroll');
+Mouse.manage('over','move','down','up','scroll');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget Object
