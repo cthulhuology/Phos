@@ -26,6 +26,7 @@ function boot() {
 	Keyboard.init();
 	Mouse.init();
 	Screen.init();
+	App.run();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +39,7 @@ function $_(x) { return _doc.createElement(x) }
 Array.prototype.every = function (f) { for (var i  = 0; i < this.length; ++i) f(this[i],i); }
 Array.prototype.last = function() { return this[this.length -1 ]; }
 Array.prototype.expunge = function (e) {
-	for (var i = 0; i < this.length; ++i) if ( this[i] == e) this.splice(i,1);	
+	for (var i = 0; i < this.length; ++i) if (this[i] == e) this.splice(i,1);	
 }
 Array.prototype.map = function (f) {
 	var retval = [];
@@ -49,6 +50,10 @@ Array.prototype.reduce = function (f,o) {
 	var retval = o;	
 	this.every(function(x) { retval = f(retval,x) });
 	return retval;
+}
+Array.prototype.has = function(a) {
+	for (var i = 0; i < a.length; ++i) if (this == a[i]) return true;
+	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,12 +97,8 @@ Object.prototype.clone = function() {
 }
 Object.prototype.debug = function() {
 	var out = "";
-	this.each(function(v,x) { out += k + "=" +  v });
+	this.each(function(v,k) { out += k + "=" +  v });
 	alert(out);
-}
-Object.prototype.has = function(a) {
-	for (var i = 0; i < a.length; ++i) if (this == a[i]) return true;
-	return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +124,7 @@ function toJson(o,seen) {
 }
 Object.prototype.json = function() { return toJson(this); }
 Object.prototype.unjson = function() {
-	var tmp = eval( this.toString() );
+	var tmp = eval(this.toString());
 	for (var i in tmp) 
 		if (tmp.hasOwnProperty(i) && /^(function)/.exec(tmp[i])) tmp[i] = eval(tmp[i]);
 	return tmp;
@@ -143,7 +144,9 @@ Element.prototype.listen = function(e,f) {
 	this.addEventListener(e,f,false);
 	return this;
 }
-document.onkeypress = function() { return false }; // Hack to break backspace
+document.onkeypress = function() { return false }; 			// Hack to break backspace
+document.onmousedown = function(e) { e.preventDefault(); return false } // Hack to manage buttons
+document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Network Functions
@@ -164,10 +167,7 @@ Object.prototype.post = function(url,cb) {
 	this._request.send(data);
 }
 Object.prototype.get = function(url,cb) {
-	this.request(function(txt) {
-		if (typeof(cb) == "function") 
-			cb(txt);
-	});
+	this.request(function(txt) { if (typeof(cb) == "function") cb(txt) });
 	this._request.open("GET",url,true);
 	this._request.send("");
 };
@@ -219,9 +219,7 @@ var Box = let({
 		this.h += h;
 		return this;
 	},
-	as: function(b) {
-		return this.at(b.x,b.y).by(b.w,b.h);
-	},
+	as: function(b) { return this.at(b.x,b.y).by(b.w,b.h) },
 	clamp: function(x,y,w,h) {
 		this.x = Math.max(x,this.x);
 		this.y = Math.max(y,this.y);
@@ -263,40 +261,59 @@ var Image = let(Box,{
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Widget Object
+var Widget = let(Box, {
+	visible: true,
+	draw: function() {},				// Override to draw
+	tick: function() {},				// Override to update based on time
+	init: function() { return this.clone() },	// Override to initialize
+	release: function() { return this.remove() },	// Override this method for custom code
+	remove: function() {
+		var $self = this;
+		this.hide();
+		App.widgets.expunge(this);
+		return this;
+	},
+	instance: function() {
+		App.widgets.push(this);
+		return this;
+	},	
+	show: function () { this.visible = true; return this },
+	hide: function () { this.visible = false; return this },
+	overlaps: function(w) {
+		return App.widgets.any(function(x) { return x.can('hit') && x.hit(w) });
+	},
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // Display Object
-var Display = let(Box, {
+var Display = let(Widget, {
 	canvas: null,
 	init: function() {
-		this.by(window.innerWidth-16, window.innerHeight-16);	
-		this.at(0,0);
+		if ($('canvas')) return this.at(0,0).by($('canvas').width,$('canvas').height).instance();
+		this.at(0,0).by(window.innerWidth-16, window.innerHeight-16);	
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
 		_body.add(this.canvas);
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
-		Mouse.handle('scroll',this);
-		return this;
+		return this.instance();
 	},
-	scroll: function(e) {
-		this.to(e.w,e.h);
-	},
+	scroll: function(e) { this.to(e.w,e.h) }, // Override this if you don't want the canvas to scroll
+	draw: function() { Screen.background(0,0,0) }, // Override to change the background
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Screen Object
 var Screen = let(Box,{
 	ctx: null,
-	rad: 10,
-	delay: 40,
-	timer: null,
-	timers: [],
-	widgets: [],
+	rad: 5,
 	size: 16,
 	family: 'Arial',
 	colorizer: false,
 	init: function() {
 		this.ctx = Display.canvas.getContext('2d');
-		this.timer = setTimeout("Screen.animate()",this.delay);
+		return this;
 	},
 	as: function(w) {
 		this.at(w.x,w.y);
@@ -419,22 +436,6 @@ var Screen = let(Box,{
 		this.ctx.strokeStyle = this.ctx.fillStyle =  "rgb(" + r + "," + g + "," + b + ")";
 		return this;
 	},
-	animate: function() {
-		this.clear();
-		this.widgets.every(function(w,i) { if (w.visible) w.draw() });
-		this.timers.every(function(t,i) { if (typeof(t.timer == "function")) t.timer() });
-		this.timer = setTimeout("Screen.animate()",this.delay);
-	},
-	overlaps: function(w) {
-		return this.widgets.any(function(x) {
-			if (typeof(x.hit) == "function" && x.hit(w)) return true;
-			return false;
-		});
-	},
-	schedule: function(t) {
-		if (typeof(t.timer) == "function") this.timers.push(t);
-		return this;
-	}
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -443,9 +444,11 @@ var Event = let(Box,{
 	key: 0,
 	init: function(e) {
 		var ev = Event.clone();
+		ev.button = e.button;
 		ev.key = Keyboard.map(e.keyCode, e.type == 'keydown');
 		ev.at(e.clientX + Display.x,e.clientY + Display.y);
 		ev.by(Math.floor(e.wheelDeltaX/40),Math.floor(e.wheelDeltaY/40));
+		ev.time = new Date();
 		return ev;
 	},
 });
@@ -453,32 +456,14 @@ var Event = let(Box,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Device Object
 var Device = let({
-	handlers: {},
-	manage: function() {
-		for (var i = 0; i < arguments.length; ++i)
-			this.handlers[arguments[i]] = [];
-	},
-	dispatch: function(n,e) {
-		this.handlers[n].every(function(v,i) {
-			if (typeof(v[n]) == 'function') v[n](Event.init(e)) }); 
-	},
-	handle: function(e,w) { this.handlers[e].push(w); return this },
-	remove: function(e,w) {
-		for (var j in this.handlers[e])
-			if (this.handlers[e][j] == w) this.handlers[e].splice(j,1);
-		return this;
-	},
+	dispatch: function(n,e) { 
+		App.widgets.every(function(w,i) { if (w.can(n)) w[n](Event.init(e)) });
+	}, 
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Object
 var Keyboard = let(Device, {
-	press:  function(e) { Keyboard.dispatch('press',e)  },
-	release: function(e) { Keyboard.dispatch('release',e) },
-	init: function() {
-		_root.listen('keydown',Keyboard.press).listen('keyup',Keyboard.release);
-		return this;
-	},
 	shift: false,
 	ctrl: false,
 	alt: false,
@@ -490,6 +475,12 @@ var Keyboard = let(Device, {
 	right: false,
 	down: false,
 	backspace: false,
+	press:  function(e) { Keyboard.dispatch('press',e)  },
+	release: function(e) { Keyboard.dispatch('release',e) },
+	init: function() {
+		_root.listen('keydown',Keyboard.press).listen('keyup',Keyboard.release);
+		return this;
+	},
 	modmap: { 
 		8: function (b) { Keyboard.backspace = b; return '' },
 		16: function (b) { Keyboard.shift = b; return '' }, 
@@ -520,7 +511,6 @@ var Keyboard = let(Device, {
 		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: ''
 	},
 });
-Keyboard.manage('press','release');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mouse Object
@@ -535,59 +525,19 @@ var Mouse = let(Device, {
 		return this;
 	},
 });
-Mouse.manage('over','move','down','up','scroll');
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Widget Object
-var Widget = let(Box, {
-	drawn: false,
-	visible: true,
-	events: { keyboard: [], mouse: [] },
-	draw: function() {},
-	init: function() { return this.clone() },
-	remove: function() {
-		var $self = this;
-		this.hide();
-		this.events.keyboard.every(function(v,i) { $self.offKey(v) });
-		this.events.mouse.every(function(v,i) { $self.offMouse(v) });
-		Screen.widgets.expunge(this);
-		return this;
-	},
-	release: function() { return this.remove() },// Override this method for custom code
-	instance: function() {
-		Screen.widgets.push(this);
-		return this;
-	},	
-	show: function () { this.visible = true; return this },
-	hide: function () { this.visible = false; return this },
-	onKey: function() { 
-		for (var i = 0; i < arguments.length; ++i) {
-			this.events.keyboard.push(arguments[i]);
-			Keyboard.handle(arguments[i],this); 
-		}
-		return this;
-	},
-	offKey: function() { 
-		for (var i = 0; i < arguments.length; ++i) {
-			this.events.keyboard.expunge(arguments[i]);
-			Keyboard.remove(arguments[i],this); 
-		}
-		return this;
-	},
-	onMouse: function() { 
-		for (var i = 0; i < arguments.length; ++i) {
-			this.events.mouse.push(arguments[i]);
-			Mouse.handle(arguments[i],this); 
-		}
-		return this;
-	},
-	offMouse: function() { 
-		for (var i = 0; i < arguments.length; ++i){
-			this.events.mouse.expunge(arguments[i]);
-			Mouse.handle(arguments[i],this); 
-		}
-		return this;
+// App Object
+var App = let(Device, {
+	delay: 40,
+	widgets: [],
+	run: function () { 
+		Screen.clear();
+		this.dispatch('tick',{});
+		this.dispatch('draw',{});
+		this.timer = setTimeout("App.run()",this.delay);
 	},
 });
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // End
