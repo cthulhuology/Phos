@@ -267,7 +267,7 @@ var Widget = let(Box, {
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
 	init: function() { return this.clone() },	// Override to initialize
-	release: function() { return this.remove() },	// Override this method for custom code
+	free: function() { return this.remove() },	// Override this method for custom code
 	remove: function() {
 		var $self = this;
 		this.hide();
@@ -321,7 +321,6 @@ var Screen = let(Box,{
 	},
 	to: function(x,y) {
 		return this.at(this.x+x,this.y+y);
-		return this;
 	},
 	at: function(x,y) {
 		this.x = x - Display.x;
@@ -344,7 +343,7 @@ var Screen = let(Box,{
 	},
 	font: function(f) {
 		var x = f.split(" ");
-		if (x[0]) this.size = x[0];
+		if (x[0]) this.size = Math.floor(x[0]);
 		if (x[1]) this.family = x[1];
 		this.ctx.font = this.size + "px " + this.family;
 		return this;
@@ -375,29 +374,31 @@ var Screen = let(Box,{
 		this.ctx.arcTo(this.x,this.y,this.x+this.rad,this.y,this.rad);
 		this.ctx.stroke();
 		this.ctx.closePath();
+		this.to(this.w,this.h);
 		return this;
 	},
 	print: function (tx) {
 		if (!_doc) return this;
 		var xo = this.x;
+		var xm = xo;
+		var ym = this.y;
 		var $self = this;
 		var a = (typeof(tx) == "string" ? tx.split(" ") : tx);
 		a.every(function(x,i) {
-			if ($self.hack) {
-				$self.ctx.mozDrawText(x);	
-				$self.x += $self.ctx.mozMeasureText(x);
-			} else {
-				$self.ctx.fillText(x,$self.x,$self.y);
-				var delta = $self.ctx.measureText(x);
-				$self.x += Math.floor(delta.width);
-			}
-			$self.x += Math.floor($self.size/2.0);
-			if ($self.x > xo + $self.w) {
+			var len = Math.floor($self.hack ? $self.ctx.mozMeasureText(x).width: 
+					$self.ctx.measureText(x).width);
+			if ($self.x + len + $self.size/2 > xo + $self.w) {	// Line Wrap
 				$self.x = xo;
 				$self.y += Math.floor($self.size);
 			}
+			$self.hack ? $self.ctx.mozDrawText(x): 
+				$self.ctx.fillText(x,$self.x,$self.y);
+			$self.x += len + Math.floor($self.size/2.0);	// Text + Space 
+			xm = Math.max(xm,$self.x);
+			ym = Math.max(ym,$self.y);
 		});
-		$self.x = xo + $self.w;
+		$self.x = xm;
+		$self.y = ym;
 		return this;
 	},
 	draw: function (img) {
@@ -415,8 +416,10 @@ var Screen = let(Box,{
 	gray: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "gray"; return this },
 	white: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "white"; return this },
 	fill: function() {
+		this.ctx.beginPath();
 		this.ctx.rect(this.x,this.y,this.w,this.h);
 		this.ctx.fill();
+		this.ctx.closePath();
 		return this;
 	},
 	rect: function() {
@@ -445,7 +448,7 @@ var Event = let(Box,{
 	init: function(e) {
 		var ev = Event.clone();
 		ev.button = e.button;
-		ev.key = Keyboard.map(e.keyCode, e.type == 'keydown');
+		ev.key = Keyboard.key(e.keyCode, e.type == 'keydown');
 		ev.at(e.clientX + Display.x,e.clientY + Display.y);
 		ev.by(Math.floor(e.wheelDeltaX/40),Math.floor(e.wheelDeltaY/40));
 		ev.time = new Date();
@@ -464,25 +467,21 @@ var Device = let({
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Object
 var Keyboard = let(Device, {
+	backspace: 8,
+	enter: 13,
 	shift: false,
 	ctrl: false,
 	alt: false,
 	cmd: false,
 	lcmd: false,
 	rcmd: false,
-	left: false,
-	up: false,
-	right: false,
-	down: false,
-	backspace: false,
 	press:  function(e) { Keyboard.dispatch('press',e)  },
-	release: function(e) { Keyboard.dispatch('release',e) },
+	reset: function(e) { if (Keyboard.modmap[e.keyCode]) Keyboard.modmap[e.keyCode](false) },
 	init: function() {
-		_root.listen('keydown',Keyboard.press).listen('keyup',Keyboard.release);
+		_root.listen('keyup',Keyboard.reset).listen('keydown',Keyboard.press);
 		return this;
 	},
 	modmap: { 
-		8: function (b) { Keyboard.backspace = b; return '' },
 		16: function (b) { Keyboard.shift = b; return '' }, 
 		17: function (b) { Keyboard.ctrl = b; return '' }, 
 		18: function (b) { Keyboard.alt = b; return '' }, 
@@ -499,16 +498,16 @@ var Keyboard = let(Device, {
 		39: function (b) { Keyboard.right = b; return '' },
 		40: function (b) { Keyboard.down = b; return '' },
 	},
-	map: function(k,b) {
+	key: function(k,b) {
 		if (typeof(Keyboard.modmap[k]) == 'function') return Keyboard.modmap[k](b);
-		return typeof(Keyboard.keymap[k]) == 'string' ? Keyboard.keymap[k].charAt(Keyboard.shift ? 1 : 0): '';
+		return typeof(Keyboard.keymap[k]) == 'string' ? Keyboard.keymap[k].charAt(Keyboard.shift ? 1 : 0): typeof(Keyboard.keymap[k]) == 'number' ? Keyboard.keymap[k] : '';
 	},
 	keymap: {
 		192: '`~', 49: '1!', 50: '2@', 51: '3#', 52: '4$', 53: '5%', 54: '6^', 55: '7&', 56: '8*', 57 : '9(', 48: '0)',  189: '-_', 187: '=+',
 		9: '\t\t', 81: 'qQ', 87: 'wW', 69: 'eE', 82: 'rR', '84' : 'tT', 89: 'yY', 85: 'uU', 73: 'iI', 79: 'oO', 80: 'pP', 219: '[{', 221: ']}', 220: '\\|',
-		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : '\n',
+		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : 13,
 		16: '', 90: 'zZ', 88: 'xX', 67: 'cC', 86: 'vV', 66: 'bB', 78: 'nN', 77: 'mM', 188: ',<', 190:'.>', 191: '/?',
-		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: ''
+		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: 8, 10: 10,
 	},
 });
 
