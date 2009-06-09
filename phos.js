@@ -200,18 +200,18 @@ var Box = let({
 			y > this.y + this.h);
 	},
 	at: function(x,y) {
-		this.x = x;
-		this.y = y;
+		this.x = Math.floor(x);
+		this.y = Math.floor(y);
 		return this;
 	},
 	to: function(x,y) {
-		this.x += x;
-		this.y += y;
+		this.x += Math.floor(x);
+		this.y += Math.floor(y);
 		return this;
 	},
 	by: function(w,h) {
-		this.w = w;
-		this.h = h;
+		this.w = Math.floor(w);
+		this.h = Math.floor(h);
 		return this;
 	},
 	scale: function(w,h) {
@@ -230,33 +230,23 @@ var Box = let({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Image Object
-var Image = let(Box,{
+// Resource Object
+var Resource = let(Box,{
 	loaded: false,
-	init: function(i) {
-		var img = Image.clone();
-		img.data = $_('img');
-		img.data.onload = function () {
-			img.loaded = true;
-			img.by(img.data.width,img.data.height);
+	init: function() { return Resource.clone() },
+	load: function(t,i,cb) {
+		var $self = this;
+		$self.data = $_(t);
+		$self.data.onload = function () {
+			$self.loaded = true;
+			($self.data.videoWidth) ? 
+				$self.by($self.data.videoWidth,$self.data.videoHeight):
+				$self.by($self.data.width,$self.data.height);
+			if (typeof(cb)=="function") cb($self);
 		}
-		img.data.src = i;	
-		return img;
-	},
-	at: function(x,y) {
-		this.x = x;
-		this.y = y;
-		return this.clamp(0,0,this.data.width,this.data.height);
-	},	
-	to: function(x,y) {
-		this.x += x;
-		this.y += y;
-		return this.clamp(0,0,this.data.width,this.data.height);
-	},
-	by: function(w,h) {
-		this.w = w;
-		this.h = h;
-		return this.clamp(0,0,this.data.width,this.data.height);
+		$self.data.src = i;	
+		if ($self.data.can('load')) $self.data.load();
+		return $self;
 	},
 });
 
@@ -403,7 +393,7 @@ var Screen = let(Box,{
 	},
 	draw: function (img) {
 		if (! img.loaded) return this;
-		this.ctx.drawImage(img.data,img.x,img.y,img.w,img.h,this.x,this.y,this.w,this.h);
+		this.ctx.drawImage(img.data,0,0,img.w,img.h,this.x,this.y,this.w,this.h);
 		return this;
 	},
 	red: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "red"; return this },
@@ -450,7 +440,7 @@ var Event = let(Box,{
 		ev.button = e.button;
 		ev.key = Keyboard.key(e.keyCode, e.type == 'keydown');
 		ev.at(e.clientX + Display.x,e.clientY + Display.y);
-		ev.by(Math.floor(e.wheelDeltaX/40),Math.floor(e.wheelDeltaY/40));
+		ev.by(Math.floor(e.wheelDeltaX),Math.floor(e.wheelDeltaY));
 		ev.time = new Date();
 		return ev;
 	},
@@ -467,8 +457,8 @@ var Device = let({
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Object
 var Keyboard = let(Device, {
-	backspace: 8,
-	enter: 13,
+	backspace: -8,
+	enter: -13,
 	shift: false,
 	ctrl: false,
 	alt: false,
@@ -505,9 +495,9 @@ var Keyboard = let(Device, {
 	keymap: {
 		192: '`~', 49: '1!', 50: '2@', 51: '3#', 52: '4$', 53: '5%', 54: '6^', 55: '7&', 56: '8*', 57 : '9(', 48: '0)',  189: '-_', 187: '=+',
 		9: '\t\t', 81: 'qQ', 87: 'wW', 69: 'eE', 82: 'rR', '84' : 'tT', 89: 'yY', 85: 'uU', 73: 'iI', 79: 'oO', 80: 'pP', 219: '[{', 221: ']}', 220: '\\|',
-		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : 13,
+		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : -13,
 		16: '', 90: 'zZ', 88: 'xX', 67: 'cC', 86: 'vV', 66: 'bB', 78: 'nN', 77: 'mM', 188: ',<', 190:'.>', 191: '/?',
-		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: 8, 10: 10,
+		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: -8, 10: -10,
 	},
 });
 
