@@ -47,14 +47,14 @@ Array.prototype.collapse = function() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sound Object
-var Sound = let({
+var Sound = let(Resource,{
 	init: function(name) {
-		var s = Sound.clone();
-		s.res = Resource.load('audio',name);
+		var s = this.clone();
+		s.load('audio',name);
 		return s;
 	},
-	play: function() { this.res.data.play(); return this },
-	pause: function() { this.res.data.pause(); return this },
+	play: function() { this.data.play(); return this },
+	pause: function() { this.data.pause(); return this },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +73,7 @@ var Text = let(Widget,{
 		var retval = "";
 		try { 
 			retval = eval("(" + this.content + ")") 
+			Sound.click.play();
 		} catch(e) { 
 			Sound.error.play();
 			alert(e); 
@@ -106,10 +107,12 @@ var Text = let(Widget,{
 		if (this.hit(e)) {
 			this.moving = e 
 			if (e.button == 2 && this.childof) {
+				Sound.click.play();
 				this.expanded = this.expanded ?
 					this.expanded.collapse():
 					this.childof[this.content].property(this.childof,this.content,this.x+this.w,this.y);
 			} else if (e.button == 2 && eval(this.content)) {
+				Sound.click.play();
 				this.expanded = this.expanded ? 
 					this.expanded.collapse():
 					eval(this.content).display(this.x,this.y+this.h);
@@ -136,7 +139,7 @@ var Text = let(Widget,{
 // Image Object
 var Image = let(Widget,Resource, {
 	init: function(name) {
-		var i = Image.clone();
+		var i = this.clone();
 		i.load('img',name);
 		i.at(0,0).by(i.w,i.h);
 		return i.instance();
@@ -157,7 +160,7 @@ var Image = let(Widget,Resource, {
 var Movie = let(Widget,Resource,{ 
 	div: $_('div'),
 	init: function(name) {
-		var i = Movie.clone();
+		var i = this.clone();
 		i.attached = false;
 		i.load('video',name,function($self) {
 			if ($self.attached) return;
@@ -194,9 +197,10 @@ var Movie = let(Widget,Resource,{
 // Phosphor Environment
 var Phosphor = let(Widget,{
 	init: function() {
-		Sound.error = Sound.init('error.wav');
-		Sound.click = Sound.init('click.wav');
+		Sound.error = Sound.init('sounds/error.wav');
+		Sound.click = Sound.init('sounds/click.wav');
 		this.at(0,Display.h-64).by(Display.w,64);
+		this.help = Help.init('images/help_button.png').at(Display.w-100,0);
 		return this.instance();
 	},
 	draw: function() {
@@ -214,6 +218,22 @@ var Phosphor = let(Widget,{
 			t.at(e.x,e.y).by(100,24);
 		}
 	},
+});
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Help Object
+var Help = let(Image,{
+	down: function(e) {
+		if (!this.hit(e) || this.blurb) return;
+		Sound.click.play();
+		this.blurb = Image.init('images/help.png');
+		this.blurb.down = function(e) { 
+			if(this.hit(e)) { 
+				Sound.click.play();
+				Phosphor.help.blurb = false;
+				this.free();
+			}
+		};
+	}
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // End
