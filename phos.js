@@ -280,7 +280,10 @@ var Widget = let(Box, {
 var Display = let(Widget, {
 	canvas: null,
 	init: function() {
-		if ($('canvas')) return this.at(0,0).by($('canvas').width,$('canvas').height).instance();
+		if ($('canvas')) {
+			this.canvas = $('canvas');
+			return this.at(0,0).by($('canvas').width,$('canvas').height).instance();
+		}
 		this.at(0,0).by(window.innerWidth-16, window.innerHeight-16);	
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
@@ -422,7 +425,7 @@ var Screen = let(Box,{
 		return this;
 	},
 	background: function(r,g,b) {
-		_body.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
+		Display.canvas.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
 		return this;
 	},
 	color: function(r,g,b) {
@@ -439,7 +442,7 @@ var Event = let(Box,{
 		var ev = Event.clone();
 		ev.button = e.button;
 		ev.key = Keyboard.key(e.keyCode, e.type == 'keydown');
-		ev.at(e.clientX + Display.x,e.clientY + Display.y);
+		ev.at(e.clientX + Display.x - Display.canvas.offsetLeft,e.clientY + Display.y - Display.canvas.offsetTop);
 		ev.by(Math.floor(e.wheelDeltaX),Math.floor(e.wheelDeltaY));
 		ev.time = new Date();
 		return ev;

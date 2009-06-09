@@ -24,4 +24,62 @@ can act as a "class".  Instances of that "class" are spawned using the "clone()"
 ----------------------------------------------------------------------------------------------------
 Getting Started
 
+The easiest way to use Phosphor is to include both phos.js and phosphor.js in your HTML file:
 
+	<script src="phos.js"></script>
+	<script src="phosphor.js"></script> 
+
+Then you initialize the system by invoking phos's boot function when the body loads:
+
+	<body onload="boot(); Phosphor.init()">
+
+This will by default add a canvas to the body object and set it to full window size.  If you'd like 
+to preset the canvas side simply add a canvas element with the id='canvas'.
+
+	<canvas id="canvas" height="320" width="240"></canvas>
+
+You can then use the Phosphor system in your very little 320x240 canvas.  
+
+----------------------------------------------------------------------------------------------------
+Tutorials
+
+For a brief tutorial on how to use the Phosphor environment open the file Tutorial.html.  Under
+Mac OS X you can open the file from the command line using:
+
+	open Tutorial.html
+
+Since Phos and Phosphor can be embedded into any HTML page, 
+
+----------------------------------------------------------------------------------------------------
+Contributing
+
+Both Phos and Phosphor are licensed under the GPL3 license. A copy of the license can be found in
+the git repository and is available from the Free Software Foundation at:
+
+	 http://www.gnu.org/copyleft/gpl.html
+
+If you'd like to submit your own fixes, extensions, or features please feel free to send them to:
+
+	dave at nexttolast.com
+
+I'm always happy to incorporate good ideas, especially if they make things simpler, smaller, and
+faster.  If you'd like to use Phos or Phosphor in a commercial product, licensing and support
+arrangements can also be made to meet your needs.
+
+----------------------------------------------------------------------------------------------------
+Keeping Up To Date
+
+The latest and greatest source code is always available for both Phos and Phosphor at:
+
+	http://github.com/cthulhuology/Phos/tree/master
+
+In order to obtain the latest version of the source code from git you can use the git command:
+
+	git clone git://github.com/cthulhuology/Phos.git
+
+To stay up to date, you can grab the most current version using the command:
+
+	git pull
+
+----------------------------------------------------------------------------------------------------
+End Transmission

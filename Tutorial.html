@@ -1,0 +1,35 @@
+<html>
+<head>
+<title>Phosphor Tutorial</title>
+<script src="phos.js"></script>
+<script src="phosphor.js"></script> 
+<style>
+p { padding-left: 0.5em; padding-right: 0.5em }
+img {padding: 0.5em }
+canvas { padding: 0.5em }
+</style>
+</head>
+<body onload="boot(); Phosphor.init()">
+<div style="float:right">
+<canvas id="canvas" width="640" height="480"></canvas>
+</div>
+<h3>To Use:</h3>
+<p>Right click anywhere on the black box to the right.  A text input widget will pop up.  If you then enter the word "Box" without the quotes and right click it will show the description of the Box:</p>
+<img src="box.png" style="float:left">
+<p>You can then inspect each of the Box object's properties by right clicking on them.  This will produce a text widget off to the right which contains the value of the property.  You can grab and tear off any property that you wish, and move the collection around as a group. Right clicking on any object or property will collapse all of its children and hide them.
+<h3>Scrolling</h3>
+<p>If you have 2 finger horizontal scrolling on your trackpad, you can scroll around the space treating it as a very very large screen.
+<h3>Editing & Deleting</h3>
+<p>You can edit any text area simply by hovering over it with your cursor until it lights up, and then type the text you wish to add.  The delete key will delete the last character entered, and if you delete all of the characters and press the delete key again, the entire text area will be freed.</p>
+<p>If you want to remove an entire text input widget, simply hold down shift while pressing delete and the widget will be removed from the scene.</p>
+<h3>Evaluating Javascript</h3>
+<p>To evaluate javascript, simply write the javascript code in a text area. (Remember you can right click anywhere to create a new one)  Once you are ready to evaluate your code simply press Return.  The result of the expression will then appear in the text box.  You can use this to inspect any variable by simply typing its name in a text block and right clicking on it.  Sub-objects can also be inspected by right clicking on the full object path of the value.  For example, if you load an image:
+
+	myImage = Image.init('play.png')
+
+You can inspect myImage by right clicking on a text box containing the variable name myImage.  You can look at the widget's data object by right clicking on:
+
+	myImage.data
+
+</body>
+</html>
