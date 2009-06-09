@@ -1,0 +1,27 @@
+README - Phos and Phosphor
+
+Copyright 2009 David J. Goehrig <dave@nexttolast.com>
+All Rights Reserved
+
+----------------------------------------------------------------------------------------------------
+Introduction 
+
+Phos is a javascript library designed to make programming HTML5 canvas applications easier.  Most of
+what it does is provide a coherent API for building interactive components.  It provides a unified
+widget / drawing / event statemachine which seeks to minimize the overall complexity of the derived
+applications.
+
+Phosphor is a javascript development environment that allows the programmer to directly manipulate
+the contents of live javascript objects.  The basic concept is that each text block can either be
+evaluated (by pressing enter) or inspected (by right clicking).  For properties of objects, their
+values can be set by changing the contents of the slot and then pressing enter.
+
+Together Phos and Phosphor allow for the development of rich internet applications, in a dynamic and
+exploratory fashion.  The user can either extend existing objects, or create new derived objects 
+using "classy objects".  Rather than a traditional javascript prototype based inheritance, any object
+can act as a "class".  Instances of that "class" are spawned using the "clone()" method.
+
+----------------------------------------------------------------------------------------------------
+Getting Started
+
+
