@@ -52,7 +52,8 @@ Array.prototype.reduce = function (f,o) {
 	return retval;
 }
 Array.prototype.has = function(a) {
-	for (var i = 0; i < a.length; ++i) if (this == a[i]) return true;
+	for (var i = 0; i < this.length; ++i) 
+		if (this[i] == a) return true;
 	return false;
 }
 
@@ -270,8 +271,10 @@ var Widget = let(Box, {
 	},	
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
-	overlaps: function(w) {
-		return App.widgets.any(function(x) { return x.can('hit') && x.hit(w) });
+	overlaps: function(excluding) {
+		var $self = this;
+		return App.widgets.any(function(x) { 
+			return x.can('hit') && x != $self && !excluding.has(x) && x.hit($self) });
 	},
 });
 
@@ -376,7 +379,7 @@ var Screen = let(Box,{
 		var xm = xo;
 		var ym = this.y;
 		var $self = this;
-		var a = (typeof(tx) == "string" ? tx.split(" ") : tx);
+		var a = (""+ tx).split(" ");
 		a.every(function(x,i) {
 			var len = Math.floor($self.hack ? $self.ctx.mozMeasureText(x).width: 
 					$self.ctx.measureText(x).width);
