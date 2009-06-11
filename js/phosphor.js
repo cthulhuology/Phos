@@ -100,8 +100,13 @@ var Text = let(Widget,{
 			retval = eval( '(' + this.content + ')') 
 			Sound.click.play();
 		} catch(e) { 
-			Sound.error.play();
-			alert(e); 
+			try {
+ 				retval = eval( this.content );
+ 				Sound.click.play();
+ 			} catch(ee) {
+ 				Sound.error.play();
+ 				alert(e); 
+ 			}
 		};
 		return retval;
 	},
