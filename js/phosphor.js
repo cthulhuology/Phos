@@ -69,18 +69,6 @@ Array.prototype.collapse = function() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Sound Object
-var Sound = let(Resource,{
-	init: function(name) {
-		var s = this.clone();
-		s.load('audio',name);
-		return s;
-	},
-	play: function() { this.data.play(); return this },
-	pause: function() { this.data.pause(); return this },
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text Object
 var Text = let(Widget,{
 	bg: "gray",
@@ -96,13 +84,12 @@ var Text = let(Widget,{
 	evaluate: function() {
 		if (!this.content) return "";
 		var retval = this.content
+		Sound.click.play();
 		try { 
 			retval = eval( '(' + this.content + ')') 
-			Sound.click.play();
 		} catch(e) { 
 			try {
  				retval = eval( this.content );
- 				Sound.click.play();
  			} catch(ee) {
  				Sound.error.play();
  				alert(e); 
@@ -112,6 +99,14 @@ var Text = let(Widget,{
 	},
 	press: function(e) {
 		if (!this.editing) return;
+		if (Keyboard.cmd || Keyboard.ctrl) 
+			switch(e.key) {
+			case "x": 
+				Phosphor.clipboard = "" + this.content;
+				this.free(); return;
+			case "c": Phosphor.clipboard = "" + this.content; return;
+			case "v": this.content = Phosphor.clipboard; return;
+			}
 		this.content =  e.key == Keyboard.enter && this.childof && this.valueof ? 
 			this.childof[this.valueof] = this.evaluate():
 			e.key == Keyboard.enter ? this.evaluate():
@@ -189,72 +184,26 @@ var Text = let(Widget,{
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Image Object
-var Image = let(Widget,Resource, {
-	init: function(name) {
-		var i = this.clone();
-		i.load('img',name);
-		i.at(0,0).by(i.w,i.h);
-		return i.instance();
-	},
-	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
-	down: function(e) { if (this.hit(e)) this.moving = e },
-	up: function(e) { this.moving = false },
-	move: function(e) { 
-		if (this.moving) { 
-			this.to(e.x-this.moving.x,e.y-this.moving.y);
-			this.moving = e;
-		}
-	},
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Movie Object
-var Movie = let(Widget,Resource,{ 
-	div: $_('div'),
-	init: function(name) {
-		var i = this.clone();
-		i.attached = false;
-		i.load('video',name,function($self) {
-			if ($self.attached) return;
-			$self.attached = true;
-			$self.div = $_('div');
-			$self.data.autobuffer = true;
-			$self.data.autoplay = false;
-			$self.div.style.position = 'absolute';
-			$self.div.style.display = "block";
-			$self.div.style.zIndex = 2;
-			$self.div.add($self.data);
-			_body.add($self.div);
-			$('canvas').style.zIndex = 1;
-		});
-		return i.instance();
-	},
-	draw: function() {
-		this.div.style.display = this.visible ? "inline" : "none";
-		this.div.style.width = this.w;
-		this.div.style.height = this.h;
-		this.clamp(0,0,Display.w,Display.h);
-		this.div.style.top = this.y;
-		this.div.style.left = this.x;
-	},
-	play: function() { 
-		if (this.data.readyState != 4) return this;
-		this.data.play(); 
-		return this;
-	},
-	pause: function() { this.data.pause(); return this },
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Phosphor Environment
 var Phosphor = let(Widget,{
+	clipboard: "",
 	init: function() {
 		Sound.error = Sound.init('sounds/error.wav');
 		Sound.click = Sound.init('sounds/click.wav');
 		this.at(0,Display.h-64).by(Display.w,64);
-		this.help = Help.init('images/help_button.png').at(Display.w-100,0);
+		this.help = Help.init('images/help_button.png').at(Display.w-100,10);
+		this.inventory = Inventory.init();
 		return this.instance();
+	},
+	press: function(e) { 
+		if (Keyboard.cmd || Keyboard.ctrl) { 
+			switch(e.key) {
+			case "o":  Display.at(0,0); break;
+			case "r": _doc.location = _doc.location; break;
+			case "h": this.help.show(); break;
+			case "i": this.inventory.show(); break;
+			}
+		}
 	},
 	draw: function() {if (!this.visible) return },
 	move: function(e) { },
@@ -276,7 +225,7 @@ var Help = let(Image,{
 	down: function(e) {
 		if (!this.hit(e) || this.blurb) return;
 		Sound.click.play();
-		this.blurb = Image.init('images/help.png');
+		this.blurb = Image.init('images/help.png').at(300,0);
 		this.blurb.down = function(e) { 
 			if(this.hit(e)) { 
 				Sound.click.play();
@@ -284,7 +233,38 @@ var Help = let(Image,{
 				this.free();
 			}
 		};
-	}
+	},
+	show: function() { this.down(this); },
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Inventory Object
+var Inventory = let(Widget,{
+	init: function() { 
+		var i = this.clone().instance();
+		i.button = Image.init('images/inventory_button.png').at(0,10);
+		i.trash = Image.init('images/trash.png').at(120,10).hide();
+		i.trash.up = function(e) {
+			var o =  this.overlaps([Display,this]);
+			if (!o || !o.editing) return;
+			delete localStorage[o.content];
+			o.free();
+		};
+		i.trash.down = false;
+		i.button.down = function(e) { if (this.hit(e)) Phosphor.inventory.show() };
+		i.button.up = function(e) { 
+			var o = this.overlaps([Display,this]);
+			if (!o || !o.editing) return;
+			localStorage[o.content.deparameterized()] = o.evaluate().json();
+			Phosphor.inventory.show();	
+			o.free();
+		};
+		i.at(10,50);
+		return i;
+	},
+	show: function() { 
+		this.content = this.content ? this.content.collapse() : localStorage.display(this.x,this.y);
+	},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // End

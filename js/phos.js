@@ -106,7 +106,7 @@ Object.prototype.debug = function() {
 // JSON Functions
 function toJson(o,seen) {
 	if (!seen) seen = [];
-	seen = seen.push(o);
+	seen.push(o);
 	var formatter = {
 		'boolean' : function(x,l) { return x ? "true" : "false" },
 		'function' : function(x,l) { return '"' + x.toString().replace(/"/g,'\\"') + '"' },
@@ -114,8 +114,10 @@ function toJson(o,seen) {
 			if (x == null) return "null";
 			if (typeof(x.indexOf) == 'function') return "[ "+(x.map(toJson).join(', '))+" ]";
 			var retval = [];
-			for (var i in x) if (x.hasOwnProperty(i)) 
-				retval.push('"'+i+'": '+(l.has(x[i])? "null":toJson(x[i],l.push(x[i]))));
+			for (var i in x) if (x.hasOwnProperty(i)) {
+				retval.push('"'+i+'": '+ (l.has(x[i]) ? "null":toJson(x[i],l)));
+				l.push(x[i]);
+			}
 			return '{ ' + retval.join(', ') + ' }';
 		},
 		'number' : function (x,l) { return '' + x },
@@ -200,6 +202,11 @@ var Box = let({
 			y+h < this.y ||
 			y > this.y + this.h);
 	},
+	overlaps: function(excluding) {
+		var $self = this;
+		return App.widgets.any(function(x) { 
+			return x.can('hit') && x != $self && !excluding.has(x) && x.hit($self) });
+	},
 	at: function(x,y) {
 		this.x = Math.floor(x);
 		this.y = Math.floor(y);
@@ -231,33 +238,12 @@ var Box = let({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Resource Object
-var Resource = let(Box,{
-	loaded: false,
-	init: function() { return Resource.clone() },
-	load: function(t,i,cb) {
-		var $self = this;
-		$self.data = $_(t);
-		$self.data.onload = function () {
-			$self.loaded = true;
-			($self.data.videoWidth) ? 
-				$self.by($self.data.videoWidth,$self.data.videoHeight):
-				$self.by($self.data.width,$self.data.height);
-			if (typeof(cb)=="function") cb($self);
-		}
-		$self.data.src = i;	
-		if ($self.data.can('load')) $self.data.load();
-		return $self;
-	},
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget Object
 var Widget = let(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
-	init: function() { return this.clone() },	// Override to initialize
+	init: function() { return this.clone().instance() },	// Override to initialize
 	free: function() { return this.remove() },	// Override this method for custom code
 	remove: function() {
 		var $self = this;
@@ -271,10 +257,12 @@ var Widget = let(Box, {
 	},	
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
-	overlaps: function(excluding) {
-		var $self = this;
-		return App.widgets.any(function(x) { 
-			return x.can('hit') && x != $self && !excluding.has(x) && x.hit($self) });
+	down: function(e) { if (this.hit(e)) this.moving = e },
+	up: function(e) { this.moving = false },
+	move: function(e) { 
+		if (!this.moving) return;
+		this.to(e.x-this.moving.x,e.y-this.moving.y);
+		this.moving = e;
 	},
 });
 
@@ -287,9 +275,10 @@ var Display = let(Widget, {
 			this.canvas = $('canvas');
 			return this.at(0,0).by($('canvas').width,$('canvas').height).instance();
 		}
-		this.at(0,0).by(window.innerWidth-16, window.innerHeight-16);	
+		this.at(0,0).by(window.innerWidth, window.innerHeight);	
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
+		_body.style.margin = 0;
 		_body.add(this.canvas);
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
@@ -297,6 +286,9 @@ var Display = let(Widget, {
 	},
 	scroll: function(e) { this.to(e.w,e.h) }, // Override this if you don't want the canvas to scroll
 	draw: function() { Screen.background(0,0,0) }, // Override to change the background
+	up: function(e) { this.moving = false },
+	down: function(e) { if (!e.overlaps([Display])) this.moving = e },
+	move: function(e) { if (this.moving) this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)) },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -456,7 +448,7 @@ var Event = let(Box,{
 // Device Object
 var Device = let({
 	dispatch: function(n,e) { 
-		App.widgets.every(function(w,i) { if (w.can(n)) w[n](Event.init(e)) });
+		App.widgets.every(function(w,i) { try { if (w.can(n)) w[n](Event.init(e)) } catch(e) {} });
 	}, 
 });
 
@@ -532,6 +524,89 @@ var App = let(Device, {
 		this.dispatch('draw',{});
 		this.timer = setTimeout("App.run()",this.delay);
 	},
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Resource Object
+var Resource = let(Box,{
+	loaded: false,
+	init: function() { return Resource.clone() },
+	load: function(t,i,cb) {
+		var $self = this;
+		$self.data = $_(t);
+		$self.data.onload = function () {
+			$self.loaded = true;
+			($self.data.videoWidth) ? 
+				$self.by($self.data.videoWidth,$self.data.videoHeight):
+				$self.by($self.data.width,$self.data.height);
+			if (typeof(cb)=="function") cb($self);
+		}
+		$self.data.src = i;	
+		if ($self.data.can('load')) $self.data.load();
+		return $self;
+	},
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sound Object
+var Sound = let(Resource,{
+	init: function(name) {
+		var s = this.clone();
+		s.load('audio',name);
+		return s;
+	},
+	play: function() { this.data.play(); return this },
+	pause: function() { this.data.pause(); return this },
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Image Object
+var Image = let(Widget,Resource, {
+	init: function(name) {
+		var i = this.clone();
+		i.load('img',name);
+		i.at(0,0).by(i.w,i.h);
+		return i.instance();
+	},
+	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Movie Object
+var Movie = let(Widget,Resource,{ 
+	div: $_('div'),
+	init: function(name) {
+		var i = this.clone();
+		i.attached = false;
+		i.load('video',name,function($self) {
+			if ($self.attached) return;
+			$self.attached = true;
+			$self.div = $_('div');
+			$self.data.autobuffer = true;
+			$self.data.autoplay = false;
+			$self.div.style.position = 'absolute';
+			$self.div.style.display = "block";
+			$self.div.style.zIndex = 2;
+			$self.div.add($self.data);
+			_body.add($self.div);
+			$('canvas').style.zIndex = 1;
+		});
+		return i.instance();
+	},
+	draw: function() {
+		this.div.style.display = this.visible ? "inline" : "none";
+		this.div.style.width = this.w;
+		this.div.style.height = this.h;
+		this.clamp(0,0,Display.w,Display.h);
+		this.div.style.top = this.y;
+		this.div.style.left = this.x;
+	},
+	play: function() { 
+		if (this.data.readyState != 4) return this;
+		this.data.play(); 
+		return this;
+	},
+	pause: function() { this.data.pause(); return this },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
