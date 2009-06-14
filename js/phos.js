@@ -56,6 +56,9 @@ Array.prototype.has = function(a) {
 		if (this[i] == a) return true;
 	return false;
 }
+Array.prototype.append = function(a) {
+	a.every(function(v,i) { this.push(v) });
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object Functions
@@ -148,7 +151,7 @@ Element.prototype.listen = function(e,f) {
 	return this;
 }
 document.onkeypress = function() { return false }; 			// Hack to break backspace
-document.onmousedown = function(e) { e.preventDefault(); return false } // Hack to manage buttons
+// document.onmousedown = function(e) { e.preventDefault(); return false } // Hack to manage buttons
 document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +166,7 @@ Object.prototype.request = function(cb) {
 	return this._request;
 }
 Object.prototype.post = function(url,cb) {
-	var data = (typeof(this) == "string" ) ? this : this.json();
+	var data = this.toString();
 	this.request(cb);
 	this._request.open("POST",url,true);
 	this._request.setRequestHeader('Content-Type','appliaction/x-www-from-urlencoded');
@@ -175,7 +178,7 @@ Object.prototype.get = function(url,cb) {
 	this._request.send("");
 };
 Object.prototype.download = function() {
-	document.location.href = "data:application/json," + escape(this.json());
+	document.location.href = "data:application/json," + escape(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +374,7 @@ var Screen = let(Box,{
 		var xm = xo;
 		var ym = this.y;
 		var $self = this;
-		var a = (""+ tx).split(" ");
+		var a = (""+ tx).split("\n");
 		a.every(function(x,i) {
 			var len = Math.floor($self.hack ? $self.ctx.mozMeasureText(x).width: 
 					$self.ctx.measureText(x).width);
@@ -607,6 +610,7 @@ var Movie = let(Widget,Resource,{
 		return this;
 	},
 	pause: function() { this.data.pause(); return this },
+	free: function() { _body.removeChild(this.div); }
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

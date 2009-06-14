@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // About
 var About = let(Image,{
-	show: function() { this.at(Display.w - 100,Display.h-40).load('img','images/about_button.png') },
+	show: function() { this.at(0,Display.h-40).load('img','images/about_button.png') },
 	down: function(e) { 
 		if (!this.hit(e)) return;
 		this.blurb =  Image.init('images/about.png').at(Display.w/2-150,Display.h/2-150); 
@@ -40,8 +40,33 @@ var Tutorial = let(Text,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Blog
 var Blog = let(Image,{
-	show: function() { this.at(0,Display.h-40).load('img','images/blog.png') },
+	show: function() { this.at(100,Display.h-40).load('img','images/blog.png') },
 	down: function(e) { if (this.hit(e)) _doc.location = 'http://blog.dloh.org' },
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// YouTube Videos
+var YouTube = let(Widget,{
+	init: function(id) {
+		var y = this.clone().instance();
+		y.id = id;
+		y.d = $_('div');	
+		y.d.innerHTML = '<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed src="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="425" height="344"></embed></object>';
+		y.d.style.position = 'absolute';
+		y.d.style.top = this.y;
+		y.d.style.left = this.x;
+		y.d.style.zIndex = 2;
+		y.w = y.d.style.width = 425;
+		y.h = y.d.style.height = 344;
+		_body.add(y.d);
+		return y;
+	},
+	draw: function() {
+		this.clamp(0,0,Display.w,Display.h);
+		this.d.style.top = this.y;
+		this.d.style.left = this.x;
+	},
+	free: function() { _body.removeChild(this.d); }
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

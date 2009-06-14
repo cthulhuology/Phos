@@ -83,6 +83,7 @@ var Text = let(Widget,{
 	},
 	evaluate: function() {
 		if (!this.content) return "";
+		if (this.childof == localStorage) return this.content;
 		var retval = this.content
 		Sound.click.play();
 		try { 
@@ -105,7 +106,15 @@ var Text = let(Widget,{
 				Phosphor.clipboard = "" + this.content;
 				this.free(); return;
 			case "c": Phosphor.clipboard = "" + this.content; return;
-			case "v": this.content = Phosphor.clipboard; return;
+			case "v": this.content = this.content + Phosphor.clipboard; return;
+			case "s": 
+				if (this.childof == localStorage && !this.valueof) 
+					(localStorage[this.content]).post('objects/' + Phosphor.abbr + '-' + this.content,function(txt) {if (!txt) alert('Failed to save try again') }); 
+				return;
+			case "d": 
+				if (this.childof == localStorage && !this.valueof) 
+					(localStorage[this.content]).download(); 
+				return;
 			}
 		this.content =  e.key == Keyboard.enter && this.childof && this.valueof ? 
 			this.childof[this.valueof] = this.evaluate():
@@ -158,7 +167,7 @@ var Text = let(Widget,{
 			return ![ $self, Display, Phosphor ].has(v) 
 					&& v.can('hit') && v.hit($self) && v.editing }))) {
 			if (o.childof && !o.valueof) {
-				o.childof[o.content.deparameterized()] = this.evaluate();
+				o.childof[o.content.deparameterized()] = o.childof == localStorage ? this.content : this.evaluate();
 				this.free();
 			} else if (!o.childof) {
 				o.evaluate()[this.content] = true;	
@@ -186,8 +195,10 @@ var Text = let(Widget,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Phosphor Environment
 var Phosphor = let(Widget,{
+	abbr: localStorage['abbr'] || 'yyz',
 	clipboard: "",
 	init: function() {
+		Sound.trash = Sound.init('sounds/trash.aif');
 		Sound.error = Sound.init('sounds/error.wav');
 		Sound.click = Sound.init('sounds/click.wav');
 		this.at(0,Display.h-64).by(Display.w,64);
@@ -243,11 +254,12 @@ var Inventory = let(Widget,{
 	init: function() { 
 		var i = this.clone().instance();
 		i.button = Image.init('images/inventory_button.png').at(0,10);
-		i.trash = Image.init('images/trash.png').at(120,10).hide();
+		i.trash = Image.init('images/trash.png').at(Display.w-64,Display.h-64);
 		i.trash.up = function(e) {
-			var o =  this.overlaps([Display,this]);
+			var o =  this.overlaps([Display,Phosphor,this]);
 			if (!o || !o.editing) return;
-			delete localStorage[o.content];
+			Sound.trash.play();
+			delete localStorage[o.content.deparameterized()];
 			o.free();
 		};
 		i.trash.down = false;
@@ -255,11 +267,15 @@ var Inventory = let(Widget,{
 		i.button.up = function(e) { 
 			var o = this.overlaps([Display,this]);
 			if (!o || !o.editing) return;
-			localStorage[o.content.deparameterized()] = o.evaluate().json();
+			localStorage[o.content.deparameterized()] = true;
 			Phosphor.inventory.show();	
 			o.free();
 		};
 		i.at(10,50);
+		i.get('objects/',function(txt) { 
+			var o = eval('(' + txt + ')'); 
+			o.each(function(v,k) { localStorage[k] = unescape(v) });
+		});		
 		return i;
 	},
 	show: function() { 
