@@ -69,6 +69,23 @@ Array.prototype.collapse = function() {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Global pointer
+var that;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Widget extensions
+
+Widget.down = function(e) { 
+               if(this.hit(e)) { 
+                       this.moving = e; 
+                       if(e.button > 1) { 
+                               that = this; 
+                               this.display(this.x,this.y+this.h) 
+                       }
+               }
+};
+ 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text Object
 var Text = let(Widget,{
 	bg: "gray",
