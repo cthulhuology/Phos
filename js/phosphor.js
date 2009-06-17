@@ -42,9 +42,7 @@ Object.prototype.display = function(x,y) {
 	var $self = this;
 	this.each(function(v,k) {
 		if (!k || !v) return;
-		var t = v.parameterize ? 
-			Text.init(k + v.parameterize()).at(x,y).by(200,20):
-			Text.init(k).at(x,y).by(200,20);
+		var t = Text.init(v.parameterize ? k + v.parameterize() : k).at(x,y).by(200,20);
 		t.childof = $self;
 		y += 28;
 		a.push(t);
@@ -70,20 +68,40 @@ Array.prototype.collapse = function() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global pointer
-var that;
+var that;		// the last thing selected
+var editing;		// the block we're editing
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget extensions
 
 Widget.down = function(e) { 
-               if(this.hit(e)) { 
-                       this.moving = e; 
-                       if(e.button > 1) { 
-                               that = this; 
-                               this.display(this.x,this.y+this.h) 
-                       }
-               }
+	if(!this.hit(e)) return;
+       	that = this; 
+	this.moving = e; 
+       	if(e.button < 2) return;
+	this.contents = this.contents ? this.contents.collapse() : this.display(this.x,this.y+this.h) 
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Hotkey Object
+var HotKey = let({ 
+	// Text Widget hotkeys
+	'x': function() { Phosphor.clipboard = editing.content; that.free() },
+	'c': function() { Phosphor.clipboard = editing.content }, 
+	'v': function() { alert(editing.content);  editing.content = editing.content.append(Phosphor.clipboard) },
+	's': function() { 
+		if (editing.childof == localStorage && !editing.valueof) 
+			(localStorage[editing.content]).post('objects/' + Phosphor.abbr + '-' + editing.content,
+				function(txt) {if (!txt) alert('Failed to save try again') }) }, 
+	// Phosphor Widget hotkeys
+	'd': function() { 
+		if (editing.childof == localStorage && !editing.valueof) 
+			(localStorage[editing.content]).download() },
+	'o': function() { Display.at(0,0) },
+	'r': function() { _doc.location = _doc.location },
+	'h': function() { Phosphor.help.show() },
+	'i': function() { Phosphor.inventory.show() },
+});
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text Object
@@ -104,7 +122,7 @@ var Text = let(Widget,{
 		var retval = this.content
 		Sound.click.play();
 		try { 
-			retval = eval( '(' + this.content + ')') 
+			retval = eval('(' + this.content + ')') 
 		} catch(e) { 
 			try {
  				retval = eval( this.content );
@@ -117,29 +135,14 @@ var Text = let(Widget,{
 	},
 	press: function(e) {
 		if (!this.editing) return;
-		if (Keyboard.cmd || Keyboard.ctrl) 
-			switch(e.key) {
-			case "x": 
-				Phosphor.clipboard = "" + this.content;
-				this.free(); return;
-			case "c": Phosphor.clipboard = "" + this.content; return;
-			case "v": this.content = this.content + Phosphor.clipboard; return;
-			case "s": 
-				if (this.childof == localStorage && !this.valueof) 
-					(localStorage[this.content]).post('objects/' + Phosphor.abbr + '-' + this.content,function(txt) {if (!txt) alert('Failed to save try again') }); 
-				return;
-			case "d": 
-				if (this.childof == localStorage && !this.valueof) 
-					(localStorage[this.content]).download(); 
-				return;
-			}
+		if (Keyboard.cmd || Keyboard.ctrl) return HotKey.of(e.key);
 		this.content =  e.key == Keyboard.enter && this.childof && this.valueof ? 
 			this.childof[this.valueof] = this.evaluate():
 			e.key == Keyboard.enter ? this.evaluate():
 			e.key == Keyboard.backspace ? 
-			this.content.length == 0 || Keyboard.shift ? this.done() :
+			this.content.length == 0 || Keyboard.shift ? this.done():
 			this.content.substring(0,this.content.length-1):
-			this.content + e.key;
+			this.content.append(e.key);
 	},
 	done: function() {
 		Sound.click.play();
@@ -148,8 +151,8 @@ var Text = let(Widget,{
 	},
 	expand: function() {
 		if (this.valueof) {
-			var text  = Text.init(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
-			text.expanded = text.expand();
+			var t  = Text.init(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
+			t.expanded = t.expand();
 			return false;
 		}
 		return this.childof ?  
@@ -166,27 +169,24 @@ var Text = let(Widget,{
 		Screen.at(this.x-Screen.size/2,this.y).by(this.w,this.h).frame();
 	},
 	down: function(e) { 
-		if (this.hit(e)) {
-			this.moving = e 
-			if (!this.content) return;
-			if (e.button > 1) {
-				Sound.click.play();
-				this.expanded = this.expanded ?
-					this.expanded.collapse():
-					this.expand();
-			}
-		}
+		if (!this.hit(e)) return;
+		this.moving = e;
+		if (!this.content) return;
+		if (e.button < 2) return;
+		Sound.click.play();
+		this.expanded = this.expanded ? this.expanded.collapse(): this.expand();
 	},
 	up: function(e) { 
 		var o = false;
 		var $self = this;
 		if (this.moving && (o = App.widgets.any(function(v,k) {
 			return ![ $self, Display, Phosphor ].has(v) 
-					&& v.can('hit') && v.hit($self) && v.editing }))) {
+				&& v.can('hit') && v.hit($self) && v.editing }))) {
 			if (o.childof && !o.valueof) {
 				o.childof[o.content.deparameterized()] = o.childof == localStorage ? this.content : this.evaluate();
 				this.free();
-			} else if (!o.childof) {
+			} 
+			if (!o.childof) {
 				o.evaluate()[this.content] = true;	
 				if (o.expanded) o.expanded.collapse();
 				o.expanded = o.expand();
@@ -197,6 +197,7 @@ var Text = let(Widget,{
 	},
 	move: function(e) { 
 		this.editing = this.hit(e);
+		if (this.editing) editing = this;
 		if (this.moving) {
 			var dx = e.x - this.moving.x;
 			var dy = e.y - this.moving.y;
@@ -223,16 +224,6 @@ var Phosphor = let(Widget,{
 		this.inventory = Inventory.init();
 		return this.instance();
 	},
-	press: function(e) { 
-		if (Keyboard.cmd || Keyboard.ctrl) { 
-			switch(e.key) {
-			case "o":  Display.at(0,0); break;
-			case "r": _doc.location = _doc.location; break;
-			case "h": this.help.show(); break;
-			case "i": this.inventory.show(); break;
-			}
-		}
-	},
 	draw: function() {if (!this.visible) return },
 	move: function(e) { },
 	down: function(e) {
@@ -240,11 +231,10 @@ var Phosphor = let(Widget,{
 			if ( !o.can('hit') || o == Phosphor || o == Display) return false;
 			return o.hit(e);
 		})) return;
-		if (e.button == 2) { // Right Click to add a text block
-			Sound.click.play();
-			var t = Text.init('');
-			t.at(e.x,e.y).by(100,24);
-		}
+		if (e.button < 2) return;
+		Sound.click.play();
+		var t = Text.init('');
+		t.at(e.x,e.y).by(100,24);
 	},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -255,11 +245,10 @@ var Help = let(Image,{
 		Sound.click.play();
 		this.blurb = Image.init('images/help.png').at(300,0);
 		this.blurb.down = function(e) { 
-			if(this.hit(e)) { 
-				Sound.click.play();
-				Phosphor.help.blurb = false;
-				this.free();
-			}
+			if(!this.hit(e)) return;
+			Sound.click.play();
+			Phosphor.help.blurb = false;
+			this.free();
 		};
 	},
 	show: function() { this.down(this); },
@@ -288,11 +277,9 @@ var Inventory = let(Widget,{
 			Phosphor.inventory.show();	
 			o.free();
 		};
-		i.at(10,50);
-		i.get('objects/',function(txt) { 
-			var o = eval('(' + txt + ')'); 
-			o.each(function(v,k) { localStorage[k] = unescape(v) });
-		});		
+		i.at(10,50).get('objects/',function(txt) { 
+			eval('(' + txt + ')').each(function(v,k) { localStorage[k] = unescape(v) });
+		});
 		return i;
 	},
 	show: function() { 

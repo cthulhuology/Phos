@@ -38,22 +38,17 @@ function $_(x) { return _doc.createElement(x) }
 // Array Functions
 Array.prototype.every = function (f) { for (var i  = 0; i < this.length; ++i) f(this[i],i); }
 Array.prototype.last = function() { return this[this.length -1 ]; }
-Array.prototype.expunge = function (e) {
+Array.prototype.expunge = function (e) { 
 	for (var i = 0; i < this.length; ++i) if (this[i] == e) this.splice(i,1);	
 }
 Array.prototype.map = function (f) {
-	var retval = [];
-	this.every(function(x) { retval.push(f(x)) });
-	return retval;
+	var retval = []; this.every(function(x) { retval.push(f(x)) }); return retval;
 }
 Array.prototype.reduce = function (f,o) {
-	var retval = o;	
-	this.every(function(x) { retval = f(retval,x) });
-	return retval;
+	var retval = o;	this.every(function(x) { retval = f(retval,x) }); return retval;
 }
 Array.prototype.has = function(a) {
-	for (var i = 0; i < this.length; ++i) 
-		if (this[i] == a) return true;
+	for (var i = 0; i < this.length; ++i) if (this[i] == a) return true;
 	return false;
 }
 Array.prototype.append = function(a) {
@@ -62,6 +57,7 @@ Array.prototype.append = function(a) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object Functions
+Object.prototype.of = function(x) { if (this.can(x)) return this[x]() }
 Object.prototype.each = function(f) {
 	for (var k in this) 
 		if (this.hasOwnProperty(k) && k.charAt(0) != "_" && k != 'prototype') f(this[k],k);
@@ -101,7 +97,7 @@ Object.prototype.clone = function() {
 }
 Object.prototype.debug = function() {
 	var out = "";
-	this.each(function(v,k) { out += k + "=" +  v });
+	this.each(function(v,k) { out.append(k,"=",v) });
 	alert(out);
 }
 
@@ -112,19 +108,19 @@ function toJson(o,seen) {
 	seen.push(o);
 	var formatter = {
 		'boolean' : function(x,l) { return x ? "true" : "false" },
-		'function' : function(x,l) { return '"' + x.toString().replace(/"/g,'\\"') + '"' },
+		'function' : function(x,l) { return '"'.append(x.toString().replace(/"/g,'\\"'),'"') },
 		'object' : function (x,l) {
 			if (x == null) return "null";
-			if (typeof(x.indexOf) == 'function') return "[ "+(x.map(toJson).join(', '))+" ]";
+			if (x.can('indexOf')) return '[ '.append(x.map(toJson).join(', '),' ]');
 			var retval = [];
 			for (var i in x) if (x.hasOwnProperty(i)) {
-				retval.push('"'+i+'": '+ (l.has(x[i]) ? "null":toJson(x[i],l)));
+				retval.push('"'.append(i,'": ',(l.has(x[i]) ? 'null':toJson(x[i],l))));
 				l.push(x[i]);
 			}
-			return '{ ' + retval.join(', ') + ' }';
+			return '{ '.append(retval.join(', '),' }');
 		},
-		'number' : function (x,l) { return '' + x },
-		'string' : function (x,l) { return '"' + x + '"' }
+		'number' : function (x,l) { return x.toString() },
+		'string' : function (x,l) { return '"'.append(x,'"') }
 	}
 	return (formatter[typeof(o)]) ? formatter[typeof(o)](o,seen) : "";
 }
@@ -178,7 +174,7 @@ Object.prototype.get = function(url,cb) {
 	this._request.send("");
 };
 Object.prototype.download = function() {
-	document.location.href = "data:application/json," + escape(this);
+	document.location.href = "data:application/json,".append(escape(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,6 +185,11 @@ String.prototype.path = function () { return this.substr(0,1+this.lastIndexOf('/
 String.prototype.hostname = function () { return this.substr(7,this.indexOf('/',7) - 7) }
 String.prototype.clean = function() { return this; }
 String.prototype.content = function() { return this; }
+String.prototype.append = function() { 
+	var retval = this;
+	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
+	return retval;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Box Object
@@ -273,22 +274,22 @@ var Widget = let(Box, {
 // Display Object
 var Display = let(Widget, {
 	canvas: null,
-	init: function() {
-		if ($('canvas')) {
-			this.canvas = $('canvas');
-			return this.at(0,0).by($('canvas').width,$('canvas').height).instance();
-		}
-		this.at(0,0).by(window.innerWidth, window.innerHeight);	
+	scroll: function(e) { this.to(e.w,e.h) }, // Override this if you don't want the canvas to scroll
+	draw: function() { Screen.background(0,0,0) }, // Override to change the background
+	create: function() {
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
 		_body.style.margin = 0;
 		_body.add(this.canvas);
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
-		return this.instance();
+		return this;
 	},
-	scroll: function(e) { this.to(e.w,e.h) }, // Override this if you don't want the canvas to scroll
-	draw: function() { Screen.background(0,0,0) }, // Override to change the background
+	init: function() {
+		if (!$('canvas')) return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
+		this.canvas = $('canvas');
+		return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
+	},
 	up: function(e) { this.moving = false },
 	down: function(e) { if (!e.overlaps([Display])) this.moving = e },
 	move: function(e) { if (this.moving) this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)) },
@@ -302,17 +303,9 @@ var Screen = let(Box,{
 	size: 16,
 	family: 'Arial',
 	colorizer: false,
-	init: function() {
-		this.ctx = Display.canvas.getContext('2d');
-		return this;
-	},
-	as: function(w) {
-		this.at(w.x,w.y);
-		return this.by(w.w,w.h);
-	},
-	to: function(x,y) {
-		return this.at(this.x+x,this.y+y);
-	},
+	init: function() { this.ctx = Display.canvas.getContext('2d'); return this },
+	as: function(w) { return this.at(w.x,w.y).by(w.w,w.h) },
+	to: function(x,y) { return this.at(this.x+x,this.y+y) },
 	at: function(x,y) {
 		this.x = x - Display.x;
 		this.y = y - Display.y;
@@ -324,29 +317,16 @@ var Screen = let(Box,{
 		this.h = h;
 		return this;
 	},
-	radius: function(r) {
-		this.rad = r;
-		return this;
-	},
-	lineWidth: function(w) {
-		this.ctx.lineWidth = w;
-		return this;
-	},
+	radius: function(r) { this.rad = r; return this },
+	lineWidth: function(w) { this.ctx.lineWidth = w; return this },
 	font: function(f) {
-		var x = f.split(" ");
+		var x = f.split(' ');
 		if (x[0]) this.size = Math.floor(x[0]);
 		if (x[1]) this.family = x[1];
-		this.ctx.font = this.size + "px " + this.family;
+		this.ctx.font = this.size.toString().append('px ',this.family);
 		return this;
 	},
-	colorize: function(x) {
-		this.colorizer = x;
-		return this;
-	},
-	stroke: function() {
-		this.ctx.stroke();
-		return this;
-	},
+	stroke: function() { this.ctx.stroke(); return this },
 	line: function() {
 		this.ctx.lineTo(this.x+this.w,this.y+this.h);
 		this.ctx.stroke();
@@ -366,6 +346,13 @@ var Screen = let(Box,{
 		this.ctx.stroke();
 		this.ctx.closePath();
 		this.to(this.w,this.h);
+		return this;
+	},
+	circle: function() {
+		this.ctx.beginPath();
+		this.ctx.arc(this.x,this.y,this.rad,0,Math.PI*2,true);
+		this.ctx.closePath();
+		this.ctx.fill();
 		return this;
 	},
 	print: function (tx) {
@@ -418,16 +405,12 @@ var Screen = let(Box,{
 		this.ctx.stroke();
 		return this;
 	},
-	clear: function() {
-		this.ctx.clearRect(0,0,Display.w,Display.h);
-		return this;
-	},
-	background: function(r,g,b) {
-		Display.canvas.style.background = 'rgb(' + r + ',' + g + ',' + b + ')';
-		return this;
-	},
+	clear: function() { this.ctx.clearRect(0,0,Display.w,Display.h); return this },
+	background: function(r,g,b) { 
+		Display.canvas.style.background = 'rgb('.append(r,',',g,',',b,')'); 
+		return this },
 	color: function(r,g,b) {
-		this.ctx.strokeStyle = this.ctx.fillStyle =  "rgb(" + r + "," + g + "," + b + ")";
+		this.ctx.strokeStyle = this.ctx.fillStyle = 'rgb('.append(r,',',g,',',b,')'); 
 		return this;
 	},
 });
@@ -490,7 +473,7 @@ var Keyboard = let(Device, {
 		40: function (b) { Keyboard.down = b; return '' },
 	},
 	key: function(k,b) {
-		if (typeof(Keyboard.modmap[k]) == 'function') return Keyboard.modmap[k](b);
+		if (Keyboard.modmap.can(k)) return Keyboard.modmap[k](b);
 		return typeof(Keyboard.keymap[k]) == 'string' ? Keyboard.keymap[k].charAt(Keyboard.shift ? 1 : 0): typeof(Keyboard.keymap[k]) == 'number' ? Keyboard.keymap[k] : '';
 	},
 	keymap: {
