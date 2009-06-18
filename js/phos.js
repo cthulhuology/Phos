@@ -26,128 +26,23 @@ function boot() {
 	Keyboard.init();
 	Mouse.init();
 	Screen.init();
+	Objects.init();
 	App.run();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// DOM Functions
-function $(x) { return _doc.getElementById(x) }
-function $_(x) { return _doc.createElement(x) }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Array Functions
-Array.prototype.every = function (f) { for (var i  = 0; i < this.length; ++i) f(this[i],i); }
-Array.prototype.last = function() { return this[this.length -1 ]; }
-Array.prototype.expunge = function (e) { 
-	for (var i = 0; i < this.length; ++i) if (this[i] == e) this.splice(i,1);	
-}
-Array.prototype.map = function (f) {
-	var retval = []; this.every(function(x) { retval.push(f(x)) }); return retval;
-}
-Array.prototype.reduce = function (f,o) {
-	var retval = o;	this.every(function(x) { retval = f(retval,x) }); return retval;
-}
-Array.prototype.has = function(a) {
-	for (var i = 0; i < this.length; ++i) if (this[i] == a) return true;
-	return false;
-}
-Array.prototype.append = function(a) {
-	a.every(function(v,i) { this.push(v) });
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Object Functions
-Object.prototype.of = function(x) { if (this.can(x)) return this[x]() }
-Object.prototype.each = function(f) {
-	for (var k in this) 
-		if (this.hasOwnProperty(k) && k.charAt(0) != "_" && k != 'prototype') f(this[k],k);
-}
-Object.prototype.let = function(n) {
-	var o = {};
-	for (var i = 0; i < arguments.length; ++i) arguments[i].each(function(v,k) { o[k] = v });
-	return o;
-}
-Object.prototype.walk = function(f) {
-	for (var d = this; d; d = d.sibling) f(d);
-}
-Object.prototype.slots = function() {
-	var i = 0;
-	for (var k in this) if (this.hasOwnProperty(k) && k.charAt(0) != "_" && k != 'prototype') ++i;
-	return i;
-}
-Object.prototype.any = function(t) {
-	for (var k in this) if (t(this[k],k)) return this[k];
-	return null;
-}
-Object.prototype.can = function(k) {
-	if (typeof(this[k]) == "function") return true;
-	return false;
-}
-Object.prototype.isa = function(x) {
-	var retval = true;
-	var $self = this;
-	x.each(function(v,k) { if (x.can(k) && !$self.can(k)) return retval = false });
-	return retval;
-}
-Object.prototype.clone = function() {
-	var Proto = function () {};
-	Proto.prototype = this;
-	var retval =  new Proto();
-	return retval;
-}
-Object.prototype.debug = function() {
-	var out = "";
-	this.each(function(v,k) { out.append(k,"=",v) });
-	alert(out);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// JSON Functions
-function toJson(o,seen) {
-	if (!seen) seen = [];
-	seen.push(o);
-	var formatter = {
-		'boolean' : function(x,l) { return x ? "true" : "false" },
-		'function' : function(x,l) { return '"'.append(x.toString().replace(/"/g,'\\"'),'"') },
-		'object' : function (x,l) {
-			if (x == null) return "null";
-			if (x.can('indexOf')) return '[ '.append(x.map(toJson).join(', '),' ]');
-			var retval = [];
-			for (var i in x) if (x.hasOwnProperty(i)) {
-				retval.push('"'.append(i,'": ',(l.has(x[i]) ? 'null':toJson(x[i],l))));
-				l.push(x[i]);
-			}
-			return '{ '.append(retval.join(', '),' }');
-		},
-		'number' : function (x,l) { return x.toString() },
-		'string' : function (x,l) { return '"'.append(x,'"') }
+// Objects object
+var Objects = let({
+	init: function() { 
+		window.each(function(v,k) { if (v && v.can('init')) Objects[k] = v});
+		this.init = false;
 	}
-	return (formatter[typeof(o)]) ? formatter[typeof(o)](o,seen) : "";
-}
-Object.prototype.json = function() { return toJson(this); }
-Object.prototype.unjson = function() {
-	var tmp = eval(this.toString());
-	for (var i in tmp) 
-		if (tmp.hasOwnProperty(i) && /^(function)/.exec(tmp[i])) tmp[i] = eval(tmp[i]);
-	return tmp;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// HTML Functions
-Element.prototype.add = function(e) {
-	this.appendChild(e);
-	return this;
-}
+});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event Functions
-Object.prototype.listen = 
-Element.prototype.listen = function(e,f) {
-	this.addEventListener(e,f,false);
-	return this;
-}
+Object.prototype.listen = Element.prototype.listen;
 document.onkeypress = function() { return false }; 			// Hack to break backspace
-// document.onmousedown = function(e) { e.preventDefault(); return false } // Hack to manage buttons
 document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -175,20 +70,6 @@ Object.prototype.get = function(url,cb) {
 };
 Object.prototype.download = function() {
 	document.location.href = "data:application/json,".append(escape(this));
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// String Functions
-String.prototype.last = function() { return this.substring(this.length-1) }
-String.prototype.decode = function() { return unescape(this).replace(/\+/g," ") }
-String.prototype.path = function () { return this.substr(0,1+this.lastIndexOf('/')) }
-String.prototype.hostname = function () { return this.substr(7,this.indexOf('/',7) - 7) }
-String.prototype.clean = function() { return this; }
-String.prototype.content = function() { return this; }
-String.prototype.append = function() { 
-	var retval = this;
-	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
-	return retval;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -252,13 +133,19 @@ var Widget = let(Box, {
 	remove: function() {
 		var $self = this;
 		this.hide();
-		App.widgets.expunge(this);
+		App.widgets.except(this);
 		return this;
 	},
 	instance: function() {
 		App.widgets.push(this);
 		return this;
 	},	
+	add : function(o) { 
+		if (!this.children) return;
+		this.children.push(o); 
+		o.parent = this;
+		return this },
+	container: function() { this.children = []; return this },
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
 	down: function(e) { if (this.hit(e)) this.moving = e },

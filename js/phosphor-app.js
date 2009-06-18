@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // About
 var About = let(Image,{
-	show: function() { this.at(0,Display.h-40).load('img','images/about_button.png') },
+	show: function() { this.at(100,10).load('img','images/about_button.png') },
 	down: function(e) { 
 		if (!this.hit(e)) return;
 		this.blurb =  Image.init('images/about.png').at(Display.w/2-150,Display.h/2-150); 
@@ -33,14 +33,14 @@ var About = let(Image,{
 // Tutorial
 var Tutorial = let(Text,{
 	content: 'Click here to visit a Tutorial',
-	show: function() { this.at(Display.w/2-120,Display.h-30).by(240,20) },
+	show: function() { this.at(Display.w/2-120,10).by(240,20) },
 	down: function(e) { if (this.hit(e)) document.location = '/tutorial' },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Blog
 var Blog = let(Image,{
-	show: function() { this.at(100,Display.h-40).load('img','images/blog.png') },
+	show: function() { this.at(200,10).load('img','images/blog.png') },
 	down: function(e) { if (this.hit(e)) _doc.location = 'http://blog.dloh.org' },
 });
 
@@ -70,10 +70,35 @@ var YouTube = let(Widget,{
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Search
+var Search = let(Text,{
+	find: function() {
+		if (this.expanded) this.expanded = this.expanded.collapse();
+		if (this.visible) return this.visible = false;
+		this.content = '';
+		this.visible = true;
+		Sound.click.play();
+		this.at(Display.w/2-100,Display.h/2-20).by(200,40);
+	},
+	evaluate: function() {
+		if (this.expanded) this.expanded = this.expanded.collapse();
+		Sound.click.play();
+		this.results = {};
+		$self = this;
+		Objects.each(function(o,k){ 
+			if (o.can($self.content.deparameterized())) $self.results[k] = o;
+		});
+		this.expanded = this.results.display(this.x,this.y+this.h);
+		return this.content;
+	},
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // startup function
 function startup() {
 	Phosphor.init();
 	Tutorial.instance().show();
 	About.instance().show();
 	Blog.instance().show();
+	Search.instance().hide();
 }

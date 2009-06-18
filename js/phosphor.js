@@ -78,17 +78,38 @@ Widget.down = function(e) {
 	if(!this.hit(e)) return;
        	that = this; 
 	this.moving = e; 
+	if (Keyboard.shift) that.init().to(that.w,that.h);
        	if(e.button < 2) return;
 	this.contents = this.contents ? this.contents.collapse() : this.display(this.x,this.y+this.h) 
+};
+Widget.move = function(e) {
+		if (!this.moving) return;
+		var dx = e.x - this.moving.x;
+		var dy = e.y - this.moving.y;
+		this.to(dx,dy);
+		if (this.parent) this.clamp(this.parent.x,this.parent.y,this.parent.x+this.parent.w,this.parent.y+this.parent.h);
+		if (this.contents) this.contents.every(function(v,i) { v.to(dx,dy)});
+		if (this.children) this.children.every(function(v,i) { v.to(dx,dy)});
+		this.moving = e;
+
+};
+Widget.up = function(e) {
+		this.moving = false;
+		if (!this.hit(e)) return;
+		var o = this.overlaps([Display,Phosphor,this]);
+		if (!o || !o.is('Graphic') || this == o) return; 
+		if (o.children.has(this)) return;
+		o.add(this);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hotkey Object
 var HotKey = let({ 
 	// Text Widget hotkeys
-	'x': function() { Phosphor.clipboard = editing.content; that.free() },
+	'x': function() { Phosphor.clipboard = editing.content; editing.free() },
 	'c': function() { Phosphor.clipboard = editing.content }, 
-	'v': function() { alert(editing.content);  editing.content = editing.content.append(Phosphor.clipboard) },
+	'v': function() { editing.content = editing.content.append(Phosphor.clipboard) },
+	'/': function() { Search.find() },
 	's': function() { 
 		if (editing.childof == localStorage && !editing.valueof) 
 			(localStorage[editing.content]).post('objects/' + Phosphor.abbr + '-' + editing.content,
@@ -135,13 +156,15 @@ var Text = let(Widget,{
 	},
 	press: function(e) {
 		if (!this.editing) return;
-		if (Keyboard.cmd || Keyboard.ctrl) return HotKey.of(e.key);
+		if (Keyboard.cmd || Keyboard.ctrl) return;
 		this.content =  e.key == Keyboard.enter && this.childof && this.valueof ? 
-			this.childof[this.valueof] = this.evaluate():
-			e.key == Keyboard.enter ? this.evaluate():
+				this.childof[this.valueof] = this.evaluate():
+			e.key == Keyboard.enter ? 
+				this.evaluate():
 			e.key == Keyboard.backspace ? 
-			this.content.length == 0 || Keyboard.shift ? this.done():
-			this.content.substring(0,this.content.length-1):
+				this.content.length == 0 || Keyboard.shift ? 
+					this.done():
+					this.content.substring(0,this.content.length-1):
 			this.content.append(e.key);
 	},
 	done: function() {
@@ -224,6 +247,7 @@ var Phosphor = let(Widget,{
 		this.inventory = Inventory.init();
 		return this.instance();
 	},
+	press: function(e) { if(Keyboard.ctrl || Keyboard.cmd) HotKey.of(e.key); },
 	draw: function() {if (!this.visible) return },
 	move: function(e) { },
 	down: function(e) {
@@ -258,6 +282,7 @@ var Help = let(Image,{
 // Inventory Object
 var Inventory = let(Widget,{
 	init: function() { 
+		Objects.each(function(v,k) { if (v) localStorage[k] = k });
 		var i = this.clone().instance();
 		i.button = Image.init('images/inventory_button.png').at(0,10);
 		i.trash = Image.init('images/trash.png').at(Display.w-64,Display.h-64);
