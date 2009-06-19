@@ -92,10 +92,7 @@ var Box = let({
 		var y = o.y ? o.y : 0;
 		var w = o.w ? o.w : 0;
 		var h = o.h ? o.h : 0;
-		return !( x+w < this.x ||
-			x > (this.x + this.w) ||
-			y+h < this.y ||
-			y > this.y + this.h);
+		return !( x+w < this.x || x > (this.x + this.w) || y+h < this.y || y > this.y + this.h);
 	},
 	overlaps: function(excluding) {
 		var $self = this;

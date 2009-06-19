@@ -17,18 +17,13 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object Extensions
-Object.prototype.parameterize = function() {
-	var str = "" + this;
-	var re = /function (\([^)]*\))/;
-	var m = re.exec(str);
-	if (m) return m[1];
-	return "";
+Object.prototype.parameters = function() {
+	var m = /function (\([^)]*\))/.exec(this.toString());
+	return m ? m[1] : "";
 }
 String.prototype.deparameterized = function() {
-	var re = /(\w+)\(/;
-	var m = re.exec(this);
-	if (m) return m[1];
-	return this;
+	var m = /(\w+)\(/.exec(this.toString());
+	return  m ? m[1] : this;
 }
 Object.prototype.property = function(c,k,x,y) {
 	return [ a(Text).says(this).at(x,y).by(200,20).copy({ childof: c, valueof: k.deparameterized() })];
@@ -38,7 +33,7 @@ Object.prototype.display = function(x,y) {
 	var $self = this;
 	this.each(function(v,k) {
 		if (!k || !v) return;
-		w.push(a(Text).says(v.parameterize ? k + v.parameterize() : k).at(x,y).by(200,20).copy({childof: $self }));
+		w.push(a(Text).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: $self }));
 		y += 28;
 	});
 	return w;
@@ -56,8 +51,10 @@ Array.prototype.collapse = function() {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Global pointer
+var here;		// the last mouse position
 var that;		// the last thing selected
 var editing;		// the block we're editing
+var clipboard;		// the last object we cut or copied
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget extensions
@@ -94,9 +91,9 @@ Widget.up = function(e) {
 // Hotkey Object
 var HotKey = let({ 
 	// Text Widget hotkeys
-	'x': function() { Phosphor.clipboard = editing.content; editing.free() },
-	'c': function() { Phosphor.clipboard = editing.content }, 
-	'v': function() { editing.says(editing.content.append(Phosphor.clipboard)) },
+	'x': function() { clipboard = editing.content; editing.free() },
+	'c': function() { clipboard = editing.content }, 
+	'v': function() { editing.says(editing.content.append(clipboard)) },
 	'/': function() { Search.find() },
 	's': function() { 
 		if (editing.childof == localStorage && !editing.valueof) 
@@ -150,6 +147,7 @@ var Text = let(Widget,{
 					this.done():
 					this.content.substring(0,this.content.length-1):
 			this.content.append(e.key);
+		if (this.content == undefined) this.free();
 	},
 	done: function() {
 		Sound.click.play();
@@ -194,6 +192,7 @@ var Text = let(Widget,{
 				this.free();
 			} 
 			if (!o.childof) {
+				if (!window.has(o.content)) window[o.content] = {};
 				o.evaluate()[this.content] = true;	
 				if (o.expanded) o.expanded.collapse();
 				o.expanded = o.expand();
@@ -221,7 +220,6 @@ var Text = let(Widget,{
 // Phosphor Environment
 var Phosphor = let(Widget,{
 	abbr: localStorage['abbr'] || 'yyz',
-	clipboard: "",
 	init: function() {
 		Sound.copy({
 			trash: a(Sound,'sounds/trash.aif'),
@@ -235,7 +233,7 @@ var Phosphor = let(Widget,{
 	},
 	press: function(e) { if(Keyboard.ctrl || Keyboard.cmd) HotKey.of(e.key); },
 	draw: function() {if (!this.visible) return },
-	move: function(e) { },
+	move: function(e) { here = e },
 	down: function(e) {
 		if (App.widgets.any(function(o) {
 			return o.can('on') && o != Phosphor && o != Display && e.on(o);

@@ -45,13 +45,8 @@ String.prototype.append = function() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object prototype extensions
 
-Object.prototype.a = Object.prototype.an = function(x,v) { return x.init(v) };
+Object.prototype.a = Object.prototype.an = function(x,v) { return x.can('init') ? x.init(v) : x.clone() };
 Object.prototype.the = function(x) { return x };
-
-Object.prototype.each = function(f) {
-	for (var k in this) if (this.hasOwnProperty(k) && k != 'prototype') f(this[k],k);
-	return this;
-}
 
 Object.prototype.clone = function() {
 	var Proto = function() {};
@@ -76,6 +71,16 @@ Object.prototype.from = function(k,v) {
 	return this;
 }
 
+Object.prototype.each = function(f) {
+	for (var k in this) if (this.hasOwnProperty(k) && k != 'prototype') f(this[k],k);
+	return this;
+}
+
+Object.prototype.all = function(f) {
+	for (var k in this) if (k != 'prototype') f(this[k],k);
+	return this;
+}
+
 Object.prototype.which = function(f) {
 	var w = [];
 	this.each(function(v,k) { if (f(v,k)) w.push(v) });
@@ -96,17 +101,18 @@ Object.prototype.slots = function() {
 	return i;
 }
 
-Object.prototype.of = function(x) { 
-	var args = [ arguments[1], arguments[2], arguments[3], arguments[4] ];
-	if (this.can(x)) return this[x](args[0],args[1],args[2],args[3]);
-	this.parents().every(function(p,i) { if (p.can(x)) p[x](args[0],args[1],args[2],args[3]) });
+Object.prototype.of = function(x,k) { 
+	var args = [ arguments[1], arguments[2], arguments[3], arguments[4], arguments[5] ];
+	var $s = this;
+	if (this.can(x)) return this[x](args[0],args[1],args[2],args[3],args[4]);
+	x.parents().every(function(p,i) { if (p.is($s) && p.can(k)) p[k](args[1],args[2],args[3],args[4])});
 	return this;
 }
 
 Object.prototype.is = function(x) {
 	var $self = this;
 	var retval = true;
-	x.each(function(v,k) { if (x.can(k) && !$self.can(k)) return retval = false });
+	x.all(function(v,k) { if (x.can(k) && !$self.can(k)) return retval = false });
 	return retval;
 }
 
