@@ -33,7 +33,7 @@ var About = let(Image,{
 // Tutorial
 var Tutorial = let(Text,{
 	content: 'Click here to visit a Tutorial',
-	show: function() { this.at(Display.w/2-120,10).by(240,20) },
+	show: function() { this.at(Display.w/2-120,20).by(240,20) },
 	down: function(e) { if (this.hit(e)) document.location = '/tutorial' },
 });
 
