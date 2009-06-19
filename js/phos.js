@@ -17,9 +17,22 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Phos
+//	This library simulates a very simple cross-platform computing system.  It effectively hides
+//	the implementation of the browser interface from the higher level code.  You can think of it
+//	as a Hardware Abstraction Layer for your web browser.  It provides Javascript objects which
+//	represent the various hardware devices that you might want to use, as well as, network
+//	resources.  It is designed around the concept of a simple object oriented statemachine.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Event Functions
+document.onkeypress = function() { return false }; 			// Hack to break backspace
+document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
+
 var _doc = document;
 var _root = window;
 var _body = null;
+
 function boot() {
 	_body = document.getElementsByTagName('body')[0];
 	Display.init();
@@ -40,12 +53,6 @@ var Objects = let({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Event Functions
-Object.prototype.listen = Element.prototype.listen;
-document.onkeypress = function() { return false }; 			// Hack to break backspace
-document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Network Functions
 Object.prototype.request = function(cb) {
 	this._request = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest();
@@ -62,14 +69,17 @@ Object.prototype.post = function(url,cb) {
 	this._request.open("POST",url,true);
 	this._request.setRequestHeader('Content-Type','appliaction/x-www-from-urlencoded');
 	this._request.send(data);
+	return this;
 }
 Object.prototype.get = function(url,cb) {
 	this.request(function(txt) { if (typeof(cb) == "function") cb(txt) });
 	this._request.open("GET",url,true);
 	this._request.send("");
+	return this;
 };
 Object.prototype.download = function() {
-	document.location.href = "data:application/json,".append(escape(this));
+	document.location.href = "data:application/json,".append(this.toString().encode());
+	return this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +87,7 @@ Object.prototype.download = function() {
 var Box = let({
 	x: 0, y: 0, w: 0, h: 0,
 	init: function() { return this.clone() },
-	hit: function(o) {
+	on: function(o) {
 		var x = o.x ? o.x : 0;
 		var y = o.y ? o.y : 0;
 		var w = o.w ? o.w : 0;
@@ -90,7 +100,7 @@ var Box = let({
 	overlaps: function(excluding) {
 		var $self = this;
 		return App.widgets.any(function(x) { 
-			return x.can('hit') && x != $self && !excluding.has(x) && x.hit($self) });
+			return x.can('on') && x != $self && !excluding.has(x) && x.on($self) });
 	},
 	at: function(x,y) {
 		this.x = Math.floor(x);
@@ -131,10 +141,8 @@ var Widget = let(Box, {
 	init: function() { return this.clone().instance() },	// Override to initialize
 	free: function() { return this.remove() },	// Override this method for custom code
 	remove: function() {
-		var $self = this;
-		this.hide();
 		App.widgets.except(this);
-		return this;
+		return this.hide();
 	},
 	instance: function() {
 		App.widgets.push(this);
@@ -143,25 +151,21 @@ var Widget = let(Box, {
 	add : function(o) { 
 		if (!this.children) return;
 		this.children.push(o); 
-		o.parent = this;
-		return this },
+		return o.parent = this;
+	},
 	container: function() { this.children = []; return this },
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
-	down: function(e) { if (this.hit(e)) this.moving = e },
+	down: function(e) { if (this.on(e)) this.moving = e },
 	up: function(e) { this.moving = false },
-	move: function(e) { 
-		if (!this.moving) return;
-		this.to(e.x-this.moving.x,e.y-this.moving.y);
-		this.moving = e;
-	},
+	move: function(e) { if (this.moving) this.to(e.x-this.moving.x,e.y-this.moving.y).moving = e },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Display Object
 var Display = let(Widget, {
 	canvas: null,
-	scroll: function(e) { this.to(e.w,e.h) }, // Override this if you don't want the canvas to scroll
+	scroll: function(e) { this.to(e.dx,e.dy) }, // Override this if you don't want the canvas to scroll
 	draw: function() { Screen.background(0,0,0) }, // Override to change the background
 	create: function() {
 		this.canvas = $_('canvas');
@@ -173,9 +177,10 @@ var Display = let(Widget, {
 		return this;
 	},
 	init: function() {
-		if (!$('canvas')) return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
 		this.canvas = $('canvas');
-		return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
+		if (this.canvas) return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
+		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
+		
 	},
 	up: function(e) { this.moving = false },
 	down: function(e) { if (!e.overlaps([Display])) this.moving = e },
@@ -248,16 +253,14 @@ var Screen = let(Box,{
 		var xm = xo;
 		var ym = this.y;
 		var $self = this;
-		var a = (""+ tx).split("\n");
-		a.every(function(x,i) {
-			var len = Math.floor($self.hack ? $self.ctx.mozMeasureText(x).width: 
-					$self.ctx.measureText(x).width);
+		var w = (""+ tx).split("\n");
+		w.every(function(x,i) {
+			var len = Math.floor($self.ctx.measureText(x).width);
 			if ($self.x + len + $self.size/2 > xo + $self.w) {	// Line Wrap
 				$self.x = xo;
 				$self.y += Math.floor($self.size);
 			}
-			$self.hack ? $self.ctx.mozDrawText(x): 
-				$self.ctx.fillText(x,$self.x,$self.y);
+			$self.ctx.fillText(x,$self.x,$self.y);
 			$self.x += len + Math.floor($self.size/2.0);	// Text + Space 
 			xm = Math.max(xm,$self.x);
 			ym = Math.max(ym,$self.y);
@@ -267,8 +270,7 @@ var Screen = let(Box,{
 		return this;
 	},
 	draw: function (img) {
-		if (! img.loaded) return this;
-		this.ctx.drawImage(img.data,0,0,img.w,img.h,this.x,this.y,this.w,this.h);
+		if (img.loaded) this.ctx.drawImage(img.data,0,0,img.w,img.h,this.x,this.y,this.w,this.h);
 		return this;
 	},
 	red: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "red"; return this },
@@ -307,13 +309,13 @@ var Screen = let(Box,{
 var Event = let(Box,{
 	key: 0,
 	init: function(e) {
-		var ev = Event.clone();
-		ev.button = e.button;
-		ev.key = Keyboard.key(e.keyCode, e.type == 'keydown');
-		ev.at(e.clientX + Display.x - Display.canvas.offsetLeft,e.clientY + Display.y - Display.canvas.offsetTop);
-		ev.by(Math.floor(e.wheelDeltaX),Math.floor(e.wheelDeltaY));
-		ev.time = new Date();
-		return ev;
+		return Event.clone().copy({
+			button: e.button,
+			key: Keyboard.key(e.keyCode, e.type == 'keydown'),
+			time: new Date(),
+			dx: Math.floor(e.wheelDeltaX),
+			dy: Math.floor(e.wheelDeltaY),
+		}).at(e.clientX + Display.x - Display.canvas.offsetLeft,e.clientY + Display.y - Display.canvas.offsetTop);
 	},
 });
 
@@ -322,6 +324,7 @@ var Event = let(Box,{
 var Device = let({
 	dispatch: function(n,e) { 
 		App.widgets.every(function(w,i) { try { if (w.can(n)) w[n](Event.init(e)) } catch(e) {} });
+		return this;
 	}, 
 });
 
@@ -393,8 +396,7 @@ var App = let(Device, {
 	widgets: [],
 	run: function () { 
 		Screen.clear();
-		this.dispatch('tick',{});
-		this.dispatch('draw',{});
+		this.dispatch('tick',{}).dispatch('draw',{});
 		this.timer = setTimeout("App.run()",this.delay);
 	},
 });
@@ -416,18 +418,14 @@ var Resource = let(Box,{
 		}
 		$self.data.src = i;	
 		if ($self.data.can('load')) $self.data.load();
-		return $self;
+		return this
 	},
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sound Object
 var Sound = let(Resource,{
-	init: function(name) {
-		var s = this.clone();
-		s.load('audio',name);
-		return s;
-	},
+	init: function(name) { return this.clone().load('audio',name) },
 	play: function() { this.data.play(); return this },
 	pause: function() { this.data.pause(); return this },
 });
@@ -435,12 +433,7 @@ var Sound = let(Resource,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Image Object
 var Image = let(Widget,Resource, {
-	init: function(name) {
-		var i = this.clone();
-		i.load('img',name);
-		i.at(0,0).by(i.w,i.h);
-		return i.instance();
-	},
+	init: function(name) { return this.clone().load('img',name).instance() },
 	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
 });
 
@@ -448,9 +441,9 @@ var Image = let(Widget,Resource, {
 // Movie Object
 var Movie = let(Widget,Resource,{ 
 	div: $_('div'),
+	attached: false,
 	init: function(name) {
 		var i = this.clone();
-		i.attached = false;
 		i.load('video',name,function($self) {
 			if ($self.attached) return;
 			$self.attached = true;

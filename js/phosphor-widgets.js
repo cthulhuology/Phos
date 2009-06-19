@@ -75,7 +75,6 @@ var Picker = let(Circle,{
 			Math.floor(this.gamma*this.cg),Math.floor(this.gamma*this.cb));
 	},
 	down: function(e) {
-		if (!this.hit(e)) return;
-		if (that.can('color')) that.color(this.r,this.g,this.b);
+		if (e.on(this) && that.can('color')) that.color(this.r,this.g,this.b);
 	},
 });

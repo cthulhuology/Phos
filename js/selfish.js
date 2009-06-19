@@ -1,31 +1,55 @@
 // selfish.js
 //
 // Copyright (C) 2009 David J. Goehrig
-// All Rights Reserved
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Selfish Javascript
+//
+// 	This library of extensions turns Javascript into a real Object Oriented Functional Language.
+//	Within the following functions are routines that serve as an alternative to traditional flow
+//	control structures, utilities to ease string and arry concatenatination. An object cloning, 
+//	replication, and component model.  A property based object clasification system, and better
+//	support for object introspection.  Also support for componetized collective objects allow 
+//	for multiple message dispatch.  Finally, it also a few small DOM manipulations functions.
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // String prototype extensions
+
 String.prototype.last = function() { return this.substring(this.length-1) }
+
 String.prototype.first = function() { return this.substring(0,1) }
+
 String.prototype.decode = function() { return unescape(this) }
+
 String.prototype.encode = function() { return escape(this) }
+
 String.prototype.append = function() {
 	var retval = this;
-	for (var i = 0; i < arguments.length; ++i)
-		retval += arguments[i].toString();
+	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
 	return retval;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object prototype extensions
-Object.prototype.attempt = function() {
-	try { eval('('.alongside(this.toString(),')')) } catch(e) { 
-		try { eval(this) } catch(ee) { alert(e) } }
-}
+
+Object.prototype.a = Object.prototype.an = function(x,v) { return x.init(v) };
+Object.prototype.the = function(x) { return x };
 
 Object.prototype.each = function(f) {
-	for (var k in this)
-		if (this.hasOwnProperty(k) && k != 'prototype')
-			f(this[k],k);
+	for (var k in this) if (this.hasOwnProperty(k) && k != 'prototype') f(this[k],k);
 	return this;
 }
 
@@ -35,38 +59,35 @@ Object.prototype.clone = function() {
 	return new Proto();
 }
 
-Object.prototype.child = function() {
-	var o = {};
-	this.each(function(v,k) { o[k] = v });	
-	return o;
+Object.prototype.copy = function(o) {
+	var $self = this;
+	o.each(function(v,k) { $self[k] = v });
+	return this;
 }
 
 Object.prototype.let = function() {
 	var o = { init: function() { return this } };
-	for (var i = 0; i < arguments.length; ++i)
-		arguments[i].each(function(v,k) { o[k] = v });
+	for (var i = 0; i < arguments.length; ++i) o.copy(arguments[i]);
 	return o;
 }
 
 Object.prototype.from = function(k,v) {
-	this[k.last() == "*" ? k : k.alongside('*')] = v;
+	this[k.last() == "*" ? k : k.append('*')] = v;
 	return this;
 }
 
-Object.prototype.parents = function() {
-	var a = [];
-	this.each(function(v,k) { if (k.last() == "*") a.push(v) });
-	return a;
+Object.prototype.which = function(f) {
+	var w = [];
+	this.each(function(v,k) { if (f(v,k)) w.push(v) });
+	return w;
 }
 
-Object.prototype.can = function(k) {
-	return (typeof(this[k]) == "function");
-}
+Object.prototype.parents = function() { return this.which(function(v,k) { return k.last() == "*" }) }
+
+Object.prototype.can = function(k) { return (typeof(this[k]) == "function") }
 
 Object.prototype.has = function(k) {
-	return (typeof(this[k]) == "object" ||
-		typeof(this[k]) == "string" ||
-		typeof(this[k]) == "number")
+	return (typeof(this[k]) == "object" || typeof(this[k]) == "string" || typeof(this[k]) == "number")
 }
 
 Object.prototype.slots = function() {
@@ -76,13 +97,10 @@ Object.prototype.slots = function() {
 }
 
 Object.prototype.of = function(x) { 
-	var args = []; 
-	for (var i = 1; i < arguments.length; ++i) 
-		args.push(arugments[i]); 
-	if (this.can(x)) return this[x](args);
-	this.parents().every(function(p,i) { if (p.can(x)) this[x] = p[x] });
-	if (this.can(x)) return this[x](args);
-	return this;	
+	var args = [ arguments[1], arguments[2], arguments[3], arguments[4] ];
+	if (this.can(x)) return this[x](args[0],args[1],args[2],args[3]);
+	this.parents().every(function(p,i) { if (p.can(x)) p[x](args[0],args[1],args[2],args[3]) });
+	return this;
 }
 
 Object.prototype.is = function(x) {
@@ -101,8 +119,7 @@ Object.prototype.any = function(f) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Array extensions
 Array.prototype.every = function(f) {
-	for (var i = 0; i < this.length; ++i)
-		f(this[i],i);
+	for (var i = 0; i < this.length; ++i) f(this[i],i);
 	return this;
 }
 
@@ -125,12 +142,13 @@ Array.prototype.has = function(e) {
 }
 
 Array.prototype.append = function(a) {
-	a.every(function(x,i) { this.push(x) });
+	var $self = this;
+	a.every(function(x,i) { $self.push(x) });
+	return this;
 }
 
-Array.prototype.cum = function() {
-	for (var i = 0; i < arguments.length; ++i)
-		this.push(arguments[i]);
+Array.prototype.and = function() {
+	for (var i = 0; i < arguments.length; ++i) this.push(arguments[i]);
 	return this;
 }
 
@@ -145,11 +163,13 @@ Element.prototype.add = function(e) {
 	return this;
 }
 
-Element.prototype.listen = function(e,f) {
+Object.prototype.listen = Element.prototype.listen = function(e,f) {
 	this.addEventListener(e,f,false);
 	return this;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// DOM Functions
 function $(x) { return document.getElementById(x) }
 function $_(x) { return document.createElement(x) }
 

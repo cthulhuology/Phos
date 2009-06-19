@@ -23,9 +23,9 @@
 var About = let(Image,{
 	show: function() { this.at(100,10).load('img','images/about_button.png') },
 	down: function(e) { 
-		if (!this.hit(e)) return;
-		this.blurb =  Image.init('images/about.png').at(Display.w/2-150,Display.h/2-150); 
-		this.blurb.down = function(e) { if(this.hit(e)) this.free() };
+		if (!e.on(this)) return;
+		this.blurb = an(Image,'images/about.png').at(Display.w/2-150,Display.h/2-150).copy({ 
+			down: function(e) { if(e.on(this)) this.free() }});
 	},
 });
 
@@ -34,14 +34,14 @@ var About = let(Image,{
 var Tutorial = let(Text,{
 	content: 'Click here to visit a Tutorial',
 	show: function() { this.at(Display.w/2-120,20).by(240,20) },
-	down: function(e) { if (this.hit(e)) document.location = '/tutorial' },
+	down: function(e) { if (e.on(this)) document.location = '/tutorial' },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Blog
 var Blog = let(Image,{
 	show: function() { this.at(200,10).load('img','images/blog.png') },
-	down: function(e) { if (this.hit(e)) _doc.location = 'http://blog.dloh.org' },
+	down: function(e) { if (e.one(this)) _doc.location = 'http://blog.dloh.org' },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,8 +75,7 @@ var Search = let(Text,{
 	find: function() {
 		if (this.expanded) this.expanded = this.expanded.collapse();
 		if (this.visible) return this.visible = false;
-		this.content = '';
-		this.visible = true;
+		this.says('').show();
 		Sound.click.play();
 		this.at(Display.w/2-100,Display.h/2-20).by(200,40);
 	},
