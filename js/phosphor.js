@@ -90,6 +90,7 @@ Widget.up = function(e) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hotkey Object
 var HotKey = let({ 
+	of: function(k) { this[k]() },
 	// Text Widget hotkeys
 	'x': function() { clipboard = editing.content; editing.free() },
 	'c': function() { clipboard = editing.content }, 

@@ -87,7 +87,7 @@ Object.prototype.which = function(f) {
 	return w;
 }
 
-Object.prototype.parents = function() { return this.which(function(v,k) { return k.last() == "*" }) }
+Object.prototype.parts = function() { return this.which(function(v,k) { return k.last() == "*" }) }
 
 Object.prototype.can = function(k) { return (typeof(this[k]) == "function") }
 
@@ -104,9 +104,15 @@ Object.prototype.slots = function() {
 Object.prototype.of = function(x,k) { 
 	var args = [ arguments[1], arguments[2], arguments[3], arguments[4], arguments[5] ];
 	var $s = this;
-	if (this.can(x)) return this[x](args[0],args[1],args[2],args[3],args[4]);
-	x.parents().every(function(p,i) { if (p.is($s) && p.can(k)) p[k](args[1],args[2],args[3],args[4])});
+	x.parts().every(function(p,i) { if (p.is($s) && p.can(k)) p[k](args[1],args[2],args[3],args[4])});
 	return this;
+}
+
+Object.prototype.name = function() {
+	var retval = null;
+	var $self = this;
+	window.each(function(v,k) { if (v == $self) return retval = k });
+	return retval;
 }
 
 Object.prototype.is = function(x) {
