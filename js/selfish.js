@@ -42,6 +42,8 @@ String.prototype.append = function() {
 	return retval;
 }
 
+String.prototype.contains = function(s) { return 0 <= this.indexOf(s) }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object prototype extensions
 
@@ -66,9 +68,15 @@ Object.prototype.let = function() {
 	return o;
 }
 
-Object.prototype.from = function(k,v) {
+Object.prototype.has = function(v,k) {
 	this[k.last() == "*" ? k : k.append('*')] = v;
 	return this;
+}
+
+Object.prototype.contains = function(e) {
+	var retval = false;
+	this.each(function(v,k) { if (k == e) return retval = true });
+	return retval;
 }
 
 Object.prototype.each = function(f) {
@@ -91,14 +99,14 @@ Object.prototype.parts = function() { return this.which(function(v,k) { return k
 
 Object.prototype.can = function(k) { return (typeof(this[k]) == "function") }
 
-Object.prototype.has = function(k) {
-	return (typeof(this[k]) == "object" || typeof(this[k]) == "string" || typeof(this[k]) == "number")
-}
-
 Object.prototype.slots = function() {
 	var i = 0;
 	this.each(function(v,k) { if (k && v) ++i });
 	return i;
+}
+
+Object.prototype.its = function(k) {
+	return k.last() != '*' ? this[k.append('*')] : this[k];
 }
 
 Object.prototype.of = function(x,k) { 
@@ -111,7 +119,7 @@ Object.prototype.of = function(x,k) {
 Object.prototype.name = function() {
 	var retval = null;
 	var $self = this;
-	window.each(function(v,k) { if (v == $self) return retval = k });
+	window.each(function(v,k) { if (v === $self) return retval = k });
 	return retval;
 }
 
@@ -147,7 +155,7 @@ Array.prototype.apply = function(f,o) {
 	return retval;
 }
 	
-Array.prototype.has = function(e) {
+Array.prototype.contains = function(e) {
 	var retval = false;
 	this.every(function(x,i) { if (x == e) return retval = true });
 	return retval;

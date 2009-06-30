@@ -33,13 +33,16 @@ var _doc = document;
 var _root = window;
 var _body = null;
 
+function nop() {}
+
 function boot() {
 	_body = document.getElementsByTagName('body')[0];
+	if (navigator.userAgent.contains('Firefox')) use('/js/shitweasel.js');
 	Display.init();
 	Keyboard.init();
 	Mouse.init();
 	Screen.init();
-	Objects.init();
+	navigator.userAgent.contains('Firefox') ? use('js/shitwasel.js') : Objects.init();
 	App.run();
 }
 
@@ -82,9 +85,25 @@ Object.prototype.download = function() {
 	return this;
 }
 
+var loaded = [];
+Object.prototype.use = function() {
+	var urls = [];
+	for (var i = 0; i < arguments.length; ++i) urls[i] = arguments[i];
+	var url = urls.shift();
+	var cb = function(txt) {
+		if (!txt) alert('Failed to load '.append(url));
+		try { 
+			eval('('.append(txt,')')) 
+			var url = urls.shift();
+			if (url) get(url,cb);
+		} catch(e) { alert('Load error: '.append(e,':',txt)) }
+	};
+	return this.get(url,cb);
+}
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Box Object
-var Box = let({
+var Box = Boxes = let({
 	x: 0, y: 0, w: 0, h: 0,
 	init: function() { return this.clone() },
 	on: function(o) {
@@ -97,7 +116,7 @@ var Box = let({
 	overlaps: function(excluding) {
 		var $self = this;
 		return App.widgets.any(function(x) { 
-			return x.can('on') && x != $self && !excluding.has(x) && x.on($self) });
+			return x.can('on') && x != $self && !excluding.contains(x) && x.on($self) });
 	},
 	at: function(x,y) {
 		this.x = Math.floor(x);
@@ -131,7 +150,7 @@ var Box = let({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget Object
-var Widget = let(Box, {
+var Widget = Widgets = let(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
@@ -156,6 +175,19 @@ var Widget = let(Box, {
 	down: function(e) { if (this.on(e)) this.moving = e },
 	up: function(e) { this.moving = false },
 	move: function(e) { if (this.moving) this.to(e.x-this.moving.x,e.y-this.moving.y).moving = e },
+});
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Component Object
+Components = Component = let(Widget,{
+	to: function(x,y) {
+		Components.of(this,'to',x,y);
+		this.x += x;
+		this.y += y;
+		return this;
+	},
+	free: function() { Widgets.of(this,'free'); return this },
+	hide: function() { Widgets.of(this,'hide'); return this },
+	show: function() { Widgets.of(this,'show'); return this },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,7 +251,7 @@ var Screen = let(Box,{
 	line: function() {
 		this.ctx.lineTo(this.x+this.w,this.y+this.h);
 		this.ctx.stroke();
-		return this;
+		return this.to(this.w+Display.x,this.h+Display.y);
 	},
 	frame: function() {
 		this.ctx.beginPath();
@@ -303,7 +335,7 @@ var Screen = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event Object
-var Event = let(Box,{
+var Event = Events = let(Box,{
 	key: 0,
 	init: function(e) {
 		return Event.clone().copy({
@@ -318,7 +350,7 @@ var Event = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Device Object
-var Device = let({
+var Device = Devices = let({
 	dispatch: function(n,e) { 
 		App.widgets.every(function(w,i) { try { if (w.can(n)) w[n](Event.init(e)) } catch(e) {} });
 		return this;
@@ -400,7 +432,7 @@ var App = let(Device, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Resource Object
-var Resource = let(Box,{
+var Resource = Resources = let(Box,{
 	loaded: false,
 	init: function() { return Resource.clone() },
 	load: function(t,i,cb) {
@@ -421,7 +453,7 @@ var Resource = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sound Object
-var Sound = let(Resource,{
+var Sound = Sounds = let(Resource,{
 	init: function(name) { return this.clone().load('audio',name) },
 	play: function() { this.data.play(); return this },
 	pause: function() { this.data.pause(); return this },
@@ -429,14 +461,14 @@ var Sound = let(Resource,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Image Object
-var Image = let(Widget,Resource, {
+var Image = Images = let(Widget,Resource, {
 	init: function(name) { return this.clone().load('img',name).instance() },
 	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Movie Object
-var Movie = let(Widget,Resource,{ 
+var Movie = Movies = let(Widget,Resource,{ 
 	div: $_('div'),
 	attached: false,
 	init: function(name) {

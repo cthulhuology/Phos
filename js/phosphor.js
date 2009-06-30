@@ -26,14 +26,14 @@ String.prototype.deparameterized = function() {
 	return  m ? m[1] : this;
 }
 Object.prototype.property = function(c,k,x,y) {
-	return [ a(Text).says(this).at(x,y).by(200,20).copy({ childof: c, valueof: k.deparameterized() })];
+	return [ a(Block).says(this).at(x,y).by(200,20).copy({ childof: c, valueof: k.deparameterized() })];
 }
 Object.prototype.display = function(x,y) {
 	var w = [];
 	var $self = this;
 	this.each(function(v,k) {
 		if (!k || !v) return;
-		w.push(a(Text).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: $self }));
+		w.push(a(Block).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: $self }));
 		y += 28;
 	});
 	return w;
@@ -83,15 +83,19 @@ Widget.up = function(e) {
 		if (!e.on(this)) return;
 		var o = this.overlaps([Display,Phosphor,this]);
 		if (!o || !o.is('Graphic') || this == o) return; 
-		if (o.children.has(this)) return;
+		if (o.children.contains(this)) return;
 		o.add(this);
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Name Object
+var Name = let({ of: function(k) { return k.can('name') ? k.name() : undefined }});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hotkey Object
 var HotKey = let({ 
 	of: function(k) { this[k]() },
-	// Text Widget hotkeys
+	// Block Widget hotkeys
 	'x': function() { clipboard = editing.content; editing.free() },
 	'c': function() { clipboard = editing.content }, 
 	'v': function() { editing.says(editing.content.append(clipboard)) },
@@ -101,9 +105,7 @@ var HotKey = let({
 			(localStorage[editing.content]).post('objects/' + Phosphor.abbr + '-' + editing.content,
 				function(txt) {if (!txt) alert('Failed to save try again') }) }, 
 	// Phosphor Widget hotkeys
-	'd': function() { 
-		if (editing.childof == localStorage && !editing.valueof) 
-			(localStorage[editing.content]).download() },
+	'd': function() { if (editing.content) editing.content.download() },
 	'o': function() { Display.at(0,0) },
 	'r': function() { _doc.location = _doc.location },
 	'h': function() { Phosphor.help.show() },
@@ -111,8 +113,8 @@ var HotKey = let({
 });
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Text Object
-var Text = let(Widget,{
+// Block Object
+var Block = let(Widget,{
 	bg: "gray",
 	moving: false,
 	editing: false,
@@ -148,6 +150,7 @@ var Text = let(Widget,{
 					this.done():
 					this.content.substring(0,this.content.length-1):
 			this.content.append(e.key);
+		if (this.content && Name.of(this.content)) this.content = Name.of(this.content);
 		if (this.content == undefined) this.free();
 	},
 	done: function() {
@@ -157,7 +160,7 @@ var Text = let(Widget,{
 	},
 	expand: function() {
 		if (this.valueof) {
-			var t  = a(Text).says(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
+			var t  = a(Block).says(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
 			t.expanded = t.expand();
 			return false;
 		}
@@ -186,14 +189,15 @@ var Text = let(Widget,{
 		var o = false;
 		var $self = this;
 		if (this.moving && (o = App.widgets.any(function(v,k) {
-			return ![ $self, Display, Phosphor ].has(v) 
+			return ![ $self, Display, Phosphor ].contains(v) 
 				&& v.can('on') && v.on($self) && v.editing }))) {
 			if (o.childof && !o.valueof) {
 				o.childof[o.content.deparameterized()] = o.childof == localStorage ? this.content : this.evaluate();
 				this.free();
 			} 
 			if (!o.childof) {
-				if (!window.has(o.content)) window[o.content] = {};
+				alert('setting');
+				if (!window.contains(o.content)) window[o.content] = {};
 				o.evaluate()[this.content] = true;	
 				if (o.expanded) o.expanded.collapse();
 				o.expanded = o.expand();
@@ -241,7 +245,7 @@ var Phosphor = let(Widget,{
 		})) return;
 		if (e.button < 2) return;
 		Sound.click.play();
-		a(Text).says('').at(e.x,e.y).by(100,24);
+		a(Block).says('').at(e.x,e.y).by(100,24);
 	},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -283,8 +287,9 @@ var Inventory = let(Widget,{
 					var o =  this.overlaps([Display,Phosphor,this]);
 					if (!o || !o.editing) return;
 					Sound.trash.play();
-					if (localStorage.has(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];
-					o.free() },
+					o.free();
+					if (localStorage.contains(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];
+				},
 			}),
 		}).at(10,50).get('objects/',function(txt) { 
 			eval('(' + txt + ')').each(function(v,k) { localStorage[k] = unescape(v) });

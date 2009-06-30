@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Graphic
-var Graphic = let(Widget,{
+var Graphic = Graphics = let(Widget,{
 	r: 255, g: 255, b: 255,
 	color: function(r,g,b) {
 		this.r = r; this.g = g; this.b = b;
@@ -29,19 +29,19 @@ var Graphic = let(Widget,{
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Bar
-var Bar = let(Graphic,{
-	draw: function() { Screen.color(this.r,this.g,this.b).as(this).fill().white() },
+// Rectangle
+var Rectangle = Rectangles = let(Graphic,{
+	draw: function() { if(this.visible) Screen.color(this.r,this.g,this.b).as(this).fill().white() },
 	bar: function() {},
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Circle
-var Circle = let(Graphic,{
+var Circle = Circles = let(Graphic,{
 	rad: 20,
 	draw: function() { 
 		var r = Screen.rad; 
-		Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r).white() },
+		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r).white() },
 	radius: function(r) {
 		this.by(r*2,r*2).rad = r;
 		return this;
@@ -50,16 +50,16 @@ var Circle = let(Graphic,{
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Blurb
-var Blurb = let(Widget,{
-	
-
-	blurb: function() {},
+// Text
+var Text = Texts = let(Widget,{
+	print: function(p) {
+		Screen.color(this.r,this.g,this.b).at(this.x,this.y).print(p).white();
+	}
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Drawing
-var Drawing = let(Widget,{
+var Drawing = Drawings = let(Widget,{
 
 });
 

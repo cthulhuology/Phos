@@ -31,7 +31,7 @@ var About = let(Image,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tutorial
-var Tutorial = let(Text,{
+var Tutorial = let(Block,{
 	content: 'Click here to visit a Tutorial',
 	show: function() { this.at(Display.w/2-120,20).by(240,20) },
 	down: function(e) { if (e.on(this)) document.location = '/tutorial' },
@@ -71,7 +71,7 @@ var YouTube = let(Widget,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Search
-var Search = let(Text,{
+var Search = let(Block,{
 	find: function() {
 		if (this.expanded) this.expanded = this.expanded.collapse();
 		if (this.visible) return this.visible = false;
