@@ -28,6 +28,7 @@
 // Event Functions
 document.onkeypress = function() { return false }; 			// Hack to break backspace
 document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
+window.onresize = function() { document.location.href = document.location.href };
 
 var _doc = document;
 var _root = window;
@@ -37,12 +38,11 @@ function nop() {}
 
 function boot() {
 	_body = document.getElementsByTagName('body')[0];
-	if (navigator.userAgent.contains('Firefox')) use('/js/shitweasel.js');
 	Display.init();
 	Keyboard.init();
 	Mouse.init();
 	Screen.init();
-	navigator.userAgent.contains('Firefox') ? use('js/shitwasel.js') : Objects.init();
+	navigator.userAgent.contains('Firefox') ? use('js/shitweasel.js') : Objects.init();
 	App.run();
 }
 
@@ -56,56 +56,10 @@ var Objects = let({
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Network Functions
-Object.prototype.request = function(cb) {
-	this._request = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest();
-	this._request.onreadystatechange = function () {
-		if (this.readyState != 4 || typeof(cb) != "function") return;
-		if (this.status == 404) cb(null);
-		if (this.status == 200) cb(this.responseText);
-	};
-	return this._request;
-}
-Object.prototype.post = function(url,cb) {
-	var data = this.toString();
-	this.request(cb);
-	this._request.open("POST",url,true);
-	this._request.setRequestHeader('Content-Type','appliaction/x-www-from-urlencoded');
-	this._request.send(data);
-	return this;
-}
-Object.prototype.get = function(url,cb) {
-	this.request(function(txt) { if (typeof(cb) == "function") cb(txt) });
-	this._request.open("GET",url,true);
-	this._request.send("");
-	return this;
-};
-Object.prototype.download = function() {
-	document.location.href = "data:application/json,".append(this.toString().encode());
-	return this;
-}
-
-var loaded = [];
-Object.prototype.use = function() {
-	var urls = [];
-	for (var i = 0; i < arguments.length; ++i) urls[i] = arguments[i];
-	var url = urls.shift();
-	var cb = function(txt) {
-		if (!txt) alert('Failed to load '.append(url));
-		try { 
-			eval('('.append(txt,')')) 
-			var url = urls.shift();
-			if (url) get(url,cb);
-		} catch(e) { alert('Load error: '.append(e,':',txt)) }
-	};
-	return this.get(url,cb);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
 // Box Object
 var Box = Boxes = let({
 	x: 0, y: 0, w: 0, h: 0,
-	init: function() { return this.clone() },
+	init: function() { return this.clone().copy({x:0,y:0,w:0,h:0}) },
 	on: function(o) {
 		var x = o.x ? o.x : 0;
 		var y = o.y ? o.y : 0;
@@ -146,6 +100,11 @@ var Box = Boxes = let({
 		this.y = Math.min(h - this.h,this.y);
 		return this;
 	},
+	towards: function(x,y) {
+		var dx = x - this.x;
+		var dy = y - this.y;
+		return this.to(dx ? dx/Math.abs(dx): 0,dy ? dy/Math.abs(dy) : 0);
+	},
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +113,7 @@ var Widget = Widgets = let(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
-	init: function() { return this.clone().instance() },	// Override to initialize
+	init: function() { return this.clone().copy({visible:true}).instance() },	// Override to init
 	free: function() { return this.remove() },	// Override this method for custom code
 	remove: function() {
 		App.widgets.except(this);
@@ -163,7 +122,7 @@ var Widget = Widgets = let(Box, {
 	instance: function() {
 		App.widgets.push(this);
 		return this;
-	},	
+	},
 	add : function(o) { 
 		if (!this.children) return;
 		this.children.push(o); 
@@ -209,7 +168,6 @@ var Display = let(Widget, {
 		this.canvas = $('canvas');
 		if (this.canvas) return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
-		
 	},
 	up: function(e) { this.moving = false },
 	down: function(e) { if (!e.overlaps([Display])) this.moving = e },
@@ -336,7 +294,6 @@ var Screen = let(Box,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event Object
 var Event = Events = let(Box,{
-	key: 0,
 	init: function(e) {
 		return Event.clone().copy({
 			button: e.button,
@@ -421,20 +378,20 @@ var Mouse = let(Device, {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // App Object
 var App = let(Device, {
-	delay: 40,
 	widgets: [],
+	delay: 40,
 	run: function () { 
 		Screen.clear();
 		this.dispatch('tick',{}).dispatch('draw',{});
 		this.timer = setTimeout("App.run()",this.delay);
 	},
+	fps: function() { return Math.floor(1000/this.delay) },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Resource Object
 var Resource = Resources = let(Box,{
-	loaded: false,
-	init: function() { return Resource.clone() },
+	init: function() { return Resource.clone().copy({loaded:false}) },
 	load: function(t,i,cb) {
 		var $self = this;
 		$self.data = $_(t);
@@ -469,10 +426,8 @@ var Image = Images = let(Widget,Resource, {
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Movie Object
 var Movie = Movies = let(Widget,Resource,{ 
-	div: $_('div'),
-	attached: false,
 	init: function(name) {
-		var i = this.clone();
+		var i = this.clone().copy({attached:false, div: $_('div')});
 		i.load('video',name,function($self) {
 			if ($self.attached) return;
 			$self.attached = true;

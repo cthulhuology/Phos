@@ -66,6 +66,8 @@ var YouTube = let(Widget,{
 		this.d.style.top = this.y;
 		this.d.style.left = this.x;
 	},
+	play: function() { },
+	pause: function() { },
 	free: function() { _body.removeChild(this.d); }
 });
 

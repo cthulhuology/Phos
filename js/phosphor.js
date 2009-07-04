@@ -32,7 +32,7 @@ Object.prototype.display = function(x,y) {
 	var w = [];
 	var $self = this;
 	this.each(function(v,k) {
-		if (!k || !v) return;
+		if (!k || !typeof(v)) return;
 		w.push(a(Block).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: $self }));
 		y += 28;
 	});
@@ -68,23 +68,22 @@ Widget.down = function(e) {
 	this.contents = this.contents ? this.contents.collapse() : this.display(this.x,this.y+this.h) 
 };
 Widget.move = function(e) {
-		if (!this.moving) return;
-		var dx = e.x - this.moving.x;
-		var dy = e.y - this.moving.y;
-		this.to(dx,dy);
-		if (this.parent) this.clamp(this.parent.x,this.parent.y,this.parent.x+this.parent.w,this.parent.y+this.parent.h);
-		if (this.contents) this.contents.every(function(v,i) { v.to(dx,dy)});
-		if (this.children) this.children.every(function(v,i) { v.to(dx,dy)});
-		this.moving = e;
-
+	if (!this.moving) return;
+	var dx = e.x - this.moving.x;
+	var dy = e.y - this.moving.y;
+	this.to(dx,dy);
+	if (this.parent) this.clamp(this.parent.x,this.parent.y,this.parent.x+this.parent.w,this.parent.y+this.parent.h);
+	if (this.contents) this.contents.every(function(v,i) { v.to(dx,dy)});
+	if (this.children) this.children.every(function(v,i) { v.to(dx,dy)});
+	this.moving = e;
 };
 Widget.up = function(e) {
-		this.moving = false;
-		if (!e.on(this)) return;
-		var o = this.overlaps([Display,Phosphor,this]);
-		if (!o || !o.is('Graphic') || this == o) return; 
-		if (o.children.contains(this)) return;
-		o.add(this);
+	this.moving = false;
+	if (!e.on(this)) return;
+	var o = this.overlaps([Display,Phosphor,this]);
+	if (!o || !o.is('Graphic') || this == o) return; 
+	if (o.children.contains(this)) return;
+	o.add(this);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,12 +114,8 @@ var HotKey = let({
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Block Object
 var Block = let(Widget,{
-	bg: "gray",
-	moving: false,
-	editing: false,
-	expanded: false,
-	content: false,
-	init: function() { return this.clone().instance() },
+	init: function() { return this.clone().copy({ 
+		bg: "gray", moving: false, editing: false, expanded: false, content: false }).instance() },
 	says: function(t) { this.content = t; return this },
 	evaluate: function() {
 		if (!this.content) return "";
@@ -196,7 +191,6 @@ var Block = let(Widget,{
 				this.free();
 			} 
 			if (!o.childof) {
-				alert('setting');
 				if (!window.contains(o.content)) window[o.content] = {};
 				o.evaluate()[this.content] = true;	
 				if (o.expanded) o.expanded.collapse();

@@ -47,7 +47,7 @@ String.prototype.contains = function(s) { return 0 <= this.indexOf(s) }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object prototype extensions
 
-Object.prototype.a = Object.prototype.an = function(x,v) { return x.can('init') ? x.init(v) : x.clone() };
+Object.prototype.a = Object.prototype.an = function(x,v) { return x.can('init') ? x.init(v).copy({from:x}) : x.clone().copy({from: x}) };
 Object.prototype.the = function(x) { return x };
 
 Object.prototype.clone = function() {
@@ -130,11 +130,74 @@ Object.prototype.is = function(x) {
 	return retval;
 }
 
+Object.prototype.implements = function() {
+	var $self = this;
+	var retval = [];
+	Objects.each(function(v,k) { if ($self.is(v)) retval.push(k) });
+	return retval;
+}
+
 Object.prototype.any = function(f) {
 	var retval = null;
 	this.each(function(v,k) { if (f(v,k)) return retval = v });
 	return retval;	
 }
+
+Object.prototype.module = function() {
+	var ots = Object.prototype.toString;
+	Object.prototype.toString = function() {
+		var retval = '{ ';
+		this.each(function(v,k) { 
+			if (typeof(v) == 'function') retval = retval.append(k,': ',v,', '); 
+			if (typeof(v) == 'string') retval = retval.append(k,': "', v, '", ');
+			if (typeof(v) == 'number') retval = retval.append(k,': ', v, ', ');
+			if (typeof(v) == 'boolean') retval = retval.append(k,': ', v, ', ');
+			if (typeof(v) == 'object') retval = retval.append(k, ': ', v.name(), ', ');
+		});
+		return retval.append('}');
+	};
+	var retval = this.toString();
+	Object.prototype.toString = ots;
+	return retval;
+}
+
+Object.prototype.use = function() {
+	var urls = [];
+	for (var i = 0; i < arguments.length; ++i) urls[i] = arguments[i];
+	var url = urls.shift();
+	var cb = function(txt) {
+		if (!txt) alert('Failed to load '.append(url));
+		try { 
+			eval('('.append(txt,')')) 
+			var url = urls.shift();
+			if (url) get(url,cb);
+		} catch(e) { alert('Load error: '.append(e,':',txt)) }
+	};
+	return this.get(url,cb);
+}
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Network Functions
+Object.prototype.request = function(method,url,cb,data) {
+	var _request = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest();
+	_request.onreadystatechange = function () {
+		if (this.readyState != 4 || typeof(cb) != "function") return;
+		if (this.status == 404) cb(null);
+		if (this.status == 200) cb(this.responseText);
+	};
+	_request.open(method,url,true);
+	_request.setRequestHeader('Content-Type','appliaction/x-www-from-urlencoded');
+	_request.send(data ? data : '');
+	return this;
+}
+Object.prototype.post = function(url,cb) { return this.request("POST",url,this.toString(),cb) }
+Object.prototype.get = function(url,cb) { return this.request("GET",url,cb) }
+
+Object.prototype.download = function() {
+	document.location.href = "data:application/json,".append(this.toString().encode());
+	return this;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Array extensions

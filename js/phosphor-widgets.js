@@ -38,7 +38,7 @@ var Rectangle = Rectangles = let(Graphic,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Circle
 var Circle = Circles = let(Graphic,{
-	rad: 20,
+	init: function() { return this.clone().radius(20).instance() },
 	draw: function() { 
 		var r = Screen.rad; 
 		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r).white() },
@@ -52,9 +52,7 @@ var Circle = Circles = let(Graphic,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text
 var Text = Texts = let(Widget,{
-	print: function(p) {
-		Screen.color(this.r,this.g,this.b).at(this.x,this.y).print(p).white();
-	}
+	print: function(p) { Screen.color(this.r,this.g,this.b).at(this.x,this.y).print(p).white() }
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,10 +64,7 @@ var Drawing = Drawings = let(Widget,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Picker
 var Picker = let(Circle,{
-	init: function() {
-		return this.clone().instance().radius(128);
-	},
-	gamma: 255, cr: 0, cb: 0, 
+	init: function() { return this.clone().copy({ gamma: 255, cr: 0, cb: 0 }).instance().radius(128) },
 	move: function(e) {
 		this.cr = Math.min(255,Math.max(0,e.x - this.x))/255;
 		this.cb = Math.min(255,Math.max(0,e.y - this.y))/255;
@@ -78,7 +73,5 @@ var Picker = let(Circle,{
 		this.color(Math.floor(this.gamma*this.cr),
 			Math.floor(this.gamma*this.cg),Math.floor(this.gamma*this.cb));
 	},
-	down: function(e) {
-		if (e.on(this) && that.can('color')) that.color(this.r,this.g,this.b);
-	},
+	down: function(e) { if (e.on(this) && that.can('color')) that.color(this.r,this.g,this.b) },
 });

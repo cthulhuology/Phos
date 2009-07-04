@@ -4,6 +4,9 @@ function() {
 //		this.init = false;
 //	};
 //	Objects.init();
+	Keyboard.keymap[61] = '=+';
+	Keyboard.keymap[107] = '++';
+	Keyboard.keymap[109] = '-_';
 	Screen.frame = function() {
 		this.ctx.beginPath();
 		this.ctx.moveTo(this.x,this.y);
