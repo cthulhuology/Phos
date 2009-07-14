@@ -31,6 +31,7 @@ var Graphic = Graphics = let(Widget,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Rectangle
 var Rectangle = Rectangles = let(Graphic,{
+	init: function() { return this.clone().by(100,100).instance() },
 	draw: function() { if(this.visible) Screen.color(this.r,this.g,this.b).as(this).fill().white() },
 	bar: function() {},
 });

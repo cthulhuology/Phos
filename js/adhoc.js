@@ -1,0 +1,16 @@
+A = An = {
+	object: function() { return a({}) },
+	string: function() { return "" },
+	array: function() { return [] },
+	box: function() { return a(Box) },
+	widget: function() { return a(Widget) },
+	component: function() { return a(Component) },
+	event: function() { return an(Event) },	
+	sound: function(src) { return a(Sound,src) },
+	image: function(src) { return an(Image,src) },
+	movie: function(src) { return a(Movide,src) },
+	block: function() { return a(Block).says('') },
+	circle: function() { return a(Circle) },
+	rectangle: function() { return a(Rectangle) },
+	text: function() { return a(Text) },
+}

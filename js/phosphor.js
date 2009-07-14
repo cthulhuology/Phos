@@ -279,7 +279,7 @@ var Inventory = let(Widget,{
 				down: false,
 				up: function(e) {
 					var o =  this.overlaps([Display,Phosphor,this]);
-					if (!o || !o.editing) return;
+					if (!o) return;
 					Sound.trash.play();
 					o.free();
 					if (localStorage.contains(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];

@@ -43,6 +43,7 @@ function boot() {
 	Mouse.init();
 	Screen.init();
 	navigator.userAgent.contains('Firefox') ? use('js/shitweasel.js') : Objects.init();
+	use('js/adhoc.js');
 	App.run();
 }
 
@@ -50,7 +51,7 @@ function boot() {
 // Objects object
 var Objects = let({
 	init: function() { 
-		window.each(function(v,k) { if (v && v.can('init')) Objects[k] = v});
+		window.each(function(v,k) { if (v && v['can'] && v.can('init')) Objects[k] = v});
 		this.init = false;
 	}
 });
@@ -425,7 +426,7 @@ var Image = Images = let(Widget,Resource, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Movie Object
-var Movie = Movies = let(Widget,Resource,{ 
+var Movie = Movies = let(Widget,Resource,{
 	init: function(name) {
 		var i = this.clone().copy({attached:false, div: $_('div')});
 		i.load('video',name,function($self) {
