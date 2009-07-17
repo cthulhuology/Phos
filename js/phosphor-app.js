@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // About
-var About = let(Image,{
+An.object().named('About').from(Image,{
 	show: function() { this.at(100,10).load('img','images/about_button.png') },
 	down: function(e) { 
 		if (!e.on(this)) return;
@@ -31,7 +31,7 @@ var About = let(Image,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Tutorial
-var Tutorial = let(Block,{
+An.object().named('Tutorial').from(Block,{
 	content: 'Click here to visit a Tutorial',
 	show: function() { this.at(Display.w/2-120,20).by(240,20) },
 	down: function(e) { if (e.on(this)) document.location = '/tutorial' },
@@ -39,14 +39,14 @@ var Tutorial = let(Block,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Blog
-var Blog = let(Image,{
+An.object().named('Blog').from(Image,{
 	show: function() { this.at(200,10).load('img','images/blog.png') },
 	down: function(e) { if (e.one(this)) _doc.location = 'http://blog.dloh.org' },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // YouTube Videos
-var YouTube = let(Widget,{
+An.object().named('YouTube').from(Widget,{
 	init: function(id) {
 		var y = this.clone().instance();
 		y.id = id;
@@ -73,7 +73,7 @@ var YouTube = let(Widget,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Search
-var Search = let(Block,{
+An.object().named('Search').from(Block,{
 	find: function() {
 		if (this.expanded) this.expanded = this.expanded.collapse();
 		if (this.visible) return this.visible = false;

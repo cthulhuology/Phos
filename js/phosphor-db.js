@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Database
 
-var Database = let({
+An.object().named('Database').from({
 	init: function(name) {
 		try {
 			this.db = openDatabase(name,'','Phosphor Database',4096*4096);

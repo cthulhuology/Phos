@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Graphic
-var Graphic = Graphics = let(Widget,{
+An.object().named('Graphic').plural('Graphics').from(Widget,{
 	r: 255, g: 255, b: 255,
 	color: function(r,g,b) {
 		this.r = r; this.g = g; this.b = b;
@@ -30,7 +30,7 @@ var Graphic = Graphics = let(Widget,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Rectangle
-var Rectangle = Rectangles = let(Graphic,{
+An.object().named('Rectangle').plural('Rectangles').from(Graphic,{
 	init: function() { return this.clone().by(100,100).instance() },
 	draw: function() { if(this.visible) Screen.color(this.r,this.g,this.b).as(this).fill().white() },
 	bar: function() {},
@@ -38,7 +38,7 @@ var Rectangle = Rectangles = let(Graphic,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Circle
-var Circle = Circles = let(Graphic,{
+An.object().named('Circle').plural('Circles').from(Graphic,{
 	init: function() { return this.clone().radius(20).instance() },
 	draw: function() { 
 		var r = Screen.rad; 
@@ -52,19 +52,19 @@ var Circle = Circles = let(Graphic,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text
-var Text = Texts = let(Widget,{
+An.object().named('Text').named('Texts').from(Widget,{
 	print: function(p) { Screen.color(this.r,this.g,this.b).at(this.x,this.y).print(p).white() }
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Drawing
-var Drawing = Drawings = let(Widget,{
+An.object().named('Drawing').named('Drawings').from(Widget,{
 
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Picker
-var Picker = let(Circle,{
+An.object().named('Picker').from(Circle,{
 	init: function() { return this.clone().copy({ gamma: 255, cr: 0, cb: 0 }).instance().radius(128) },
 	move: function(e) {
 		this.cr = Math.min(255,Math.max(0,e.x - this.x))/255;
@@ -75,4 +75,20 @@ var Picker = let(Circle,{
 			Math.floor(this.gamma*this.cg),Math.floor(this.gamma*this.cb));
 	},
 	down: function(e) { if (e.on(this) && that.can('color')) that.color(this.r,this.g,this.b) },
+});
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Territory
+An.object().named('Territory').from(Circle, {
+	init: function(x) { 
+		var target = typeof(x) == "string" ? x : x.name();
+		return this.clone().copy({
+			target:  target,
+		}).radius(window[target].slots()).instance();
+	},
+	down: function(e) {
+		if (!e.on(this)) return;
+		this.moving = e;
+		if (e.button > 1) alert('expanding');			
+	},
 });

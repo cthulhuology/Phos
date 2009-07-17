@@ -88,11 +88,11 @@ Widget.up = function(e) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Name Object
-var Name = let({ of: function(k) { return k.can('name') ? k.name() : undefined }});
+An.object().named('Name').from({ of: function(k) { return k.can('name') ? k.name() : undefined }});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hotkey Object
-var HotKey = let({ 
+An.object().named('HotKey').from({ 
 	of: function(k) { this[k]() },
 	// Block Widget hotkeys
 	'x': function() { clipboard = editing.content; editing.free() },
@@ -113,7 +113,7 @@ var HotKey = let({
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Block Object
-var Block = let(Widget,{
+An.object().named('Block').from(Widget,{
 	init: function() { return this.clone().copy({ 
 		bg: "gray", moving: false, editing: false, expanded: false, content: false }).instance() },
 	says: function(t) { this.content = t; return this },
@@ -217,7 +217,7 @@ var Block = let(Widget,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Phosphor Environment
-var Phosphor = let(Widget,{
+An.object().named('Phosphor').from(Widget,{
 	abbr: localStorage['abbr'] || 'yyz',
 	init: function() {
 		Sound.copy({
@@ -244,7 +244,7 @@ var Phosphor = let(Widget,{
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Help Object
-var Help = let(Image,{
+An.object().named('Help').from(Image,{
 	down: function(e) {
 		if (!e.on(this) || this.blurb) return;
 		Sound.click.play();
@@ -261,7 +261,7 @@ var Help = let(Image,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Inventory Object
-var Inventory = let(Widget,{
+An.object().named('Inventory').from(Widget,{
 	init: function() { 
 		Objects.each(function(v,k) { if (v) localStorage[k] = k });
 		return this.clone().instance().copy({

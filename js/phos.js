@@ -43,13 +43,12 @@ function boot() {
 	Mouse.init();
 	Screen.init();
 	navigator.userAgent.contains('Firefox') ? use('js/shitweasel.js') : Objects.init();
-	use('js/adhoc.js');
 	App.run();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Objects object
-var Objects = let({
+An.object().named('Objects').from({
 	init: function() { 
 		window.each(function(v,k) { if (v && v['can'] && v.can('init')) Objects[k] = v});
 		this.init = false;
@@ -58,7 +57,7 @@ var Objects = let({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Box Object
-var Box = Boxes = let({
+An.object().named('Box').plural('Boxes').from({
 	x: 0, y: 0, w: 0, h: 0,
 	init: function() { return this.clone().copy({x:0,y:0,w:0,h:0}) },
 	on: function(o) {
@@ -110,7 +109,7 @@ var Box = Boxes = let({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Widget Object
-var Widget = Widgets = let(Box, {
+An.object().named('Widget').plural('Widgets').from(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
@@ -138,7 +137,7 @@ var Widget = Widgets = let(Box, {
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Component Object
-Components = Component = let(Widget,{
+An.object().named('Component').plural('Component').from(Widget,{
 	to: function(x,y) {
 		Components.of(this,'to',x,y);
 		this.x += x;
@@ -152,7 +151,7 @@ Components = Component = let(Widget,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Display Object
-var Display = let(Widget, {
+An.object().named('Display').from(Widget, {
 	canvas: null,
 	scroll: function(e) { this.to(e.dx,e.dy) }, // Override this if you don't want the canvas to scroll
 	draw: function() { Screen.background(0,0,0) }, // Override to change the background
@@ -177,7 +176,7 @@ var Display = let(Widget, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Screen Object
-var Screen = let(Box,{
+An.object().named('Screen').from(Box,{
 	ctx: null,
 	rad: 5,
 	size: 16,
@@ -294,7 +293,7 @@ var Screen = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Event Object
-var Event = Events = let(Box,{
+An.object().named('Event').plural('Events').from(Box,{
 	init: function(e) {
 		return Event.clone().copy({
 			button: e.button,
@@ -308,7 +307,7 @@ var Event = Events = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Device Object
-var Device = Devices = let({
+An.object().named('Device').plural('Devices').from({
 	dispatch: function(n,e) { 
 		App.widgets.every(function(w,i) { try { if (w.can(n)) w[n](Event.init(e)) } catch(e) {} });
 		return this;
@@ -317,7 +316,7 @@ var Device = Devices = let({
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Keyboard Object
-var Keyboard = let(Device, {
+An.object().named('Keyboard').from(Device, {
 	backspace: -8,
 	enter: -13,
 	shift: false,
@@ -364,7 +363,7 @@ var Keyboard = let(Device, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Mouse Object
-var Mouse = let(Device, {
+An.object().named('Mouse').from(Device, {
 	over: function(e) { Mouse.dispatch('over',e) },
 	move: function(e) { Mouse.dispatch('move',e) },
 	down: function(e) { Mouse.dispatch('down',e) },
@@ -378,7 +377,7 @@ var Mouse = let(Device, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // App Object
-var App = let(Device, {
+An.object().named('App').from(Device, {
 	widgets: [],
 	delay: 40,
 	run: function () { 
@@ -391,7 +390,7 @@ var App = let(Device, {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Resource Object
-var Resource = Resources = let(Box,{
+An.object().named('Resource').plural('Resources').from(Box,{
 	init: function() { return Resource.clone().copy({loaded:false}) },
 	load: function(t,i,cb) {
 		var $self = this;
@@ -411,7 +410,7 @@ var Resource = Resources = let(Box,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Sound Object
-var Sound = Sounds = let(Resource,{
+An.object().named('Sound').plural('Sounds').from(Resource,{
 	init: function(name) { return this.clone().load('audio',name) },
 	play: function() { this.data.play(); return this },
 	pause: function() { this.data.pause(); return this },
@@ -419,14 +418,14 @@ var Sound = Sounds = let(Resource,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Image Object
-var Image = Images = let(Widget,Resource, {
+An.object().named('Image').plural('Images').from(Widget,Resource, {
 	init: function(name) { return this.clone().load('img',name).instance() },
 	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Movie Object
-var Movie = Movies = let(Widget,Resource,{
+An.object().named('Movie').plural('Movies').from(Widget,Resource,{
 	init: function(name) {
 		var i = this.clone().copy({attached:false, div: $_('div')});
 		i.load('video',name,function($self) {
