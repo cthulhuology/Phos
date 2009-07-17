@@ -24,20 +24,20 @@
 //	represent the various hardware devices that you might want to use, as well as, network
 //	resources.  It is designed around the concept of a simple object oriented statemachine.
 //
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// Event Functions
-document.onkeypress = function() { return false }; 			// Hack to break backspace
-document.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
-window.onresize = function() { document.location.href = document.location.href };
-
 var _doc = document;
 var _root = window;
 var _body = null;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Event Functions
+_doc.onkeypress = function() { return false }; 			// Hack to break backspace
+_doc.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
+_root.onresize = function() { _doc.location.href = _doc.location.href };
+
 function nop() {}
 
 function boot() {
-	_body = document.getElementsByTagName('body')[0];
+	_body = _doc.getElementsByTagName('body')[0];
 	Display.init();
 	Keyboard.init();
 	Mouse.init();
@@ -113,8 +113,9 @@ An.object().named('Widget').plural('Widgets').from(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
-	init: function() { return this.clone().copy({visible:true}).instance() },	// Override to init
+	init: function() { return this.clone().copy({visible:true}).instance().here() },	// Override to init
 	free: function() { return this.remove() },	// Override this method for custom code
+	here: function() { return this.at(Mouse.x,Mouse.y) },
 	remove: function() {
 		App.widgets.except(this);
 		return this.hide();
@@ -154,7 +155,10 @@ An.object().named('Component').plural('Component').from(Widget,{
 An.object().named('Display').from(Widget, {
 	canvas: null,
 	scroll: function(e) { this.to(e.dx,e.dy) }, // Override this if you don't want the canvas to scroll
-	draw: function() { Screen.background(0,0,0) }, // Override to change the background
+	draw: function() { 
+		Screen.background(0,0,0) 
+		Screen.as(this.extent).white().frame();
+	}, // Override to change the background
 	create: function() {
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
@@ -169,9 +173,31 @@ An.object().named('Display').from(Widget, {
 		if (this.canvas) return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
 	},
-	up: function(e) { this.moving = false },
-	down: function(e) { if (!e.overlaps([Display])) this.moving = e },
-	move: function(e) { if (this.moving) this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)) },
+	up: function(e) { 
+		this.selected = [];
+		var $self = this;
+		if (this.extent) App.widgets.every(function(v,i) { if (v != $self && $self.extent.on(v)) $self.selected.push(v) });
+		this.extent = this.selecting = this.moving = false;
+	},
+	down: function(e) { 
+		if (this.selected) {  this.selected.every(function(v,i) { v.moving = e }) };
+		if (e.overlaps([Display])) return;
+		if (!Keyboard.shift) return this.moving = e;
+		this.selecting = e;
+	},
+	move: function(e) { 
+		if (this.selected.length) {
+			this.selected.every(function(v,i) {
+				if (v.moving) {
+					var dx = e.x - v.moving.x;
+					var dx = e.y - v.moving.y;
+					v.to(dx,dy);
+				}
+			});
+		}
+		if (this.moving) return this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)); 
+		if (this.selecting) return this.extent = A.box().at(Math.min(this.selecting.x,e.x),Math.min(this.selecting.y,e.y)).by(Math.abs(e.x - this.selecting.x),Math.abs(e.y-this.selecting.y));
+	},
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +321,7 @@ An.object().named('Screen').from(Box,{
 // Event Object
 An.object().named('Event').plural('Events').from(Box,{
 	init: function(e) {
-		return Event.clone().copy({
+		return this.clone().copy({
 			button: e.button,
 			key: Keyboard.key(e.keyCode, e.type == 'keydown'),
 			time: new Date(),
@@ -365,7 +391,7 @@ An.object().named('Keyboard').from(Device, {
 // Mouse Object
 An.object().named('Mouse').from(Device, {
 	over: function(e) { Mouse.dispatch('over',e) },
-	move: function(e) { Mouse.dispatch('move',e) },
+	move: function(e) { Mouse.x = e.x + Display.x; Mouse.y = e.y + Display.y; Mouse.dispatch('move',e) },
 	down: function(e) { Mouse.dispatch('down',e) },
 	up: function(e) { Mouse.dispatch('up',e) },
 	scroll: function(e) { Mouse.dispatch('scroll',e) },

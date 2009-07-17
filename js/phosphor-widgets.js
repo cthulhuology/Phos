@@ -31,7 +31,7 @@ An.object().named('Graphic').plural('Graphics').from(Widget,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Rectangle
 An.object().named('Rectangle').plural('Rectangles').from(Graphic,{
-	init: function() { return this.clone().by(100,100).instance() },
+	init: function() { return this.clone().by(100,100).instance().here() },
 	draw: function() { if(this.visible) Screen.color(this.r,this.g,this.b).as(this).fill().white() },
 	bar: function() {},
 });
@@ -39,7 +39,7 @@ An.object().named('Rectangle').plural('Rectangles').from(Graphic,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Circle
 An.object().named('Circle').plural('Circles').from(Graphic,{
-	init: function() { return this.clone().radius(20).instance() },
+	init: function() { return this.clone().radius(20).instance().here() },
 	draw: function() { 
 		var r = Screen.rad; 
 		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r).white() },
@@ -52,13 +52,13 @@ An.object().named('Circle').plural('Circles').from(Graphic,{
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text
-An.object().named('Text').named('Texts').from(Widget,{
+An.object().named('Text').plural('Texts').from(Widget,{
 	print: function(p) { Screen.color(this.r,this.g,this.b).at(this.x,this.y).print(p).white() }
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Drawing
-An.object().named('Drawing').named('Drawings').from(Widget,{
+An.object().named('Drawing').plural('Drawings').from(Widget,{
 
 });
 

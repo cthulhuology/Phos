@@ -34,14 +34,14 @@ An.object().named('About').from(Image,{
 An.object().named('Tutorial').from(Block,{
 	content: 'Click here to visit a Tutorial',
 	show: function() { this.at(Display.w/2-120,20).by(240,20) },
-	down: function(e) { if (e.on(this)) document.location = '/tutorial' },
+	down: function(e) { if (e.on(this)) _doc.goto('/tutorial') },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Blog
 An.object().named('Blog').from(Image,{
-	show: function() { this.at(200,10).load('img','images/blog.png') },
-	down: function(e) { if (e.one(this)) _doc.location = 'http://blog.dloh.org' },
+	show: function() { this.at(200,10).by(100,30).load('img','images/blog.png') },
+	down: function(e) { if (e.on(this)) _doc.goto('http://blog.dloh.org') },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ An.object().named('Search').from(Block,{
 		Objects.each(function(o,k){ 
 			if (o.can($self.content.deparameterized())) $self.results[k] = o;
 		});
-		this.expanded = this.results.display(this.x,this.y+this.h);
+		this.expanded = Block.display(this.results,this.x,this.y+this.h);
 		return this.content;
 	},
 });

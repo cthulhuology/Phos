@@ -28,16 +28,6 @@ String.prototype.deparameterized = function() {
 Object.prototype.property = function(c,k,x,y) {
 	return [ a(Block).says(this).at(x,y).by(200,20).copy({ childof: c, valueof: k.deparameterized() })];
 }
-Object.prototype.display = function(x,y) {
-	var w = [];
-	var $self = this;
-	this.each(function(v,k) {
-		if (!k || !typeof(v)) return;
-		w.push(a(Block).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: $self }));
-		y += 28;
-	});
-	return w;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Array Extensions
@@ -65,7 +55,7 @@ Widget.down = function(e) {
 	this.moving = e; 
 	if (Keyboard.shift) that.init().to(that.w,that.h);
        	if(e.button < 2) return;
-	this.contents = this.contents ? this.contents.collapse() : this.display(this.x,this.y+this.h) 
+	this.contents = this.contents ? this.contents.collapse() : Block.display(this,this.x,this.y+this.h) 
 };
 Widget.move = function(e) {
 	if (!this.moving) return;
@@ -87,8 +77,8 @@ Widget.up = function(e) {
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Name Object
-An.object().named('Name').from({ of: function(k) { return k.can('name') ? k.name() : undefined }});
+// Names Object
+An.object().named('Names').from({ of: function(k) { return k.can('name') ? k.name() : undefined }});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Hotkey Object
@@ -106,7 +96,7 @@ An.object().named('HotKey').from({
 	// Phosphor Widget hotkeys
 	'd': function() { if (editing.content) editing.content.download() },
 	'o': function() { Display.at(0,0) },
-	'r': function() { _doc.location = _doc.location },
+	'r': function() { _doc.goto(_doc.location) },
 	'h': function() { Phosphor.help.show() },
 	'i': function() { Phosphor.inventory.show() },
 });
@@ -145,13 +135,22 @@ An.object().named('Block').from(Widget,{
 					this.done():
 					this.content.substring(0,this.content.length-1):
 			this.content.append(e.key);
-		if (this.content && Name.of(this.content)) this.content = Name.of(this.content);
+		if (this.content && Names.of(this.content)) this.content = Names.of(this.content);
 		if (this.content == undefined) this.free();
 	},
 	done: function() {
 		Sound.click.play();
 		if (this.expanded) this.expanded = this.expanded.collapse();
 		this.free();
+	},
+	display: function(o,x,y) {
+		var w = [];
+		o.each(function(v,k) {
+			if (!k || !typeof(v)) return;
+			w.push(a(Block).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: o }));
+			y += 28;
+		});
+		return w;
 	},
 	expand: function() {
 		if (this.valueof) {
@@ -161,8 +160,7 @@ An.object().named('Block').from(Widget,{
 		}
 		return this.childof ?  
 			this.childof[this.content.deparameterized()].property(this.childof,this.content,this.x+this.w+2,this.y):
-			this.evaluate().display(this.x,this.y+this.h+4);
-
+			this.display(this.evaluate(),this.x,this.y+this.h+4);
 	},
 	draw: function() {
 		if (!this.visible) return;
@@ -278,11 +276,12 @@ An.object().named('Inventory').from(Widget,{
 			trash: an(Image,'images/trash.png').at(Display.w-64,Display.h-64).copy({
 				down: false,
 				up: function(e) {
-					var o =  this.overlaps([Display,Phosphor,this]);
-					if (!o) return;
-					Sound.trash.play();
-					o.free();
-					if (localStorage.contains(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];
+					var o
+					while(o =  this.overlaps([Display,Phosphor,this])) {
+						Sound.trash.play();
+						o.free();
+						if (localStorage.contains(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];
+					};
 				},
 			}),
 		}).at(10,50).get('objects/',function(txt) { 
@@ -290,7 +289,7 @@ An.object().named('Inventory').from(Widget,{
 		});
 	},
 	show: function() {  //NB: don't convert to a says as this switch breaks the bool check 
-		this.content = this.content ? this.content.collapse() : localStorage.display(this.x,this.y);
+		this.content = this.content ? this.content.collapse() : Block.display(localStorage, this.x,this.y);
 	},
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////

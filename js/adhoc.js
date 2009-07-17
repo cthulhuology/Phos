@@ -28,7 +28,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Syntax Helpers
 
-var A = An = {
+var A;
+var An = A = {
 	object: function() { return a({}) },
 	string: function() { return '' },
 	array: function() { return [] },
@@ -54,10 +55,6 @@ String.prototype.append = function() {
 String.prototype.contains = function(s) { return 0 <= this.indexOf(s) }
 
 String.prototype.name = function() { return this }
-
-String.prototype.lowered = function() { 
-	return ''.append(this.charAt(0).tolower(),this.substring(1, this.length-1));
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Object prototype extensions
@@ -131,15 +128,25 @@ Object.prototype.of = function(x,k) {
 	return this;
 }
 
-Object.prototype.name = function() {
-	var retval = null;
+Object.prototype.names = function() {
+	var retval = [];
 	var $self = this;
-	window.each(function(v,k) { if (v === $self) return retval = k });
+	window.each(function(v,k) { if (v === $self) retval.push(k) });
 	return retval;
 }
 
-Object.prototype.plural = Object.prototype.named  = function(x) {
-	A[x.name()] = function(y) { return a(x.name().lowered(),y) };
+Object.prototype.name = function() {
+	return this.names()[0];
+}
+
+Object.prototype.plural = function(x) {
+	return window[x] = this;
+}
+
+Object.prototype.named =  function(x) {
+	var lc = x.name().toLowerCase();
+	var $self = this;
+	An[lc]= function(y) { return a($self,y) };
 	return window[x.name()] = this;
 }
 
@@ -214,7 +221,7 @@ Object.prototype.post = function(url,cb) { return this.request("POST",url,this.t
 Object.prototype.get = function(url,cb) { return this.request("GET",url,cb) }
 
 Object.prototype.download = function() {
-	document.location.href = "data:application/json,".append(this.toString().encode());
+	document.goto("data:application/json,".append(this.toString().encode()));
 	return this;
 }
 
@@ -275,4 +282,5 @@ Object.prototype.listen = Element.prototype.listen = function(e,f) {
 // DOM Functions
 function $(x) { return document.getElementById(x) }
 function $_(x) { return document.createElement(x) }
+document.goto = function(x) { document.location.href = x }
 
