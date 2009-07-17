@@ -276,8 +276,8 @@ An.object().named('Inventory').from(Widget,{
 			trash: an(Image,'images/trash.png').at(Display.w-64,Display.h-64).copy({
 				down: false,
 				up: function(e) {
-					var o
-					while(o =  this.overlaps([Display,Phosphor,this])) {
+					var o = null;
+					while(o = this.overlaps([Display,Phosphor,this])) {
 						Sound.trash.play();
 						o.free();
 						if (localStorage.contains(o.content.deparameterized())) delete localStorage[o.content.deparameterized()];
