@@ -312,7 +312,9 @@ An.object().named('Screen').from(Box,{
 		Display.canvas.style.background = 'rgb('.append(r,',',g,',',b,')'); 
 		return this },
 	color: function(r,g,b) {
-		this.ctx.strokeStyle = this.ctx.fillStyle = 'rgb('.append(r,',',g,',',b,')'); 
+		this.ctx.strokeStyle = this.ctx.fillStyle = (typeof(r) == 'string') ?
+			r :
+			'rgb('.append(r,',',g,',',b,')'); 
 		return this;
 	},
 });
@@ -484,6 +486,19 @@ An.object().named('Movie').plural('Movies').from(Widget,Resource,{
 	},
 	pause: function() { this.data.pause(); return this },
 	free: function() { _body.removeChild(this.div); }
+});
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Text
+An.object().named('Text').from(Widget, {
+	init: function(text) {
+		return this.clone().copy({text: text, visible:true}).instance().here() 
+	},
+	draw: function() {
+		if (this.visible) Screen.as(this).font(this.font).color(this.color).print(this.toString());
+	},
+	color: 'rgb(0,0,0)',
+	font: '16px Arial',
+	toString: function() { return this.text },
 });
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
