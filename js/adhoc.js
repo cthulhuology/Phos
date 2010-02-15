@@ -213,7 +213,7 @@ Object.prototype.request = function(method,url,cb,data) {
 		if (this.status == 200) cb(this.responseText);
 	};
 	_request.open(method,url,true);
-	_request.setRequestHeader('Content-Type','appliaction/x-www-from-urlencoded');
+	_request.setRequestHeader('Content-Type','application/x-www-from-urlencoded');
 	_request.send(data ? data : '');
 	return this;
 }
