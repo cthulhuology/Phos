@@ -74,6 +74,11 @@ Object.prototype.copy = function(o) {
 	return this;
 }
 
+Object.prototype.does = function(v,f) {
+	this[v] = f;
+	return this;
+}
+
 Object.prototype.from = function() {
 	this['init'] = function() { return this };
 	for (var i = 0; i < arguments.length; ++i) this.copy(arguments[i]);

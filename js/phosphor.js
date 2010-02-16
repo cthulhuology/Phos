@@ -51,6 +51,7 @@ var clipboard;		// the last object we cut or copied
 
 Widget.down = function(e) { 
 	if(!e.on(this)) return;
+	if(this.can('click')) this.click();
        	that = this; 
 	this.moving = e; 
 	if (Keyboard.shift) that.init().to(that.w,that.h);

@@ -113,6 +113,7 @@ An.object().named('Widget').plural('Widgets').from(Box, {
 	visible: true,
 	draw: function() {},				// Override to draw
 	tick: function() {},				// Override to update based on time
+	click: function() {},
 	init: function() { return this.clone().copy({visible:true}).instance().here() },	// Override to init
 	free: function() { return this.remove() },	// Override this method for custom code
 	here: function() { return this.at(Mouse.x,Mouse.y) },
@@ -132,7 +133,7 @@ An.object().named('Widget').plural('Widgets').from(Box, {
 	container: function() { this.children = []; return this },
 	show: function () { this.visible = true; return this },
 	hide: function () { this.visible = false; return this },
-	down: function(e) { if (this.on(e)) this.moving = e },
+	down: function(e) { if (!this.on(e)) return; if (this.can('click')) this.click(); this.moving = e; },
 	up: function(e) { this.moving = false },
 	move: function(e) { if (this.moving) this.to(e.x-this.moving.x,e.y-this.moving.y).moving = e },
 });
@@ -221,6 +222,9 @@ An.object().named('Screen').from(Box,{
 		this.w = w;
 		this.h = h;
 		return this;
+	},
+	shot: function() {
+		_doc.location = this.canvas.toDataURL('image/png');
 	},
 	radius: function(r) { this.rad = r; return this },
 	lineWidth: function(w) { this.ctx.lineWidth = w; return this },
