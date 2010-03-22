@@ -1,6 +1,6 @@
 // adhoc.js
 //
-// Copyright (C) 2009 David J. Goehrig
+// © 2009,2010 David J. Goehrig
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -39,21 +39,15 @@ var An = A = {
 // String prototype extensions
 
 String.prototype.last = function() { return this.substring(this.length-1) }
-
 String.prototype.first = function() { return this.substring(0,1) }
-
 String.prototype.decode = function() { return unescape(this) }
-
 String.prototype.encode = function() { return escape(this) }
-
 String.prototype.append = function() {
 	var retval = this;
 	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
-	return retval;
+	return retval 
 }
-
 String.prototype.contains = function(s) { return 0 <= this.indexOf(s) }
-
 String.prototype.name = function() { return this }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,51 +59,48 @@ Object.prototype.the = function(x) { return x };
 Object.prototype.clone = function() {
 	var Proto = function() {};
 	Proto.prototype = this;
-	return new Proto();
+	return new Proto() 
 }
 
 Object.prototype.copy = function(o) {
 	var $self = this;
 	o.each(function(v,k) { $self[k] = v });
-	return this;
+	return this 
 }
 
-Object.prototype.does = function(v,f) {
-	this[v] = f;
-	return this;
-}
+Object.prototype.does = function(v,f) { this[v] = f; return this }
 
 Object.prototype.from = function() {
 	this['init'] = function() { return this };
 	for (var i = 0; i < arguments.length; ++i) this.copy(arguments[i]);
-	return this;
+	return this 
 }
 
 Object.prototype.has = function(v,k) {
 	this[k.last() == "*" ? k : k.append('*')] = v;
-	return this;
+	return this 
 }
 
 Object.prototype.contains = function(e) {
 	var retval = false;
 	this.each(function(v,k) { if (k == e) return retval = true });
-	return retval;
+	return retval 
 }
 
 Object.prototype.each = function(f) {
 	for (var k in this) if (this.hasOwnProperty(k) && k != 'prototype') f(this[k],k);
-	return this;
+	return this 
 }
 
 Object.prototype.all = function(f) {
 	for (var k in this) if (k != 'prototype') f(this[k],k);
-	return this;
+	return this 
 }
 
 Object.prototype.which = function(f) {
 	var w = [];
 	this.each(function(v,k) { if (f(v,k)) w.push(v) });
-	return w;
+	return w 
 }
 
 Object.prototype.parts = function() { return this.which(function(v,k) { return k.last() == "*" }) }
@@ -119,60 +110,53 @@ Object.prototype.can = function(k) { return (typeof(this[k]) == "function") }
 Object.prototype.slots = function() {
 	var i = 0;
 	this.each(function(v,k) { if (k && v) ++i });
-	return i;
+	return i 
 }
 
-Object.prototype.its = function(k) {
-	return k.last() != '*' ? this[k.append('*')] : this[k];
-}
+Object.prototype.its = function(k) { return k.last() != '*' ? this[k.append('*')] : this[k] }
 
 Object.prototype.of = function(x,k) { 
 	var args = [ arguments[1], arguments[2], arguments[3], arguments[4], arguments[5] ];
 	var $s = this;
 	x.parts().every(function(p,i) { if (p.is($s) && p.can(k)) p[k](args[1],args[2],args[3],args[4])});
-	return this;
+	return this 
 }
 
 Object.prototype.names = function() {
 	var retval = [];
 	var $self = this;
 	window.each(function(v,k) { if (v === $self) retval.push(k) });
-	return retval;
+	return retval 
 }
 
-Object.prototype.name = function() {
-	return this.names()[0];
-}
-
-Object.prototype.plural = function(x) {
-	return window[x] = this;
-}
+Object.prototype.name = function() { return this.names()[0] }
+Object.prototype.plural = function(x) { return window[x] = this }
 
 Object.prototype.named =  function(x) {
 	var lc = x.name().toLowerCase();
 	var $self = this;
 	An[lc]= function(y) { return a($self,y) };
-	return window[x.name()] = this;
+	return window[x.name()] = this 
 }
 
 Object.prototype.is = function(x) {
 	var $self = this;
 	var retval = true;
 	x.all(function(v,k) { if (x.can(k) && !$self.can(k)) return retval = false });
-	return retval;
+	return retval 
 }
 
 Object.prototype.implements = function() {
 	var $self = this;
 	var retval = [];
 	Objects.each(function(v,k) { if ($self.is(v)) retval.push(k) });
-	return retval;
+	return retval 
 }
 
 Object.prototype.any = function(f) {
 	var retval = null;
 	this.each(function(v,k) { if (f(v,k)) return retval = v });
-	return retval;	
+	return retval 
 }
 
 Object.prototype.module = function() {
@@ -186,11 +170,10 @@ Object.prototype.module = function() {
 			if (typeof(v) == 'boolean') retval = retval.append(k,': ', v, ', ');
 			if (typeof(v) == 'object') retval = retval.append(k, ': ', v.name(), ', ');
 		});
-		return retval.append('}');
-	};
+		return retval.append('}') };
 	var retval = this.toString();
 	Object.prototype.toString = ots;
-	return retval;
+	return retval 
 }
 
 Object.prototype.use = function() {
@@ -205,7 +188,7 @@ Object.prototype.use = function() {
 			if (url) get(url,cb);
 		} catch(e) { alert('Load error: '.append(e,':',txt)) }
 	};
-	return this.get(url,cb);
+	return this.get(url,cb) 
 }
 	
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,12 +256,8 @@ Array.prototype.except = function (e) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // HTML Element Extensions
-Element.prototype.add = function(e) {
-	this.appendChild(e);
-	return this;
-}
 
-Object.prototype.listen = Element.prototype.listen = function(e,f) {
+Object.prototype.listen = HTMLElement.prototype.listen = function(e,f) {
 	this.addEventListener(e,f,false);
 	return this;
 }

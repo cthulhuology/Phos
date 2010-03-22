@@ -18,47 +18,63 @@
 //    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+function _guid() { var guid = 0; HTMLElement.prototype.guid = function() { return ++guid } }; _guid();
+
+var _html;
+function html() { return _html ? _html : (_html = document.getElementsByTagName('html')[0]) }
+
+var _head;
+function head() { return _head ? _head : (_head = document.getElementsByTagName('head')[0]) }
+
+var _body;
+function body() { return _body ? _body : (_body = document.getElementsByTagName('body')[0]) }
+
+HTMLElement.prototype.add = function() {
+	for (var i = 0; i < arguments.length; ++i) 
+		typeof(arguments[i]) == "boolean" ||
+		typeof(arguments[i]) == "number" ||
+		typeof(arguments[i]) == "string" ?
+			this.appendChild(document.createTextNode(arguments[i])) :		
+			this.appendChild(arguments[i]); 
+}
+
 HTMLElement.prototype.except = function() {
-	for (var i = 0; i < arguments.length; ++i) this.removeChild(arguments[i]);
+	for (var i = 0; i < arguments.length; ++i) this.removeChild(arguments[i]); 
+	return this 
+}
+
+HTMLElement.prototype.as = function(x) {
+	this.className = x;
 	return this;
 }
 
-text = function(x) { return document.createTextNode(x); }
-HTMLElement.prototype.html = function(x) { this.innerHTML = x; }
+HTMLElement.prototype.html = function(x) { this.innerHTML = x }
+
+String.prototype.render = function(d) {
+	var t = this;
+	for (var k in d) if (d.hasOwnProperty(k)) {
+		var re = new RegExp('{' + k + '}');
+		t = t.replace(re,d[k]);
+	} 
+	return t 
+}
+
 HTMLElement.prototype.render = function(t,a) {
-	var $self = this;
-	$self.html(a.map(function(d) {
-		var tt = t;
-		for (var k in d) if (d.hasOwnProperty(k)) {
-			var re = new RegExp('{' + k + '}');
-			 tt = tt.replace(re,d[k]);
-		}
-		return tt;
-	}).join(''));
-	return this;
+	this.html(a.map(function(d) { return t.render(d) }).join('')); 
+	return this 
 }
 
-// HTML HTMLElements
-function _guid() {
-	var guid = 0;
-	HTMLElement.prototype.guid = function() { return ++guid; }
-}; _guid();
-
-function html() { return document.getElementsByTagName('html')[0]; }
-function head() { return document.getElementsByTagName('head')[0]; }
-function body() { return document.getElementsByTagName('body')[0]; }
 function _() { 
 	var b = body();
-	for(var i = 0; i < arguments.length; ++i) 
-		b.appendChild(typeof(arguments[i]) == "string" ? text(arguments[i]) : arguments[i]);
+	b.add.apply(b,arguments);
+	return b 
 }
 
-"link title meta base style form select option input textarea button label legend ul ol dl li div p h1 h2 h3 h4 h5 quote pre br font hr img script table tr tc th td iframe".split(' ').map(function(x) {
+"link title meta base style canvas form select option input textarea button label legend ul ol dl li div p h1 h2 h3 h4 h5 quote pre br font hr img script table tr tc th td iframe".split(' ').map(function(x) {
 	HTMLElement.prototype[x] = window[x] = function() { 
 		var d = document.createElement(x);
-		d.id = '_' + d.guid() 
-		for (var i = 0; i < arguments.length; ++i) 
-			d.appendChild(typeof(arguments[i]) == "string" ? text(arguments[i]) : arguments[i]);
+		d.id = '_' + d.guid();
+		d.add.apply(d,arguments);
 		if (this.can('appendChild')) this.appendChild(d);
 		return d;
 	}
