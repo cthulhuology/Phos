@@ -139,7 +139,7 @@ An.object().named('Widget').plural('Widgets').from(Box, {
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Component Object
-An.object().named('Component').plural('Component').from(Widget,{
+An.object().named('Component').plural('Components').from(Widget,{
 	to: function(x,y) {
 		Components.of(this,'to',x,y);
 		this.x += x;
