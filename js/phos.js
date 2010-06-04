@@ -168,7 +168,7 @@ An.object().named('Display').from(Widget, {
 		this.canvas = $_('canvas');
 		this.canvas.id = 'canvas';
 		_body.style.margin = 0;
-		_body.add(this.canvas);
+		_body.appendChild(this.canvas);
 		this.canvas.width = this.w;
 		this.canvas.height = this.h;
 		return this;

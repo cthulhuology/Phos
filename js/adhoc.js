@@ -171,21 +171,17 @@ Object.prototype.module = function() {
 			if (typeof(v) == 'object') retval = retval.append(k, ': ', v.name(), ', ');
 		});
 		return retval.append('}') };
-	var retval = this.toString();
+	var retval = 'function() { return '.append( this.toString(), ' }');
 	Object.prototype.toString = ots;
 	return retval 
 }
 
-Object.prototype.use = function() {
-	var urls = [];
-	for (var i = 0; i < arguments.length; ++i) urls[i] = arguments[i];
-	var url = urls.shift();
+Object.prototype.use = function(module) {
+	var url = 'js/objects/'.append(module, '.js');
 	var cb = function(txt) {
 		if (!txt) alert('Failed to load '.append(url));
 		try { 
-			eval('('.append(txt,')')) 
-			var url = urls.shift();
-			if (url) get(url,cb);
+			A[module] = eval('( '.append(txt,' )')); 
 		} catch(e) { alert('Load error: '.append(e,':',txt)) }
 	};
 	return this.get(url,cb) 
