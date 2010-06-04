@@ -154,8 +154,12 @@ An.object().named('Component').plural('Components').from(Widget,{
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Display Object
 An.object().named('Display').from(Widget, {
+	dx: 1,
+	dy: 1,
 	canvas: null,
-	scroll: function(e) { this.to(e.dx,e.dy) }, // Override this if you don't want the canvas to scroll
+	scroll: function(e) { 
+		this.to(e.dx/Display.dx,e.dy/Display.dy) 
+	}, // Override this if you don't want the canvas to scroll
 	draw: function() { 
 		Screen.background(0,0,0) 
 		Screen.as(this.extent).white().frame();
@@ -171,6 +175,10 @@ An.object().named('Display').from(Widget, {
 	},
 	init: function() {
 		this.canvas = $('canvas');
+		if ( navigator.userAgent.match(/Chrome/)) {
+			this.dx = 40;
+			this.dy = 40;
+		}
 		if (this.canvas) return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
 	},
