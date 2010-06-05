@@ -82,17 +82,21 @@ An.object().named('Block').from(Widget,{
 		var $self = this;
 		if (this.moving && (o = Widget.widgets.any(function(v,k) {
 			return ![ $self, Display, Phosphor ].contains(v) 
-				&& v.can('on') && v.on($self) && v.editing }))) {
+				&& v.can('on') && v.on($self) && !v.locked }))) {
 			if (o.childof && !o.valueof) {
 				o.childof[o.content.deparameterized()] = this.evaluate();
 				this.free();
 			} 
 			if (!o.childof) {
-				if (!window.contains(o.content)) window[o.content] = {};
-				o.evaluate()[this.content] = true;	
-				if (o.expanded) o.expanded.collapse();
-				o.expanded = o.expand();
-				this.free();
+				if (this.content.isCall() && o.can(this.content.deparameterized())) {
+					o[this.content.deparameterized()].apply(o,this.content.params());
+				} else {
+					if (!window.contains(o.content)) window[o.content] = {};
+					o.evaluate()[this.content] = true;	
+					if (o.expanded) o.expanded.collapse();
+					o.expanded = o.expand();
+					this.free();
+				}
 			}
 		}
 		this.moving = false;

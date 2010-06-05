@@ -2,9 +2,9 @@ An.object().named('Circle').plural('Circles').from(Graphic,{
 	init: function() { return this.clone().radius(20).instance().here() },
 	draw: function() { 
 		var r = Screen.rad; 
-		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r).white() },
+		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r) },
 	radius: function(r) {
-		this.by(r*2,r*2).rad = r;
+		this.by(r*2,r*2).rad = 1*r;
 		return this;
 	},
 	circle: function() {},
