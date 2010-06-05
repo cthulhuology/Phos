@@ -4,9 +4,9 @@ An.object().named('Block').from(Widget,{
 	says: function(t) { this.content = t; return this },
 	evaluate: function() {
 		if (!this.content) return "";
-		if (this.childof == localStorage) return this.content;
 		var retval = this.content
 		Sound.click.play();
+		if (this.childof == localStorage) return this.content;	// Short circuit eval of inventory items
 		try { 
 			retval = eval('(' + this.content + ')') 
 		} catch(e) { 
@@ -48,6 +48,10 @@ An.object().named('Block').from(Widget,{
 		return w;
 	},
 	expand: function() {
+		if (this.childof == localStorage) {
+			eval('(' + this.childof[this.content] + ')');	
+			return alert('Loading ' + this.content);
+		}
 		if (this.valueof) {
 			var t  = a(Block).says(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
 			t.expanded = t.expand();
@@ -80,7 +84,7 @@ An.object().named('Block').from(Widget,{
 			return ![ $self, Display, Phosphor ].contains(v) 
 				&& v.can('on') && v.on($self) && v.editing }))) {
 			if (o.childof && !o.valueof) {
-				o.childof[o.content.deparameterized()] = o.childof == localStorage ? this.content : this.evaluate();
+				o.childof[o.content.deparameterized()] = this.evaluate();
 				this.free();
 			} 
 			if (!o.childof) {

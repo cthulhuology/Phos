@@ -25,7 +25,7 @@ An.object().named('Inventory').from(Widget,{
 			}),
 		}).at(10,50).get('objects/',function(txt) { 
 			eval('(' + txt + ')').every(function(v,i) { 
-				localStorage[v] = v;
+				localStorage[v] = 'use("' + v + '")';
 			});
 		});
 	},

@@ -177,8 +177,8 @@ Object.prototype.module = function() {
 }
 
 Object.prototype.use = function(module) {
-	var modules = []
-	for (var i = 0; i < arguments.length; ++i) modules.push(arguments[i]);
+	var modules = [];
+	modules.push.apply(modules,arguments);
 	var module = modules.shift();
 	var url = '/object/'.append(module);
 	var cb = function(txt) {
@@ -244,14 +244,13 @@ Array.prototype.contains = function(e) {
 }
 
 Array.prototype.append = function(a) {
-	var $self = this;
-	a.every(function(x,i) { $self.push(x) });
-	return this;
+	this.push.apply(this,a);
+	return this
 }
 
 Array.prototype.and = function() {
-	for (var i = 0; i < arguments.length; ++i) this.push(arguments[i]);
-	return this;
+	this.push.apply(this,arguments);
+	return this
 }
 
 Array.prototype.except = function (e) { 
@@ -262,6 +261,10 @@ Array.prototype.except = function (e) {
 // HTML Element Extensions
 
 Object.prototype.listen = HTMLElement.prototype.listen = function(e,f) {
+	this.addEventListener(e,f,false);
+	return this;
+}
+Object.prototype.when = function(e,f) {
 	this.addEventListener(e,f,false);
 	return this;
 }

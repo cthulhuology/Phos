@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // phos.js
 //
-// Copyright (C) 2009 David J. Goehrig
+// Copyright (C) 2009,2010 David J. Goehrig
 //
 //    This program is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ _root.onresize = function() { _doc.location.href = _doc.location.href };
 
 function nop() {}
 
-function boot() {
+_root.onload = function() {
 	_body = _doc.getElementsByTagName('body')[0];
 	use('Box','Widget','Component','Event','Device','Resource',
 		'Display','Keyboard','Mouse','Screen',
