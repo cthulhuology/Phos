@@ -1,0 +1,122 @@
+An.object().named('Screen').from(Box,{
+	ctx: null,
+	display: null,
+	rad: 5,
+	size: 16,
+	family: 'Arial',
+	colorizer: false,
+	init: function() { 
+		this.display = window.Display;
+		this.ctx = this.display.canvas.getContext('2d'); return this },
+	as: function(w) { return this.at(w.x,w.y).by(w.w,w.h) },
+	to: function(x,y) { return this.at(this.x+x,this.y+y) },
+	at: function(x,y) {
+		this.x = x - this.display.x;
+		this.y = y - this.display.y;
+		this.ctx.moveTo(this.x,this.y);
+		return this;
+	},
+	by: function(w,h) {
+		this.w = w;
+		this.h = h;
+		return this;
+	},
+	shot: function() {
+		_doc.location = this.canvas.toDataURL('image/png');
+	},
+	radius: function(r) { this.rad = r; return this },
+	lineWidth: function(w) { this.ctx.lineWidth = w; return this },
+	font: function(f) {
+		var x = f.split(' ');
+		if (x[0]) this.size = Math.floor(x[0]);
+		if (x[1]) this.family = x[1];
+		this.ctx.font = this.size.toString().append('px ',this.family);
+		return this;
+	},
+	stroke: function() { this.ctx.stroke(); return this },
+	line: function() {
+		this.ctx.lineTo(this.x+this.w,this.y+this.h);
+		this.ctx.stroke();
+		return this.to(this.w+this.display.x,this.h+this.display.y);
+	},
+	frame: function() {
+		this.ctx.beginPath();
+		this.ctx.moveTo(this.x+this.rad,this.y);
+		this.ctx.lineTo(this.x+this.w-2*this.rad,this.y);
+		this.ctx.arcTo(this.x+this.w,this.y,this.x+this.w,this.y+this.rad,this.rad);
+		this.ctx.lineTo(this.x+this.w,this.y+this.h-2*this.rad);
+		this.ctx.arcTo(this.x+this.w,this.y+this.h,this.x+this.w-this.rad,this.y+this.h,this.rad);
+		this.ctx.lineTo(this.x+this.rad,this.y+this.h);
+		this.ctx.arcTo(this.x,this.y+this.h,this.x,this.y+this.h-this.rad,this.rad);
+		this.ctx.lineTo(this.x,this.y+this.rad);
+		this.ctx.arcTo(this.x,this.y,this.x+this.rad,this.y,this.rad);
+		this.ctx.stroke();
+		this.ctx.closePath();
+		this.to(this.w,this.h);
+		return this;
+	},
+	circle: function() {
+		this.ctx.beginPath();
+		this.ctx.arc(this.x,this.y,this.rad,0,Math.PI*2,true);
+		this.ctx.closePath();
+		this.ctx.fill();
+		return this;
+	},
+	print: function (tx) {
+		if (!_doc) return this;
+		var xo = this.x;
+		var xm = xo;
+		var ym = this.y;
+		var $self = this;
+		var w = (""+ tx).split("\n");
+		w.every(function(x,i) {
+			var len = Math.floor($self.ctx.measureText(x).width);
+			if ($self.x + len + $self.size/2 > xo + $self.w) {	// Line Wrap
+				$self.x = xo;
+				$self.y += Math.floor($self.size);
+			}
+			$self.ctx.fillText(x,$self.x,$self.y);
+			$self.x += len + Math.floor($self.size/2.0);	// Text + Space 
+			xm = Math.max(xm,$self.x);
+			ym = Math.max(ym,$self.y);
+		});
+		$self.x = xm;
+		$self.y = ym;
+		return this;
+	},
+	draw: function (img) {
+		if (img.loaded) this.ctx.drawImage(img.data,0,0,img.w,img.h,this.x,this.y,this.w,this.h);
+		return this;
+	},
+	red: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "red"; return this },
+	yellow: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "yellow"; return this },
+	green: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "green"; return this },
+	blue: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "blue"; return this },
+	orange: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "orange"; return this },
+	purple: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "purple" ; return this},
+	black: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "black"; return this },
+	gray: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "gray"; return this },
+	white: function() { this.ctx.fillStyle = this.ctx.strokeStyle = "white"; return this },
+	fill: function() {
+		this.ctx.beginPath();
+		this.ctx.rect(this.x,this.y,this.w,this.h);
+		this.ctx.fill();
+		this.ctx.closePath();
+		return this;
+	},
+	rect: function() {
+		this.ctx.rect(this.x,this.y,this.w,this.h);
+		this.ctx.stroke();
+		return this;
+	},
+	clear: function() { this.ctx.clearRect(0,0,this.display.w,this.display.h); return this },
+	background: function(r,g,b) { 
+		this.display.canvas.style.background = 'rgb('.append(r,',',g,',',b,')'); 
+		return this },
+	color: function(r,g,b) {
+		this.ctx.strokeStyle = this.ctx.fillStyle = (typeof(r) == 'string') ?
+			r :
+			'rgb('.append(r,',',g,',',b,')'); 
+		return this;
+	},
+}).init();

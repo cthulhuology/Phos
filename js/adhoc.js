@@ -177,12 +177,20 @@ Object.prototype.module = function() {
 }
 
 Object.prototype.use = function(module) {
-	var url = 'js/objects/'.append(module, '.js');
+	var modules = []
+	for (var i = 0; i < arguments.length; ++i) modules.push(arguments[i]);
+	var module = modules.shift();
+	var url = '/object/'.append(module);
 	var cb = function(txt) {
 		if (!txt) alert('Failed to load '.append(url));
 		try { 
-			A[module] = eval('( '.append(txt,' )')); 
+			eval('( function () { '.append(txt,' } )'))(); 
 		} catch(e) { alert('Load error: '.append(e,':',txt)) }
+		if (modules.length) {
+			var module = modules.shift();
+			var url = '/object/'.append(module);
+			this.get(url,cb);
+		}
 	};
 	return this.get(url,cb) 
 }

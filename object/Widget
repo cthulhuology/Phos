@@ -1,0 +1,29 @@
+An.object().named('Widget').plural('Widgets').from(Box, {
+	widgets: [],
+	visible: true,
+	draw: function() {},				// Override to draw
+	tick: function() {},				// Override to update based on time
+	click: function() {},
+	init: function() { return this.clone().copy({visible:true}).instance().here() },	// Override to init
+	free: function() { return this.remove() },	// Override this method for custom code
+	here: function() { return this.at(Mouse.x,Mouse.y) },
+	remove: function() {
+		Widget.widgets.except(this);
+		return this.hide();
+	},
+	instance: function() {
+		Widget.widgets.push(this);
+		return this;
+	},
+	add : function(o) { 
+		if (!this.children) return;
+		this.children.push(o); 
+		return o.parent = this;
+	},
+	container: function() { this.children = []; return this },
+	show: function () { this.visible = true; return this },
+	hide: function () { this.visible = false; return this },
+	down: function(e) { if (!this.on(e)) return; if (this.can('click')) this.click(); this.moving = e; },
+	up: function(e) { this.moving = false },
+	move: function(e) { if (this.moving) this.to(e.x-this.moving.x,e.y-this.moving.y).moving = e },
+});

@@ -1,0 +1,17 @@
+An.object().named('Resource').plural('Resources').from(Box,{
+	init: function() { return Resource.clone().copy({loaded:false}) },
+	load: function(t,i,cb) {
+		var $self = this;
+		$self.data = $_(t);
+		$self.data.onload = function () {
+			$self.loaded = true;
+			($self.data.videoWidth) ? 
+				$self.by($self.data.videoWidth,$self.data.videoHeight):
+				$self.by($self.data.width,$self.data.height);
+			if (typeof(cb)=="function") cb($self);
+		}
+		$self.data.src = i;	
+		if ($self.data.can('load')) $self.data.load();
+		return this
+	},
+});

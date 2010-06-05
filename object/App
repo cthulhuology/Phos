@@ -1,0 +1,11 @@
+An.object().named('App').from(Device, {
+	widgets: [],
+	delay: 40,
+	run: function () { 
+		Display.app = this;
+		Screen.clear();
+		this.dispatch('tick',{}).dispatch('draw',{});
+		this.timer = setTimeout("App.run()",this.delay);
+	},
+	fps: function() { return Math.floor(1000/this.delay) },
+}).run();

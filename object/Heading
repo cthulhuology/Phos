@@ -1,0 +1,1 @@
+function() { return { sint: function () { return Math.sin(this.t() * 2 * this.pi ); }, cost: function () { return Math.cos(this.t() * 2 * this.pi); }, t: function () { return new Date().getSeconds() / 60; }, pi: 3.14159, } }

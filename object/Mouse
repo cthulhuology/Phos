@@ -1,0 +1,11 @@
+An.object().named('Mouse').from(Device, {
+	over: function(e) { Mouse.dispatch('over',e) },
+	move: function(e) { Mouse.x = e.x + Display.x; Mouse.y = e.y + Display.y; Mouse.dispatch('move',e) },
+	down: function(e) { Mouse.dispatch('down',e) },
+	up: function(e) { Mouse.dispatch('up',e) },
+	scroll: function(e) { Mouse.dispatch('scroll',e) },
+	init: function () { 
+		_root.listen('mouseover',Mouse.over).listen('mousemove',Mouse.move).listen('mousedown',Mouse.down).listen('mouseup',Mouse.up).listen('mousewheel',Mouse.scroll).listen('onscroll',Mouse.scroll);
+		return this;
+	},
+}).init();

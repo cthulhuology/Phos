@@ -1,0 +1,1 @@
+An.object().named('Alert').from({ message: "hello world", display: function () { alert(this.message); } })

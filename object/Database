@@ -1,0 +1,26 @@
+An.object().named('Database').from({
+	init: function(name) {
+		try {
+			this.db = openDatabase(name,'','Phosphor Database',4096*4096);
+		} catch(e) {
+			alert(e);
+		}
+		return this;
+	},
+	query: function(s,c) {
+		var args = [];
+		var $self = this;
+		this.cb = c;
+		for (var i = 2; i < arguments.length; ++i) args[i] = arguments[i];
+		this.db.transaction(function(t) { t.executeSql(s,args,$self.result,$self.failure) });
+		return this;
+	},
+	result: function(t,r) {
+		if (this.cb) r.every(this.cb);
+		this.results = r;
+	},
+	failure: function(t,e) {
+		alert('Database Error: ' + e.message)
+		this.error = e;
+	},
+});

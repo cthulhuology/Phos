@@ -1,0 +1,15 @@
+An.object().named('Text').plural('Texts').from(Widget, {
+	init: function(text) {
+		return this.clone().copy({text: text, visible:true}).instance().here() 
+	},
+	draw: function() {
+		if (this.visible) 
+			Screen.as(this).font(this.font).color(this.color).print(this.toString());
+	},
+	print: function(p) { 
+		Screen.font(this.font).color(this.color).at(this.x,this.y).print(p);
+	},
+	color: 'rgb(0,0,0)',
+	font: '16px Arial',
+	toString: function() { return this.text },
+});

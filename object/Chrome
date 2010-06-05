@@ -1,0 +1,4 @@
+alert('Chrome');
+
+Display.dx = 40;
+Display.dy = 40;

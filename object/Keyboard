@@ -1,0 +1,44 @@
+An.object().named('Keyboard').from(Device, {
+	backspace: -8,
+	enter: -13,
+	shift: false,
+	ctrl: false,
+	alt: false,
+	cmd: false,
+	lcmd: false,
+	rcmd: false,
+	press:  function(e) { Keyboard.dispatch('press',e)  },
+	reset: function(e) { if (Keyboard.modmap[e.keyCode]) Keyboard.modmap[e.keyCode](false) },
+	init: function() {
+		_root.listen('keyup',Keyboard.reset).listen('keydown',Keyboard.press);
+		return this;
+	},
+	modmap: { 
+		16: function (b) { Keyboard.shift = b; return '' }, 
+		17: function (b) { Keyboard.ctrl = b; return '' }, 
+		18: function (b) { Keyboard.alt = b; return '' }, 
+		91: function (b) { 
+			Keyboard.lcmd = b; 
+			Keyboard.cmd = Keyboard.lcmd || Keyboard.rcmd; 
+			return '' },
+		93: function (b) { 
+			Keyboard.rcmd = b; 
+			Keyboard.cmd = Keyboard.lcmd || Keyboard.rcmd; 
+			return '' },
+		37: function (b) { Keyboard.left = b; return '' },
+		38: function (b) { Keyboard.up = b; return '' },
+		39: function (b) { Keyboard.right = b; return '' },
+		40: function (b) { Keyboard.down = b; return '' },
+	},
+	key: function(k,b) {
+		if (Keyboard.modmap.can(k)) return Keyboard.modmap[k](b);
+		return typeof(Keyboard.keymap[k]) == 'string' ? Keyboard.keymap[k].charAt(Keyboard.shift ? 1 : 0): typeof(Keyboard.keymap[k]) == 'number' ? Keyboard.keymap[k] : '';
+	},
+	keymap: {
+		192: '`~', 49: '1!', 50: '2@', 51: '3#', 52: '4$', 53: '5%', 54: '6^', 55: '7&', 56: '8*', 57 : '9(', 48: '0)',  189: '-_', 187: '=+',
+		9: '\t\t', 81: 'qQ', 87: 'wW', 69: 'eE', 82: 'rR', '84' : 'tT', 89: 'yY', 85: 'uU', 73: 'iI', 79: 'oO', 80: 'pP', 219: '[{', 221: ']}', 220: '\\|',
+		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : -13,
+		16: '', 90: 'zZ', 88: 'xX', 67: 'cC', 86: 'vV', 66: 'bB', 78: 'nN', 77: 'mM', 188: ',<', 190:'.>', 191: '/?',
+		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: -8, 10: -10,
+	},
+}).init();

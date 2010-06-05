@@ -1,0 +1,12 @@
+An.object().named('Picker').from(Circle,{
+	init: function() { return this.clone().copy({ gamma: 255, cr: 0, cb: 0 }).instance().radius(128) },
+	move: function(e) {
+		this.cr = Math.min(255,Math.max(0,e.x - this.x))/255;
+		this.cb = Math.min(255,Math.max(0,e.y - this.y))/255;
+		this.cg = 1 - Math.sqrt(this.cr*this.cb);
+		this.gamma = Math.floor(256*Math.sqrt(this.cr*this.cr + this.cb*this.cb));
+		this.color(Math.floor(this.gamma*this.cr),
+			Math.floor(this.gamma*this.cg),Math.floor(this.gamma*this.cb));
+	},
+	down: function(e) { if (e.on(this) && that.can('color')) that.color(this.r,this.g,this.b) },
+});

@@ -1,0 +1,11 @@
+An.object().named('Component').plural('Components').from(Widget,{
+	to: function(x,y) {
+		Components.of(this,'to',x,y);
+		this.x += x;
+		this.y += y;
+		return this;
+	},
+	free: function() { Widgets.of(this,'free'); return this },
+	hide: function() { Widgets.of(this,'hide'); return this },
+	show: function() { Widgets.of(this,'show'); return this },
+});

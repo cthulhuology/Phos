@@ -1,0 +1,6 @@
+An.object().named('Objects').from({
+	init: function() { 
+		window.each(function(v,k) { if (v && v['can'] && v.can('init')) Objects[k] = v});
+		this.init = false;
+	}
+}).init();

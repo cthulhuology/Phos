@@ -1,0 +1,13 @@
+An.object().named('Territory').from(Circle, {
+	init: function(x) { 
+		var target = typeof(x) == "string" ? x : x.name();
+		return this.clone().copy({
+			target:  target,
+		}).radius(window[target].slots()).instance();
+	},
+	down: function(e) {
+		if (!e.on(this)) return;
+		this.moving = e;
+		if (e.button > 1) alert('expanding');			
+	},
+});

@@ -1,0 +1,7 @@
+An.object().named('Graphic').plural('Graphics').from(Widget,{
+	r: 255, g: 255, b: 255,
+	color: function(r,g,b) {
+		this.r = r; this.g = g; this.b = b;
+		return this;
+	},
+});

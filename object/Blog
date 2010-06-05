@@ -1,0 +1,4 @@
+An.object().named('Blog').from(Image,{
+	show: function() { this.at(Display.w -200,10).by(100,30).load('img','images/blog.png') },
+	down: function(e) { if (e.on(this)) _doc.goto('http://blog.dloh.org') },
+}).instance().show();

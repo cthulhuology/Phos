@@ -1,0 +1,18 @@
+An.object().named('HotKey').from({ 
+	of: function(k) { this[k]() },
+	// Block Widget hotkeys
+	'x': function() { clipboard = editing.content; editing.free() },
+	'c': function() { clipboard = editing.content }, 
+	'v': function() { editing.says(editing.content.append(clipboard)) },
+	'/': function() { Search.find() },
+	's': function() { 
+		if (editing.childof == localStorage && !editing.valueof) 
+			(localStorage[editing.content]).post('objects/' + Phosphor.abbr + '-' + editing.content,
+				function(txt) {if (!txt) alert('Failed to save try again') }) }, 
+	// Phosphor Widget hotkeys
+	'd': function() { if (editing.content) editing.content.download() },
+	'o': function() { Display.at(0,0) },
+	'r': function() { _doc.goto(_doc.location) },
+	'h': function() { Phosphor.help.show() },
+	'i': function() { Phosphor.inventory.show() },
+});

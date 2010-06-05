@@ -1,0 +1,6 @@
+An.object().named('Device').plural('Devices').from({
+	dispatch: function(n,e) { 
+		Widget.widgets.every(function(w,i) { try { if (w.can(n)) w[n](Event.init(e)) } catch(e) {} });
+		return this;
+	}, 
+});

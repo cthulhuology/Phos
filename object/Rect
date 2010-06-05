@@ -1,0 +1,7 @@
+function () { 
+An.object().named('Rect').plural('Rects').from(Graphic,{
+	init: function() { return this.clone().by(100,100).instance().here() },
+	draw: function() { if(this.visible) Screen.color(this.r,this.g,this.b).as(this).fill().white() },
+	bar: function() {},
+});
+}

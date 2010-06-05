@@ -1,0 +1,20 @@
+An.object().named('Search').from(Block,{
+	find: function() {
+		if (this.expanded) this.expanded = this.expanded.collapse();
+		if (this.visible) return this.visible = false;
+		this.says('').show();
+		Sound.click.play();
+		this.at(Display.w/2-100,Display.h/2-20).by(200,40);
+	},
+	evaluate: function() {
+		if (this.expanded) this.expanded = this.expanded.collapse();
+		Sound.click.play();
+		this.results = {};
+		$self = this;
+		Objects.each(function(o,k){ 
+			if (o.can($self.content.deparameterized())) $self.results[k] = o;
+		});
+		this.expanded = Block.display(this.results,this.x,this.y+this.h);
+		return this.content;
+	},
+}).instance().hide();
