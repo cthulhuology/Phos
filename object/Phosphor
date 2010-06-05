@@ -1,4 +1,6 @@
 
+String.prototype.get = function(cb) { return this.request("GET",this,cb? cb : function (txt) { A.block().says(txt)}) }
+
 Object.prototype.parameters = function() {
 	var m = /function (\([^)]*\))/.exec(this.toString());
 	return m ? m[1] : "";
