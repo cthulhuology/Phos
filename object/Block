@@ -12,6 +12,7 @@ An.object().named('Block').from(Widget,{
 		} catch(e) { 
 			try {
  				retval = eval( this.content );
+				
  			} catch(ee) {
  				Sound.error.play();
  				alert(e); 
@@ -50,16 +51,18 @@ An.object().named('Block').from(Widget,{
 	expand: function() {
 		if (this.childof == localStorage) {
 			eval('(' + this.childof[this.content] + ')');	
-			return alert('Loading ' + this.content);
+			return;
 		}
 		if (this.valueof) {
 			var t  = a(Block).says(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
 			t.expanded = t.expand();
 			return false;
 		}
+		result = this.evaluate();
+		if (typeof(result) == "string") return;
 		return this.childof ?  
 			this.childof[this.content.deparameterized()].property(this.childof,this.content,this.x+this.w+2,this.y):
-			this.display(this.evaluate(),this.x,this.y+this.h+4);
+			this.display(result,this.x,this.y+this.h+4);
 	},
 	draw: function() {
 		if (!this.visible) return;
@@ -80,21 +83,21 @@ An.object().named('Block').from(Widget,{
 	up: function(e) { 
 		var o = false;
 		var $self = this;
-		if (this.moving && (o = Widget.widgets.any(function(v,k) {
+		if (this.moving && (that = Widget.widgets.any(function(v,k) {
 			return ![ $self, Display, Phosphor ].contains(v) 
 				&& v.can('on') && v.on($self) && !v.locked }))) {
-			if (o.childof && !o.valueof) {
-				o.childof[o.content.deparameterized()] = this.evaluate();
+			if (that.childof && !that.valueof) {
+				that.childof[that.content.deparameterized()] = this.evaluate();
 				this.free();
 			} 
-			if (!o.childof) {
-				if (this.content.isCall() && o.can(this.content.deparameterized())) {
-					o[this.content.deparameterized()].apply(o,this.content.params());
+			if (!that.childof) {
+				if (this.content.isCall() && that.can(this.content.deparameterized())) {
+					eval('that.' + this.content);
 				} else {
-					if (!window.contains(o.content)) window[o.content] = {};
-					o.evaluate()[this.content] = true;	
-					if (o.expanded) o.expanded.collapse();
-					o.expanded = o.expand();
+					if (!window.contains(o.content)) window[that.content] = {};
+					that.evaluate()[this.content] = true;	
+					if (that.expanded) that.expanded.collapse();
+					that.expanded = that.expand();
 					this.free();
 				}
 			}

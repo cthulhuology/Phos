@@ -1,1 +1,9 @@
-Add auto-use for Inventory items
+Add object timeline browser
+Add http proxy application at /http/
+Add native call proxy functions / objects
+Add object store to Inventory
+Add pretty printer
+Add drop copy method copy on objects
+Add drop copy method on block
+Remove properties on strings
+Clear meta after 
