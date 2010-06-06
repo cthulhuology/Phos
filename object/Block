@@ -58,11 +58,9 @@ An.object().named('Block').from(Widget,{
 			t.expanded = t.expand();
 			return false;
 		}
-		result = this.evaluate();
-		if (typeof(result) == "string") return;
 		return this.childof ?  
 			this.childof[this.content.deparameterized()].property(this.childof,this.content,this.x+this.w+2,this.y):
-			this.display(result,this.x,this.y+this.h+4);
+			this.display(this.evaluate(),this.x,this.y+this.h+4);
 	},
 	draw: function() {
 		if (!this.visible) return;
