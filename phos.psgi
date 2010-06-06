@@ -4,8 +4,6 @@ use Git;
 
 use Data::Dumper;
 
-
-
 my $app_store = sub {
 	my $env = shift;
 	[ 200, [ 'Content-Type' => 'text/plain' ], [ 'stored'] ];
