@@ -1,0 +1,36 @@
+Array.prototype.every = function(f) {
+	for (var i = 0; i < this.length; ++i) f(this[i],i);
+	return this;
+}
+
+Array.prototype.map = function(f) {
+	var retval = [];
+	this.every(function(x,i) { retval.push(f(x)) });
+	return retval;
+}
+
+Array.prototype.apply = function(f,o) {
+	var retval = o;
+	this.every(function(x,i) { retval = f(retval,x) });
+	return retval;
+}
+	
+Array.prototype.contains = function(e) {
+	var retval = false;
+	this.every(function(x,i) { if (x == e) return retval = true });
+	return retval;
+}
+
+Array.prototype.append = function(a) {
+	this.push.apply(this,a);
+	return this
+}
+
+Array.prototype.and = function() {
+	this.push.apply(this,arguments);
+	return this
+}
+
+Array.prototype.except = function (e) { 
+	for (var i = 0; i < this.length; ++i) if (this[i] == e) this.splice(i,1);	
+}

@@ -10,7 +10,7 @@ An.object().named('Keyboard').from(Device, {
 	press:  function(e) { Keyboard.dispatch('press',e)  },
 	reset: function(e) { if (Keyboard.modmap[e.keyCode]) Keyboard.modmap[e.keyCode](false) },
 	init: function() {
-		_root.listen('keyup',Keyboard.reset).listen('keydown',Keyboard.press);
+		_root.when('keyup',Keyboard.reset).when('keydown',Keyboard.press);
 		return this;
 	},
 	modmap: { 

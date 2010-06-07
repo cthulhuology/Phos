@@ -5,7 +5,7 @@ An.object().named('Mouse').from(Device, {
 	up: function(e) { Mouse.dispatch('up',e) },
 	scroll: function(e) { Mouse.dispatch('scroll',e) },
 	init: function () { 
-		_root.listen('mouseover',Mouse.over).listen('mousemove',Mouse.move).listen('mousedown',Mouse.down).listen('mouseup',Mouse.up).listen('mousewheel',Mouse.scroll).listen('onscroll',Mouse.scroll);
+		_root.when('mouseover',Mouse.over).when('mousemove',Mouse.move).when('mousedown',Mouse.down).when('mouseup',Mouse.up).when('mousewheel',Mouse.scroll).when('onscroll',Mouse.scroll);
 		return this;
 	},
 }).init();

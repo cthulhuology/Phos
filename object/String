@@ -1,0 +1,30 @@
+String.prototype.last = function() { 
+	return this.substring(this.length-1) 
+}
+
+String.prototype.first = function() { 
+	return this.substring(0,1) 
+}
+
+String.prototype.decode = function() { 
+	return unescape(this) 
+}
+
+String.prototype.encode = function() { 
+	return escape(this) 
+}
+
+String.prototype.append = function() {
+	var retval = this;
+	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
+	return retval 
+}
+
+String.prototype.contains = function(s) { 
+	return 0 <= this.indexOf(s) 
+}
+
+String.prototype.name = function() { 
+	return this 
+}
+
