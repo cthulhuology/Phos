@@ -25,9 +25,16 @@ An.object().named('Display').from(Widget, {
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
 	},
 	up: function(e) { 
+		if (this.selecting && this.selected) { 
+			these = this.selected.map(function(x) { return x.value() });
+			if (these.length >= 2 && these[0].can(these[1])) {
+				that = these.shift();
+				var method = that[these.shift()];
+				method.apply(that,these);
+			}
+			A.block().at(e.x,e.y).says(these);
+		}
 		this.selected = [];
-		var $self = this;
-		if (this.extent && this.app) this.app.widgets.every(function(v,i) { if (v != $self && $self.extent.on(v)) $self.selected.push(v) });
 		this.extent = this.selecting = this.moving = false;
 	},
 	down: function(e) { 
@@ -37,16 +44,9 @@ An.object().named('Display').from(Widget, {
 		this.selecting = e;
 	},
 	move: function(e) { 
-		if (this.selected.length) {
-			this.selected.every(function(v,i) {
-				if (v.moving) {
-					var dx = e.x - v.moving.x;
-					var dx = e.y - v.moving.y;
-					v.to(dx,dy);
-				}
-			});
-		}
+		var $self = this;
 		if (this.moving) return this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)); 
-		if (this.selecting) return this.extent = A.box().at(Math.min(this.selecting.x,e.x),Math.min(this.selecting.y,e.y)).by(Math.abs(e.x - this.selecting.x),Math.abs(e.y-this.selecting.y));
+		if (this.selecting) this.extent = A.box().at(Math.min(this.selecting.x,e.x),Math.min(this.selecting.y,e.y)).by(Math.abs(e.x - this.selecting.x),Math.abs(e.y-this.selecting.y));
+		if (this.extent) Widgets.widgets.every(function(v,i) { if (v != $self && $self.extent.on(v) && !$self.selected.contains(v)) $self.selected.push(v) });
 	},
 }).init();

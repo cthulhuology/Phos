@@ -168,3 +168,5 @@ Object.prototype.when = HTMLElement.prototype.when = function(e,f) {
 	return this;
 }
 
+Object.prototype.value = function() { return this; }
+

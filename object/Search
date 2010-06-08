@@ -14,7 +14,7 @@ An.object().named('Search').from(Block,{
 		Objects.each(function(o,k){ 
 			if (o.can($self.content.deparameterized())) $self.results[k] = o;
 		});
-		this.expanded = Block.display(this.results,this.x,this.y+this.h);
+		this.expanded = Block.at(this.x,this.y+this.h).mirror(this.results);
 		return this.content;
 	},
 }).instance().hide();

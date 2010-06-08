@@ -34,6 +34,7 @@ var _root = window;
 var _body = null;
 var here;		// the last mouse position
 var that;		// the last thing selected
+var these;		// the targets of a selection
 var editing;		// the block we're editing
 var clipboard;		// the last object we cut or copied
 
@@ -94,8 +95,9 @@ _root.onload = function() {
 	_body = _doc.getElementsByTagName('body')[0];
 	use('Object','Array','String','Box','Widget','Component','Event','Device','Resource',
 		'Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
-		'Help','Names','HotKey','Block','Inventory',
-		'Objects','Phosphor','Graphic','Rectangle','Circle',
+		'Help','Inventory','Objects','Mirror','Phosphor',
+		'Names','HotKey','Block',
+		'Graphic','Rectangle','Circle',
 		'Blog','Search','App', 
 		navigator.userAgent.match(/AppleWebKit\/534/) ? 'WebKit' :
 		navigator.userAgent.match(/Safari/) ? 'Safari' :

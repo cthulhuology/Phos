@@ -1,18 +1,30 @@
 An.object().named('Block').from(Widget,{
 	init: function() { return this.clone().copy({ 
-		bg: "gray", moving: false, editing: false, expanded: false, content: false }).instance() },
+			fnt: '16 Arial',
+			bg: "gray", 
+			hl: "white",
+			sl: "blue",
+			over: false, 
+			moving: false, 
+			editing: false, 
+			expanded: false, 
+			content: false
+		 }).instance() },
 	says: function(t) { this.content = t; return this },
-	evaluate: function() {
+	evaluate: function() { 
+		A.block().at(this.x+this.w,this.y).says(this.value()); 
+		return this.content;
+	},
+	value: function() {
 		if (!this.content) return "";
+		if (this.childof) return this.childof[this.content];
 		var retval = this.content
 		Sound.click.play();
-		if (this.childof == localStorage) return this.content;	// Short circuit eval of inventory items
 		try { 
 			retval = eval('(' + this.content + ')') 
 		} catch(e) { 
 			try {
  				retval = eval( this.content );
-				
  			} catch(ee) {
  				Sound.error.play();
  				alert(e); 
@@ -23,7 +35,7 @@ An.object().named('Block').from(Widget,{
 	press: function(e) {
 		if (!this.editing || Keyboard.cmd || Keyboard.ctrl) return;
 		this.content = e.key == Keyboard.enter && this.childof && this.valueof ?  // NB: don't turn
-				this.childof[this.valueof] = this.evaluate():		  // to a says call
+				this.childof[this.valueof] = this.value():		  // to a says call
 			e.key == Keyboard.enter ? 					  // as it will break
 				this.evaluate():					  // some objects
 			e.key == Keyboard.backspace ? 
@@ -34,39 +46,13 @@ An.object().named('Block').from(Widget,{
 		if (this.content && Names.of(this.content)) this.content = Names.of(this.content);
 		if (this.content == undefined) this.free();
 	},
-	done: function() {
-		Sound.click.play();
-		if (this.expanded) this.expanded = this.expanded.collapse();
-		this.free();
-	},
-	display: function(o,x,y) {
-		var w = [];
-		o.each(function(v,k) {
-			if (!k || !typeof(v)) return;
-			w.push(a(Block).says(v.parameters ? k + v.parameters() : k).at(x,y).by(200,20).copy({childof: o }));
-			y += 28;
-		});
-		return w;
-	},
-	expand: function() {
-		if (this.childof == localStorage) {
-			eval('(' + this.childof[this.content] + ')');	
-			return;
-		}
-		if (this.valueof) {
-			var t  = a(Block).says(this.childof[this.valueof]).at(this.x+this.w+2,this.y).by(200,20);
-			t.expanded = t.expand();
-			return false;
-		}
-		return this.childof ?  
-			this.childof[this.content.deparameterized()].property(this.childof,this.content,this.x+this.w+2,this.y):
-			this.display(this.evaluate(),this.x,this.y+this.h+4);
+	selected: function() {
+		return Display.selected.contains(this);
 	},
 	draw: function() {
 		if (!this.visible) return;
-		Screen[this.editing ? 'white' : 'gray']();
-		if (!this.editing && this.childof && this.valueof) this.says(this.childof[this.valueof]);
-		Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font('16 Arial').print(this.content);
+		Screen[this.editing || this.over ? this.hl : this.selected() ? this.sl : this.bg]();
+		Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font(this.fnt).print(this.content);
 		this.by(Math.max(this.w,(Screen.x+Display.x)-this.x + Screen.size),(Screen.y+Display.y)-this.y + Screen.size/2);
 		Screen.at(this.x-Screen.size/2,this.y).by(this.w,this.h).frame();
 	},
@@ -76,42 +62,28 @@ An.object().named('Block').from(Widget,{
 		if (!this.content) return;
 		if (e.button < 2) return;
 		Sound.click.play();
-		this.expanded = this.expanded ? this.expanded.collapse(): this.expand();
+		this.value().mirror();
 	},
 	up: function(e) { 
-		var o = false;
 		var $self = this;
 		if (this.moving && (that = Widget.widgets.any(function(v,k) {
-			return ![ $self, Display, Phosphor ].contains(v) 
-				&& v.can('on') && v.on($self) && !v.locked }))) {
-			if (that.childof && !that.valueof) {
-				that.childof[that.content.deparameterized()] = this.evaluate();
+			return ![ $self, Display, Phosphor ].contains(v) && v.can('on') && v.on($self) && !v.locked }))) {
+			if (that.can('drop')) {
+				that.drop(this.value());
 				this.free();
-			} 
-			if (!that.childof) {
-				if (this.content.isCall() && that.can(this.content.deparameterized())) {
-					eval('that.' + this.content);
-				} else {
-					if (!window.contains(o.content)) window[that.content] = {};
-					that.evaluate()[this.content] = true;	
-					if (that.expanded) that.expanded.collapse();
-					that.expanded = that.expand();
-					this.free();
-				}
+			} else if (this.content.isCall() && that.can(this.content.deparameterized())) {
+				 eval('that.' + this.content);
 			}
 		}
 		this.moving = false;
 	},
 	move: function(e) { 
-		this.editing = e.on(this);
+		this.over = this.editing = e.on(this);
 		if (this.editing) editing = this;
 		if (this.moving) {
 			var dx = e.x - this.moving.x;
 			var dy = e.y - this.moving.y;
 			this.to(e.x - this.moving.x,e.y -this.moving.y );
-			if (this.expanded) this.expanded.every(function(o,i) { 
-				if (o.expanded) o.expanded.every(function(m,i) { m.to(dx,dy)});
-				o.to(dx,dy)});
 			this.moving = e;
 		}
 	},

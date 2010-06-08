@@ -32,10 +32,6 @@ Array.prototype.collapse = function() {
 	return false
 }
 
-Widget.properties = function() {
-	this.contents = this.contents ? this.contents.collapse() : Block.display(this,this.x,this.y+this.h) 
-}
-
 Widget.down = function(e) { 
 	if(!e.on(this)) return;
 	if(this.can('click')) this.click();
@@ -43,7 +39,7 @@ Widget.down = function(e) {
 	this.moving = e; 
 	if (Keyboard.shift) that.init().to(that.w,that.h);
        	if(e.button < 2) return;
-	this.properties();
+	this.mirror();
 };
 
 Widget.move = function(e) {

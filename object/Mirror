@@ -1,0 +1,47 @@
+An.object().named('Mirror').from(Widget,{
+	color: 'white',
+	reflect: function(o) {
+		var w = [];
+		var xo = x = Mouse.x; var yo = y = Mouse.y + 30;
+		o.each(function(v,k) {
+			if (!k || !typeof(v)) return;
+			w.push(A.block().says(v.parameters ? k + v.parameters() : k).at(x,y+30).by(200,20).copy({
+				childof: o,
+				draw: function() {
+					Screen[this.over ? this.hl : this.bg]();
+					Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font(this.fnt).print(this.content.append(' : ', this.childof[this.content] ));
+					this.by(Math.max(this.w,(Screen.x+Display.x)-this.x + Screen.size),(Screen.y+Display.y)-this.y + Screen.size/2);
+					Screen.at(this.x-Screen.size/2,this.y).by(this.w,this.h).frame();
+				},
+				down: function() {},
+				up: function() {},
+				move: function() {},
+				drop: function(v) {
+					this.childof[this.content] = v;
+				}
+			}));
+			y += 30;
+		});
+		return A.mirror().copy({ reflects: o, reflections: w }).at(xo,yo).by(200,30);
+	},
+	draw: function() {
+		Screen.color(this.color).at(this.x-Screen.size/2+5,this.y+20).print(this.reflects.name());
+	},
+	down: function(e) {
+		if (e.on(this)) this.moving = e;
+	},
+	move: function(e) {
+		if (!this.moving) return;
+		var dx = e.x - this.moving.x;
+		var dy = e.y - this.moving.y;
+		this.reflections.every(function(v) { v.to(dx,dy) });
+		this.to(dx,dy);
+		this.moving = e;
+	},
+	up: function(e) { this.moving = false; }
+});
+
+Object.prototype.mirror = function() {
+	return Mirror.reflect(this);
+}
+
