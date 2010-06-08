@@ -95,7 +95,7 @@ _root.onload = function() {
 	_body = _doc.getElementsByTagName('body')[0];
 	use('Object','Array','String','Box','Widget','Component','Event','Device','Resource',
 		'Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
-		'Help','Inventory','Objects','Mirror','Phosphor',
+		'Help','Inventory','Trash','Objects','Mirror','Phosphor',
 		'Names','HotKey','Block',
 		'Graphic','Rectangle','Circle',
 		'Blog','Search','App', 

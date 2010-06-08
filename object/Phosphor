@@ -73,6 +73,7 @@ An.object().named('Phosphor').from(Widget,{
 		return this.copy({
 			help: a(Help,'images/help_button.png').at(Display.w-100,10),
 			inventory: an(Inventory),
+			trash: a(Trash),
 		}).at(0,Display.h-64).by(Display.w,64).instance();
 	},
 	press: function(e) { if(Keyboard.ctrl || Keyboard.cmd) HotKey.of(e.key); },
