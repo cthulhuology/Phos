@@ -1,20 +1,21 @@
 An.object().named('Inventory').from(Widget,{
-	init: function() { 
-		Objects.each(function(v,k) { if (v) localStorage[k] = k });
-		return this.clone().instance().copy({
-			button: an(Image,'images/inventory_button.png').at(0,10).copy({
-				down: function(e) { 
-					if (e.on(this)) Inventory.show() 
-				},
-			}),
-		}).at(10,50).get('objects/',function(txt) { 
-			eval('(' + txt + ')').every(function(v,i) { 
-				localStorage[v] = 'use("' + v + '")';
-			});
-		});
-	},
-	show: function() {  //NB: don't convert to a says as this switch breaks the bool check 
-		var x = this.x; var y = this.y;
-		this.content = this.content ? this.content.collapse() : localStorage.mirror();
-	},
+// TODO Fix Inventory
+//	init: function() { 
+//		Objects.each(function(v,k) { if (v) localStorage[k] = k });
+//		return this.clone().instance().copy({
+//			button: an(Image,'images/inventory_button.png').at(0,10).copy({
+//				down: function(e) { 
+//					if (e.on(this)) Inventory.show() 
+//				},
+//			}),
+//		}).at(10,50).get('objects/',function(txt) { 
+//			eval('(' + txt + ')').every(function(v,i) { 
+//				localStorage[v] = 'use("' + v + '")';
+//			});
+//		});
+//	},
+//	show: function() {  //NB: don't convert to a says as this switch breaks the bool check 
+//		var x = this.x; var y = this.y;
+//		this.content = this.content ? this.content.collapse() : localStorage.mirror();
+//	},
 });

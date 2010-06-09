@@ -4,20 +4,24 @@ An.object().named('Mirror').from(Widget,{
 		var w = [];
 		var xo = x = Mouse.x; var yo = y = Mouse.y + 30;
 		o.each(function(v,k) {
-			if (!k || !typeof(v)) return;
-			w.push(A.block().says(v.parameters ? k + v.parameters() : k).at(x,y+30).by(200,20).copy({
+			// if (!k || !typeof(v)) return;
+			w.push(A.block().says(v.name ?  v.name() : k).at(x,y+30).by(200,20).copy({
 				childof: o,
+				property: k,
 				draw: function() {
 					Screen[this.over ? this.hl : this.bg]();
-					Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font(this.fnt).print(this.content.append(' : ', this.childof[this.content] ));
+					Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font(this.fnt).print(this.property.append(' : ', (typeof(this.childof[this.property]) == "function" ? '()' : this.childof[this.property])));
 					this.by(Math.max(this.w,(Screen.x+Display.x)-this.x + Screen.size),(Screen.y+Display.y)-this.y + Screen.size/2);
 					Screen.at(this.x-Screen.size/2,this.y).by(this.w,this.h).frame();
 				},
-				down: function() {},
+				down: function(e) {
+					if(e.on(this) && e.button >= 2)
+						Mirror.reflect(this.childof[this.property]).at(this.x+this.w,this.y);
+				},
 				up: function() {},
 				move: function() {},
 				drop: function(v) {
-					this.childof[this.content] = v;
+					this.childof[this.property] = v;
 				}
 			}));
 			y += 30;

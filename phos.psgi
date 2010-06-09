@@ -36,5 +36,5 @@ builder {
 	mount "/js" => Plack::App::File->new(root => "js")->to_app;
 	mount "/sounds" => Plack::App::File->new(root => "sounds")->to_app;
 	mount "/images" => Plack::App::File->new(root => "images")->to_app;
-	mount "/" => Plack::App::File->new(file => 'phosphor.html')->to_app;
+	mount "/" => Plack::App::File->new(file => 'index.html')->to_app;
 };
