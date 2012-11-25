@@ -1,16 +1,12 @@
-Keyboard.keymap[61] = '=+';
-Keyboard.keymap[107] = '++';
-Keyboard.keymap[109] = '-_';
-
-Screen.frame = function() {
+Screen.does('frame', function() {
 	this.ctx.beginPath();
-	this.ctx.moveTo(this.x,this.y);
-	this.ctx.lineTo(this.x+this.w,this.y);
-	this.ctx.lineTo(this.x+this.w,this.y+this.h);
-	this.ctx.lineTo(this.x,this.y+this.h);
-	this.ctx.lineTo(this.x,this.y);
+	this.ctx.moveTo(this.x(),this.y());
+	this.ctx.lineTo(this.x()+this.width(),this.y());
+	this.ctx.lineTo(this.x()+this.width(),this.y()+this.height());
+	this.ctx.lineTo(this.x(),this.y()+this.h);
+	this.ctx.lineTo(this.x(),this.y());
 	this.ctx.stroke();
 	this.ctx.closePath();
-	this.to(this.w,this.h);
+	this.to(this.width(),this.height());
 	return this;
-};
+})

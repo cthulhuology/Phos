@@ -1,4 +1,2 @@
-// none
-Display.dx = -1;
-Display.dy = -1;
+Display.has('dx',-1).has('dy',-1)
 

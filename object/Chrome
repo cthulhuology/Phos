@@ -1,2 +1,1 @@
-Display.dx = 40;
-Display.dy = 40;
+Display.has('dx', 40).has('dy',40)
