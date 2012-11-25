@@ -113,12 +113,12 @@ An.object().named('Screen').from(Box,{
 	background: function(r,g,b) { 
 		this.display.canvas.style.background = 'rgb('.append(r,',',g,',',b,')'); 
 		return this },
-	color: function(r,g,b) {
-		this.ctx.strokeStyle = this.ctx.fillStyle = (typeof(r) == 'string') ?
-			r :
-			'rgb('.append(r,',',g,',',b,')'); 
+	does('color', function(R,G,B,A) {
+		this.ctx.strokeStyle = this.ctx.fillStyle = (typeof(R) == 'string') ?
+			R :
+			'rgba('.append(R,',',G,',',B,',',A,')'); 
 		return this;
-	},
+	}).
 	rotate: function(r) {
 		this.ctx.rotate(r)
 		return this },
