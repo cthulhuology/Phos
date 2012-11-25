@@ -12,13 +12,13 @@ Array.prototype.map = function(F) {
 // this is actually reduce... 
 Array.prototype.apply = function(F,O) {
 	var R = O
-	this.every(function(X,J) { R = f(R,X) })
+	this.every(function(X,J) { R = F(R,X) })
 	return R
 }
 	
 Array.prototype.contains = function(E) {
 	var R = false
-	this.every(function(x,i) { if (x == e) return R = true })
+	this.every(function(O,J) { if (O == E) return R = true })
 	return R
 }
 

@@ -1,11 +1,10 @@
-An.object().named('Event').plural('Events').from(Box,{
-	init: function(e) {
-		return this.clone().copy({
-			button: e.button,
-			key: Keyboard.key(e.keyCode, e.type == 'keydown'),
-			time: new Date(),
-			dx: Math.floor(e.wheelDeltaX),
-			dy: Math.floor(e.wheelDeltaY),
-		}).at(e.clientX + Display.x - Display.canvas.offsetLeft,e.clientY + Display.y - Display.canvas.offsetTop);
-	},
-});
+An.object().named('Event').plural('Events').from(Box).
+	does('init', function(E) {
+		return this.clone().
+			has('button', E.button).
+			has('key', Keyboard.key(E.keyCode, E.type == 'keydown')).
+			has('time', new Date()).
+			has('dx', Math.floor(E.wheelDeltaX)).
+			has('dy', Math.floor(E.wheelDeltaY)).
+			at(E.clientX + Display.x() - Display.canvas().offsetLeft,E.clientY + Display.y() - Display.canvas().offsetTop);
+	})

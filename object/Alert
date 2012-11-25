@@ -1,1 +1,3 @@
-An.object().named('Alert').from({ message: "hello world", display: function () { alert(this.message); } })
+An.object().named('Alert').
+	has('message',"hello world").
+	does('display', function () { alert(this.message()); })

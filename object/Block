@@ -1,39 +1,35 @@
-An.object().named('Block').from(Widget,{
-	init: function() { return this.clone().copy({ 
-			fnt: '16 Arial',
-			bg: "gray", 
-			hl: "white",
-			sl: "blue",
-			over: false, 
-			moving: false, 
-			editing: false, 
-			expanded: false, 
-			content: false
-		 }).instance() },
-	says: function(t) { this.content = t; return this },
-	evaluate: function() { 
-		A.block().at(this.x+this.w,this.y).says(this.value()); 
-		return this.content;
-	},
-	value: function() {
-		if (!this.content) return "";
-		if (this.childof) return this.childof[this.content];
-		var retval = this.content
+An.object().
+	named('Block').
+	from(Widget).
+	does('init', function() { 
+		return this.clone().
+			has('font','16 Arial').
+			has('background',"gray"). 
+			has('highlight',"white").
+			has('selection',"blue").
+			has('over', false).
+			has('moving', false). 
+			has('editing', false).
+			has('expanded', false). 
+			has('content', '').
+		 	instance() 
+	}).
+	does('says', function(T) { 
+		return this.has('content',T)
+	}).
+	does('run', function() { 
+		A.block().at(this.x()+this.width(),this.y()).says(this.value())
+		return this.content()
+	}).
+	does('value', function() {
+		if (this.can('of')) return this.of(this.content());
 		Sound.click.play();
-		try { 
-			retval = eval('(' + this.content + ')') 
-		} catch(e) { 
-			try {
- 				retval = eval( this.content );
- 			} catch(ee) {
- 				Sound.error.play();
- 				alert(e); 
- 			}
-		};
-		return retval;
+		return this.content().toString().eval()
 	},
-	press: function(e) {
-		if (!this.editing || Keyboard.cmd || Keyboard.ctrl) return;
+	does('press', function(E) {
+		if (!this.editing() 
+		|| Keyboard.command() 
+		|| Keyboard.control()) return;
 		this.content = e.key == Keyboard.enter && this.childof && this.valueof ?  // NB: don't turn
 				this.childof[this.valueof] = this.value():		  // to a says call
 			e.key == Keyboard.enter ? 					  // as it will break

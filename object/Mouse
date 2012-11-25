@@ -1,11 +1,28 @@
-An.object().named('Mouse').from(Device, {
-	over: function(e) { Mouse.dispatch('over',e) },
-	move: function(e) { Mouse.x = e.x + Display.x; Mouse.y = e.y + Display.y; Mouse.dispatch('move',e) },
-	down: function(e) { Mouse.dispatch('down',e) },
-	up: function(e) { Mouse.dispatch('up',e) },
-	scroll: function(e) { Mouse.dispatch('scroll',e) },
-	init: function () { 
-		_root.when('mouseover',Mouse.over).when('mousemove',Mouse.move).when('mousedown',Mouse.down).when('mouseup',Mouse.up).when('mousewheel',Mouse.scroll).when('onscroll',Mouse.scroll);
+An.object().named('Mouse').from(Device).
+	does('over', function(E) { 
+		Mouse.dispatch('over',E) 
+	}).
+	does('move', function(E) { 
+		Mouse.has('x',E.x() + Display.x())
+		Mouse.has('y',E.y() + Display.y())
+		Mouse.dispatch('move',E) 
+	}).
+	does('down', function(E) { 
+		Mouse.dispatch('down',E) 
+	}).
+	does('up', function(E) { 
+		Mouse.dispatch('up',E) 
+	}).
+	does('scroll', function(E) { 
+		Mouse.dispatch('scroll',E) 
+	}).
+	does('init', function () { 
+		_root.when('mouseover',Mouse.over).
+			when('mousemove',Mouse.move).
+			when('mousedown',Mouse.down).
+			when('mouseup',Mouse.up).
+			when('mousewheel',Mouse.scroll).
+			when('onscroll',Mouse.scroll)
 		return this;
-	},
-}).init();
+	}).
+	init()
