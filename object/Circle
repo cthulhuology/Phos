@@ -1,11 +1,18 @@
-An.object().named('Circle').plural('Circles').from(Graphic,{
-	init: function() { return this.clone().radius(20).instance().here() },
-	draw: function() { 
-		var r = Screen.rad; 
-		if(this.visible) Screen.color(this.r,this.g,this.b).radius(this.rad).at(this.x+this.rad,this.y+this.rad).circle().radius(r) },
-	radius: function(r) {
-		this.by(r*2,r*2).rad = 1*r;
+An.object().named('Circle').plural('Circles').from(Graphic).
+	does('init', function() { 
+		return this.clone().size(20).instance().here() 
+	}).
+	does('draw', function() { 
+		var R = Screen.radius(); 	// save screen radius
+		if(this.visible()) 
+			Screen.color(this.red(),this.green(),this.blue(),this.alpha()).
+				radius(this.radius()).
+				at(this.x()+this.radius(),this.y()+this.radius()).
+				circle().
+				radius(R) 
+	}).
+	does('size', function(R) {
+		this.by(R*2,R*2)
+		this.has('radius', 1*R)
 		return this;
-	},
-	circle: function() {},
-});
+	})

@@ -1,9 +1,12 @@
-An.object().named('Graphic').plural('Graphics').from(Widget,{
-	r: 255, g: 255, b: 255,
-	color: function(r,g,b) {
-		this.r = Math.min(255,Math.max(0,1*r)); 
-		this.g = Math.min(255,Math.max(0,1*g));
-		this.b = Math.min(255,Math.max(0,1*b));
-		return this;
-	},
-});
+An.object().named('Graphic').plural('Graphics').from(Widget).
+	has('red',255).
+	has('green',255).
+	has('blue', 255).
+	has('alpha',1.0).
+	does('color', function(R,G,B,A) {
+		return this.	
+			has('red',Math.min(255,Math.max(0,1*R))). 
+			has('green',Math.min(255,Math.max(0,1*G))).
+			has('blue',Math.min(255,Math.max(0,1*B)).
+			has('alpha',Math.min(1.0, Math.max(0,1*A)))
+	})
