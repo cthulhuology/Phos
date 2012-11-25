@@ -15,47 +15,33 @@ An.object().
 			|| O.y() > this.y() + this.height()):
 			false
 	}).
-	overlaps: function(excluding) {
-		var $self = this;
-		return Widget.widgets.any(function(x) { 
-			return x.can('on') && x != $self && !excluding.contains(x) && x.on($self) });
-	},
-	at: function(x,y) {
-		var X = Math.floor(x)
-		var Y = Math.floor(y)
-		this.x = function() { return X };
-		this.y = function() { return Y };
-		return this;
-	},
-	to: function(x,y) {
-		var X = Math.floor(x) + this.x()
-		var Y = Math.floor(y) + this.y()
-		this.x = function() { return X }
-		this.y = function() { return Y }
-		return this;
-	},
-	by: function(w,h) {
-		var W = 
-		this.width = function() { return 
-		this.height = Math.floor(h);
-		return this;
-	},
-	scale: function(w,h) {
-		this.w += w;
-		this.h += h;
-		return this;
-	},
-	as: function(b) { return this.at(b.x,b.y).by(b.w,b.h) },
-	clamp: function(x,y,w,h) {
-		this.x = Math.max(x,this.x);
-		this.y = Math.max(y,this.y);
-		this.x = Math.min(w - this.w,this.x);
-		this.y = Math.min(h - this.h,this.y);
-		return this;
-	},
-	towards: function(x,y) {
-		var dx = x - this.x;
-		var dy = y - this.y;
-		return this.to(dx ? dx/Math.abs(dx): 0,dy ? dy/Math.abs(dy) : 0);
-	},
-});
+	does('overlaps', function(Excluding) {
+		var I = this
+		return Widget.widgets.any(function(O) { 
+			return O.can('on') && O != I && !Excluding.contains(O) && O.on(I) 
+		})
+	}).
+	does('at', function(X,Y) {
+		return this.has('x',Math.floor(X)).has('y',Math.floor(Y))
+	}).
+	does('to', function(X,Y) {
+		return this.has('x',Math.floor(X + this.x())).has('y',Math.floor(Y + this.y()))
+	}).
+	does('by', function(W,H) {
+		return this.has('width',Math.floor(W)).has('height',Math.floor(H))
+	}).
+	does('scale', function(W,H) {
+		return this.has('width',this.width() * w).has('height',this.height()* H)
+	}).
+	does('as', function(O) { 
+		return this.at(O.x(),O.y()).by(O.width(),O.height()) 
+	}).
+	does('clamp', function(X,Y,W,H) {
+		return this.has('x',Math.min(W - this.width), Math.max(X,this.x()))).
+			has('y',Math.min(H - this.height(), Math.max(Y,this.y())))
+	}).
+	does('towards', function(X,Y) {
+		var dx = X - this.x()
+		var dy = Y - this.y()
+		return this.to(dx ? dx/Math.abs(dx): 0,dy ? dy/Math.abs(dy) : 0)
+	})
