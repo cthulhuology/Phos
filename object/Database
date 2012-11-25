@@ -1,26 +1,25 @@
-An.object().named('Database').from({
-	init: function(name) {
+An.object().named('Database').
+	has('callback',function() {} ).
+	does('init', function(Name) {
 		try {
-			this.db = openDatabase(name,'','Phosphor Database',4096*4096);
-		} catch(e) {
-			alert(e);
+			has('sql',openDatabase(Name,'','Phosphor Database',4096*4096))
+		} catch(E) {
+			alert(E);
 		}
 		return this;
-	},
-	query: function(s,c) {
-		var args = [];
-		var $self = this;
-		this.cb = c;
-		for (var i = 2; i < arguments.length; ++i) args[i] = arguments[i];
-		this.db.transaction(function(t) { t.executeSql(s,args,$self.result,$self.failure) });
+	}).
+	does('query', function(Q,F) {
+		var I = this
+		var Args = Array.prototype.slice.apply(arguments,2)
+		this.has('callback',F)
+		this.sql().transaction(function(T) { T.executeSql(Q,Args,I.result,I.failure) });
 		return this;
-	},
-	result: function(t,r) {
-		if (this.cb) r.every(this.cb);
-		this.results = r;
-	},
-	failure: function(t,e) {
-		alert('Database Error: ' + e.message)
-		this.error = e;
-	},
-});
+	}).
+	does('result', function(T,R) {
+		R.every(this.callback())
+		this.has('results',R)
+	}).
+	does('failure', function(T,E) {
+		alert('Database Error: ' + E.message)
+		this.has('error',E)
+	})
