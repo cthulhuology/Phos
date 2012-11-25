@@ -1,12 +1,18 @@
 An.object().named('Trash').from(Widget,{
 	init: function() { 
-		trash: an(Image,'images/trash.png').at(Display.w-64,Display.h-64).copy({
+		this.trash =  an(Image,'images/trash.png').at(Display.w-64,Display.h-64).copy({
 			down: false,
 			up: function(e) {
 				var o = null;
-				while(o = this.overlaps([Display,Phosphor,this])) {
-					Sound.trash.play();
-					o.free();
+				while(o = e.overlaps([Display,Phosphor,Trash,this])) {
+					for (k in o) {
+						console.log(k,o[k])
+					}
+					
+					if (o.visible) { 
+						Sound.trash.play();
+						o.free();
+					}
 				};
 			},
 		});

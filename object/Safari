@@ -1,2 +1,4 @@
 // none
+Display.dx = -1;
+Display.dy = -1;
 

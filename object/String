@@ -15,13 +15,13 @@ String.prototype.encode = function() {
 }
 
 String.prototype.append = function() {
-	var retval = this;
-	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString();
+	var retval = this
+	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString()
 	return retval 
 }
 
-String.prototype.contains = function(s) { 
-	return 0 <= this.indexOf(s) 
+String.prototype.contains = function(S) { 
+	return 0 <= this.indexOf(S) 
 }
 
 String.prototype.name = function() { 

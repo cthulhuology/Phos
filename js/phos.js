@@ -97,9 +97,9 @@ _root.onload = function() {
 		'Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
 		'Help','Inventory','Trash','Objects','Mirror','Phosphor',
 		'Names','HotKey','Block',
-		'Graphic','Rectangle','Circle',
+		'Graphic','Rectangle','Circle','Daimond',
 		'Blog','Search','App', 
-		navigator.userAgent.match(/AppleWebKit\/534/) ? 'WebKit' :
+		navigator.userAgent.match(/AppleWebKit\/534/) ? 'Safari' :
 		navigator.userAgent.match(/Safari/) ? 'Safari' :
 		navigator.userAgent.match(/Chrome/) ? 'Chrome' :
 		navigator.userAgent.match(/Firefox/) ? 'Firefox' : 

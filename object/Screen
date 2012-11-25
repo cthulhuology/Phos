@@ -119,4 +119,13 @@ An.object().named('Screen').from(Box,{
 			'rgb('.append(r,',',g,',',b,')'); 
 		return this;
 	},
+	rotate: function(r) {
+		this.ctx.rotate(r)
+		return this },
+	save: function() {
+		this.ctx.save()
+		return this },
+	restore: function() {
+		this.ctx.restore()
+		return this },
 }).init();

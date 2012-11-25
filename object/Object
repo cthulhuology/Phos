@@ -1,172 +1,175 @@
-Object.prototype.a = Object.prototype.an = function(x,v) { return x.can('init') ? x.init(v): x.clone() };
-Object.prototype.the = function(x) { return x };
+Object.prototype.a = Object.prototype.an = function(I,V) { 
+	return I.can('init') ? 
+		I.init(V): 
+		I.clone() 
+}
+
+Object.prototype.the = function(I) { return I }
+
+Object.prototype.has = function(K,X) {
+	this[K] = function() { return X }
+	return this
+}
 
 Object.prototype.clone = function() {
-	var Proto = function() {};
-	Proto.prototype = this;
+	var Proto = function() {}
+	Proto.prototype = this
 	return new Proto() 
 }
 
-Object.prototype.copy = function(o) {
-	var $self = this;
-	o.each(function(v,k) { $self[k] = v });
+Object.prototype.copy = function(O) {
+	var I = this
+	O.each(function(V,K) { I[K] = V })
 	return this 
 }
 
-Object.prototype.does = function(v,f) { this[v] = f; return this }
+Object.prototype.does = function(V,F) { 
+	this[V] = F
+	return this 
+}
 
 Object.prototype.from = function() {
-	this['init'] = function() { return this };
-	for (var i = 0; i < arguments.length; ++i) this.copy(arguments[i]);
+	this['init'] = function() { return this }
+	for (var J = 0; J < arguments.length; ++J) 
+		this.copy(arguments[J])
 	return this 
 }
 
-Object.prototype.has = function(v,k) {
-	this[k.last() == "*" ? k : k.append('*')] = v;
+Object.prototype.each = function(F) {
+	for (var K in this) if (this.hasOwnProperty(K) && K != 'prototype') F(this[K],K)
 	return this 
 }
 
-Object.prototype.contains = function(e) {
-	var retval = false;
-	this.each(function(v,k) { if (k == e) return retval = true });
-	return retval 
-}
-
-Object.prototype.each = function(f) {
-	for (var k in this) if (this.hasOwnProperty(k) && k != 'prototype') f(this[k],k);
+Object.prototype.all = function(F) {
+	for (var K in this) if (K != 'prototype') F(this[K],K)
 	return this 
 }
 
-Object.prototype.all = function(f) {
-	for (var k in this) if (k != 'prototype') f(this[k],k);
-	return this 
+Object.prototype.which = function(F) {
+	var W = []
+	this.each(function(V,K) { if (F(V,K)) W.push(V) })
+	return W 
 }
 
-Object.prototype.which = function(f) {
-	var w = [];
-	this.each(function(v,k) { if (f(v,k)) w.push(v) });
-	return w 
+Object.prototype.can = function(K) { 
+	return (typeof(this[K]) == "function")
 }
-
-Object.prototype.parts = function() { return this.which(function(v,k) { return k.last() == "*" }) }
-
-Object.prototype.can = function(k) { return (typeof(this[k]) == "function") }
 
 Object.prototype.slots = function() {
-	var i = 0;
-	this.each(function(v,k) { if (k && v) ++i });
-	return i 
-}
-
-Object.prototype.its = function(k) { return k.last() != '*' ? this[k.append('*')] : this[k] }
-
-Object.prototype.of = function(x,k) { 
-	var args = [ arguments[1], arguments[2], arguments[3], arguments[4], arguments[5] ];
-	var $s = this;
-	x.parts().every(function(p,i) { if (p.is($s) && p.can(k)) p[k](args[1],args[2],args[3],args[4])});
-	return this 
+	var J = 0
+	this.each(function(V,K) { if (K && V) ++J })
+	return J 
 }
 
 Object.prototype.names = function() {
-	var retval = [];
-	var $self = this;
-	window.each(function(v,k) { if (v === $self) retval.push(k) });
-	return retval 
+	var R = []
+	var I = this
+	window.each(function(V,K) { if (V === I) R.push(K) })
+	return R 
 }
 
 Object.prototype.name = function() { return this.names()[0] }
-Object.prototype.plural = function(x) { return window[x] = this }
+Object.prototype.plural = function(I) { return window[I] = this }
 
-Object.prototype.named =  function(x) {
-	var lc = x.name().toLowerCase();
-	var $self = this;
-	An[lc]= function(y) { return a($self,y) };
-	return window[x.name()] = this 
+Object.prototype.named =  function(N) {
+	var I = this
+	An[N.name().toLowerCase()]= function(Y) { return a(I,Y) }
+	return window[N.name()] = this 
 }
 
-Object.prototype.is = function(x) {
-	var $self = this;
-	var retval = true;
-	x.all(function(v,k) { if (x.can(k) && !$self.can(k)) return retval = false });
-	return retval 
+Object.prototype.is = function(O) {
+	var I = this
+	var R = true
+	O.all(function(V,K) { 
+		if (O.can(K) && !I.can(K)) return R = false 
+	})
+	return R 
 }
 
 Object.prototype.implements = function() {
-	var $self = this;
-	var retval = [];
-	Objects.each(function(v,k) { if ($self.is(v)) retval.push(k) });
-	return retval 
+	var I = this
+	var R = []
+	Objects.each(function(O,K) { if (I.is(O)) R.push(K) })
+	return R 
 }
 
-Object.prototype.any = function(f) {
-	var retval = null;
-	this.each(function(v,k) { if (f(v,k)) return retval = v });
-	return retval 
+Object.prototype.any = function(F) {
+	var R = null
+	this.each(function(O,K) { if (F(O,K)) return R = O })
+	return R 
 }
 
 Object.prototype.module = function() {
-	var ots = Object.prototype.toString;
+	var Ots = Object.prototype.toString
 	Object.prototype.toString = function() {
-		var retval = '{ ';
-		this.each(function(v,k) { 
-			if (typeof(v) == 'function') retval = retval.append(k,': ',v,', '); 
-			if (typeof(v) == 'string') retval = retval.append(k,': "', v, '", ');
-			if (typeof(v) == 'number') retval = retval.append(k,': ', v, ', ');
-			if (typeof(v) == 'boolean') retval = retval.append(k,': ', v, ', ');
-			if (typeof(v) == 'object') retval = retval.append(k, ': ', v.name(), ', ');
-		});
-		return retval.append('}') };
-	var retval = 'function() { return '.append( this.toString(), ' }');
-	Object.prototype.toString = ots;
-	return retval 
+		var R = '{ '
+		this.each(function(V,K) { 
+			if (typeof(V) == 'function') R = R.append(K,': ',V,', ') 
+			if (typeof(V) == 'string') R = R.append(k,': "', V, '", ')
+			if (typeof(V) == 'number') R = R.append(k,': ', V, ', ')
+			if (typeof(V) == 'boolean') R = R.append(K,': ', V, ', ')
+			if (typeof(V) == 'object') R = R.append(K, ': ', V.name(), ', ')
+		})
+		return R.append('}') }
+	var R = 'function() { return '.append( this.toString(), ' }')
+	Object.prototype.toString = Ots
+	return R 
 }
 
-Object.prototype.use = function() {
-	var modules = [];
-	modules.push.apply(modules,arguments);
-	var module = modules.shift();
-	var url = '/object/'.append(module);
-	var cb = function(txt) {
-		if (!txt) alert('Failed to load '.append(url));
+String.prototype.use = function() {
+	var I = this
+	var Modules = []
+	Modules.push.apply(Modules,arguments)
+	var M = Modules.shift()
+	var Url = I.append(M)
+	var F = function(T) {
+		if (!T) alert('Failed to load '.append(Url))
 		try { 
-			eval('( function () { '.append(txt,' } )'))(); 
-		} catch(e) { alert('Load error: '.append(e,':',txt)) }
-		if (modules.length > 0 ) {
-			var module = modules.shift();
-			var url = '/object/'.append(module);
-			alert(module);
-			this.get(url,cb);
+			Function.prototype.constructor.apply(window,[T])()
+		} catch(E) { 
+			alert('Load error: '.append(E,':',T)) 
 		}
-	};
-	return this.get(url,cb) 
+		if (Modules.length > 0 ) {
+			var M = modules.shift()
+			var Url = I.append(M)
+			alert(M)
+			Url.get(F)
+		}
+	}
+	Url.get(F)
+	return this
 }
 	
-Object.prototype.request = function(method,url,cb,data) {
-	var _request = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest();
-	_request.onreadystatechange = function () {
-		if (this.readyState != 4 || typeof(cb) != "function") return;
-		if (this.status == 404) cb(null);
-		if (this.status == 200) cb(this.responseText);
-	};
-	_request.open(method,url,true);
-	_request.setRequestHeader('Content-Type','application/x-www-from-urlencoded');
-	_request.send(data ? data : '');
-	return this;
+String.prototype.request = function(M,F,D) {
+	var R = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest()
+	R.onreadystatechange = function () {
+		if (this.readyState != 4 || typeof(F) != "function") return false
+		if (this.status == 404) F(null)
+		if (this.status == 200) F(this.responseText)
+	}
+	R.open(M,this,true)
+	R.setRequestHeader('Content-Type','application/json')
+	R.send(D ? D : '')
+	return this
 }
 
-Object.prototype.get = function(url,cb) { return this.request("GET",url,cb) }
+String.prototype.get = function(F) { 
+	return this.request("GET",F) 
+}
 
-Object.prototype.post = function(url,cb) { return this.request("POST",url,this.toString(),cb) }
+String.prototype.post = function(D,F) { 
+	return this.request("POST",F,D) 
+}
 
 Object.prototype.download = function() {
-	document.goto("data:application/json,".append(this.toString().encode()));
-	return this;
+	document.goto("data:application/json,".append(this.toString().encode()))
+	return this
 }
 
-Object.prototype.when = HTMLElement.prototype.when = function(e,f) {
-	this.addEventListener(e,f,false);
-	return this;
+Object.prototype.when = HTMLElement.prototype.when = function(E,F) {
+	this.addEventListener(E,F,false)
+	return this
 }
 
-Object.prototype.value = function() { return this; }
+Object.prototype.value = function() { return this }
 

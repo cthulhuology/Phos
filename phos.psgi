@@ -1,6 +1,5 @@
 use Plack::Builder;
 use Plack::App::File;
-use Git;
 
 use Data::Dumper;
 

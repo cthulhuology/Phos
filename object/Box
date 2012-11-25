@@ -1,31 +1,43 @@
-An.object().named('Box').plural('Boxes').from({
-	x: 0, y: 0, w: 0, h: 0,
-	init: function() { return this.clone().copy({x:0,y:0,w:0,h:0}) },
-	on: function(o) {
-		var x = o.x ? o.x : 0;
-		var y = o.y ? o.y : 0;
-		var w = o.w ? o.w : 0;
-		var h = o.h ? o.h : 0;
-		return !( x+w < this.x || x > (this.x + this.w) || y+h < this.y || y > this.y + this.h);
-	},
+An.object().
+	named('Box').plural('Boxes').
+	does('init', function() { 
+		return this.clone().
+			has('x',0).
+			has('y',0).
+			has('width',0).
+			has('height',0)
+	}).
+	does('on', function(O) {
+		return O.is(Box) ? 
+			!( O.x()+O.width() < this.x()
+			|| O.x() > (this.x() + this.width()) 
+			|| O.y()+O.height() < this.y() 
+			|| O.y() > this.y() + this.height()):
+			false
+	}).
 	overlaps: function(excluding) {
 		var $self = this;
 		return Widget.widgets.any(function(x) { 
 			return x.can('on') && x != $self && !excluding.contains(x) && x.on($self) });
 	},
 	at: function(x,y) {
-		this.x = Math.floor(x);
-		this.y = Math.floor(y);
+		var X = Math.floor(x)
+		var Y = Math.floor(y)
+		this.x = function() { return X };
+		this.y = function() { return Y };
 		return this;
 	},
 	to: function(x,y) {
-		this.x += Math.floor(x);
-		this.y += Math.floor(y);
+		var X = Math.floor(x) + this.x()
+		var Y = Math.floor(y) + this.y()
+		this.x = function() { return X }
+		this.y = function() { return Y }
 		return this;
 	},
 	by: function(w,h) {
-		this.w = Math.floor(w);
-		this.h = Math.floor(h);
+		var W = 
+		this.width = function() { return 
+		this.height = Math.floor(h);
 		return this;
 	},
 	scale: function(w,h) {
