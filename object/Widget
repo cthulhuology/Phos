@@ -1,29 +1,65 @@
-An.object().named('Widget').plural('Widgets').from(Box, {
-	widgets: [],
-	visible: true,
-	draw: function() {},				// Override to draw
-	tick: function() {},				// Override to update based on time
-	click: function() {},
-	init: function() { return this.clone().copy({visible:true}).instance().here() },	// Override to init
-	free: function() { return this.remove() },	// Override this method for custom code
-	here: function() { return this.at(Mouse.x,Mouse.y) },
-	remove: function() {
-		Widget.widgets.except(this);
-		return this.hide();
-	},
-	instance: function() {
-		Widget.widgets.push(this);
-		return this;
-	},
-	add : function(o) { 
-		if (!this.children) return;
-		this.children.push(o); 
-		return o.parent = this;
-	},
-	container: function() { this.children = []; return this },
-	show: function () { this.visible = true; return this },
-	hide: function () { this.visible = false; return this },
-	down: function(e) { if (!this.on(e)) return; if (this.can('click')) this.click(); this.moving = e; },
-	up: function(e) { this.moving = false },
-	move: function(e) { if (this.moving) this.to(e.x-this.moving.x,e.y-this.moving.y).moving = e },
-});
+An.object().named('Widget').plural('Widgets').from(Box).
+	has('widgets', []).
+	has('visible', true).
+	has('parent',false).
+	has('children',false).
+	does('draw', function() {}).	// Override to draw
+	does('tick', function() {}).	// Override to update based on time
+	does('click', function() {}).
+	does('init', function() { 	// Override to init
+		return this.clone().instance().here() 
+	}).	
+	does('free', function() { 	// Override to custom cleanup 
+		return this.remove() 
+	}).
+	does('here', function() { 
+		return this.at(Mouse.x(),Mouse.y()) 
+	}).
+	does('remove',function() {
+		Widget.has('widgets', Widget.widgets().except(this))
+		return this.hide()
+	}).
+	does('instance', function() {
+		Widget.has('widgets', Widget.widgets().concat(this))
+		return this
+	}).
+	does('add', function(O) { 
+		if (!this.can('children')) return this
+		O.has('parent',this)
+		return this.has('children',this.children().concat(O));
+	}).
+	does('container', function() { 
+		return this.has('children',[])
+	}).
+	does('show', function () { 
+		return this.has('visible',true)
+	}).
+	does('hide', function () { 
+		return this.has('visible', false)
+	}).
+	does('down', function(E) { 
+		if(!E.on(this)) return;
+		if(this.can('click')) this.click()
+       		global['that'] = this 
+		this.has('moving',E)
+		if (Keyboard.shift()) that.init().to(that.width(),that.height())	// Copy constructor
+       		if(E.button() < 2) return;	// right click makes mirror
+		this.mirror()
+	}).
+	does('up', function(E) {		// drop to add
+		this.has('moving',false)
+		if (!E.on(this)) return;
+		var O = this.overlaps([Display,Phosphor,this]);
+		if (!O || !O.is('Graphic') || this == O) return; 
+		if (O.children().contains(this)) return;
+		O.add(this);
+	}).
+	does('move', function(E) {
+		if (!this.moving()) return;
+		var DX = E.x() - this.moving().x()
+		var DY = E.y() - this.moving().y()
+		this.to(DX,DY)
+		if (this.parent()) this.clamp(this.parent().x(),this.parent().y(),this.parent().x()+this.parent().width(),this.parent.y()+this.parent().height())
+		if (this.children()) this.children().every(function(O,J) { O.to(DX,DY)})
+		this.has('moving',E)
+	})

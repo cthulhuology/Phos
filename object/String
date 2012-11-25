@@ -39,3 +39,18 @@ String.prototype.eval = function() {
 	}
 	return R	
 }
+
+String.prototype.params = function() {
+	var m = /\(([^)]*)\)/.exec(this);
+	return m ? m[1].split(',').every(function(v) { return eval(v) }) : [];
+}
+
+String.prototype.deparameterized = function() {
+	var m = /(\w+)\(/.exec(this.toString());
+	return  m ? m[1] : this;
+}
+
+String.prototype.isCall = function() {
+	return /\w+\([^)]*\)$/.exec(this);
+}
+

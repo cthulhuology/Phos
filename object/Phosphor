@@ -1,90 +1,32 @@
-
-String.prototype.get = function(cb) { return this.request("GET",this,cb? cb : function (txt) { A.block().says(txt)}) }
-
-Object.prototype.parameters = function() {
-	var m = /function (\([^)]*\))/.exec(this.toString());
-	return m ? m[1] : "";
-}
-
-String.prototype.params = function() {
-	var m = /\(([^)]*)\)/.exec(this);
-	return m ? m[1].split(',').every(function(v) { return eval(v) }) : [];
-}
-
-String.prototype.deparameterized = function() {
-	var m = /(\w+)\(/.exec(this.toString());
-	return  m ? m[1] : this;
-}
-
-String.prototype.isCall = function() {
-	return /\w+\([^)]*\)$/.exec(this);
-}
-
-Object.prototype.property = function(c,k,x,y) {
-	return [ a(Block).says(this).at(x,y).by(200,20).copy({ childof: c, valueof: k.deparameterized() })];
-}
-
-Array.prototype.collapse = function() { 
-	this.every(function(o,i) { 
-		if (o.expanded) o.expanded = o.expanded.collapse();
-		o.free();
-	})
-	return false
-}
-
-Widget.down = function(e) { 
-	if(!e.on(this)) return;
-	if(this.can('click')) this.click();
-       	that = this; 
-	this.moving = e; 
-	if (Keyboard.shift) that.init().to(that.w,that.h);
-       	if(e.button < 2) return;
-	this.mirror();
-};
-
-Widget.move = function(e) {
-	if (!this.moving) return;
-	var dx = e.x - this.moving.x;
-	var dy = e.y - this.moving.y;
-	this.to(dx,dy);
-	if (this.parent) this.clamp(this.parent.x,this.parent.y,this.parent.x+this.parent.w,this.parent.y+this.parent.h);
-	if (this.contents) this.contents.every(function(v,i) { v.to(dx,dy)});
-	if (this.children) this.children.every(function(v,i) { v.to(dx,dy)});
-	this.moving = e;
-};
-
-Widget.up = function(e) {
-	this.moving = false;
-	if (!e.on(this)) return;
-	var o = this.overlaps([Display,Phosphor,this]);
-	if (!o || !o.is('Graphic') || this == o) return; 
-	if (o.children.contains(this)) return;
-	o.add(this);
-};
-
-An.object().named('Phosphor').from(Widget,{
-	abbr: localStorage['abbr'] || 'yyz',
-	init: function() {
+An.object().named('Phosphor').from(Widget).
+	does('init', function() {
 		Sound.copy({
 			trash: a(Sound,'sounds/trash.aif'),
 			error: a(Sound,'sounds/error.wav'),
 			click: a(Sound,'sounds/click.wav'),
-		});
-		return this.copy({
-			help: a(Help,'images/help_button.png').at(Display.w-100,10),
-			inventory: an(Inventory),
-			trash: a(Trash),
-		}).at(0,Display.h-64).by(Display.w,64).instance();
-	},
-	press: function(e) { if(Keyboard.ctrl || Keyboard.cmd) HotKey.of(e.key); },
-	draw: function() {if (!this.visible) return },
-	move: function(e) { here = e },
-	down: function(e) {
-		if (Widget.widgets.any(function(o) {
-			return o.can('on') && o != Phosphor && o != Display && e.on(o);
+		})
+		return this.has('help', a(Help,'images/help_button.png').at(Display.w-100,10)).
+			has('inventory', an(Inventory)).
+			has('trash', a(Trash)).
+			at(0,Display.h-64).
+			by(Display.w,64).
+			instance()
+	}).
+	does('press', function(E) { 
+		if(Keyboard.control() || Keyboard.command()) HotKey.of(E.key()) 
+	}).
+	does('draw', function() {
+		if (!this.visible()) return; 
+	}).
+	does('move', function(E) { 
+		global['here'] = E 
+	}).
+	does('down', function(E) {	// clicking on the screen not on a widget displays a block for editing
+		if (Widget.widgets.any(function(O) {
+			return O.can('on') && O != Phosphor && O != Display && E.on(O)
 		})) return;
-		if (e.button < 2) return;
+		if (E.button() < 2) return;
 		Sound.click.play();
-		a(Block).says('').at(e.x,e.y).by(100,24);
-	},
-}).init();
+		a(Block).says('').at(E.x(),E.y()).by(100,24);
+	}).
+	init()

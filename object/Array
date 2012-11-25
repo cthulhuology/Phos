@@ -35,3 +35,12 @@ Array.prototype.and = function() {
 Array.prototype.except = function (E) { 
 	for (var J = 0; J < this.length; ++J) if (this[J] == E) this.splice(J,1)	
 }
+
+Array.prototype.collapse = function() { 
+	this.every(function(o,i) { 
+		if (o.expanded) o.expanded = o.expanded.collapse();
+		o.free();
+	})
+	return false
+}
+

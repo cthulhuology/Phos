@@ -1,3 +1,6 @@
+
+global = window
+
 Object.prototype.a = Object.prototype.an = function(I,V) { 
 	return I.can('init') ? 
 		I.init(V): 
@@ -59,6 +62,10 @@ Object.prototype.slots = function() {
 	var J = 0
 	this.each(function(V,K) { if (K && V) ++J })
 	return J 
+}
+
+Object.prototype.slot = function(P,K,X,Y) {
+	return [ a(Block).says(this).at(X,Y).by(200,20).has('parent',c).has('valueOf', K.deparameterized()) ];
 }
 
 Object.prototype.names = function() {
@@ -172,4 +179,9 @@ Object.prototype.when = HTMLElement.prototype.when = function(E,F) {
 }
 
 Object.prototype.value = function() { return this }
+
+Object.prototype.parameters = function() {
+	var m = /function (\([^)]*\))/.exec(this.toString());
+	return m ? m[1] : "";
+}
 
