@@ -1,5 +1,12 @@
-An.object().named('Sound').plural('Sounds').from(Resource,{
-	init: function(name) { return this.clone().load('audio',name) },
-	play: function() { this.data.play(); return this },
-	pause: function() { this.data.pause(); return this },
-});
+An.object().named('Sound').plural('Sounds').from(Resource).
+	does('init', function(Url) { 
+		return this.clone().load('audio',Url) 
+	}).
+	does('play', function() { 
+		if(this.loaded()) this.data().play()
+		return this 
+	}).
+	does('pause', function() { 
+		if(this.loaded()) this.data().pause() 
+		return this 
+	})

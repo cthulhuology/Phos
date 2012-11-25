@@ -1,17 +1,18 @@
-An.object().named('Resource').plural('Resources').from(Box,{
-	init: function() { return Resource.clone().copy({loaded:false}) },
-	load: function(t,i,cb) {
-		var $self = this;
-		$self.data = $_(t);
-		$self.data.onload = function () {
-			$self.loaded = true;
-			($self.data.videoWidth) ? 
-				$self.by($self.data.videoWidth,$self.data.videoHeight):
-				$self.by($self.data.width,$self.data.height);
-			if (typeof(cb)=="function") cb($self);
+An.object().named('Resource').plural('Resources').from(Box).
+	does('init', function() { 
+		return Resource.clone().has('loaded',false)
+	}).
+	does('load', function(T,U,F) {
+		var I = this
+		I.has('data', $_(T))
+		I.data().onload = function () {
+			I.has('loaded',true)
+			(I.data().videoWidth) ? 
+				I.by(I.data().videoWidth,I.data().videoHeight):
+				I.by(I.data().width,I.data().height);
+			if (typeof(F)=="function") F(I);
 		}
-		$self.data.src = i;	
-		if ($self.data.can('load')) $self.data.load();
+		I.data().src = i;	
+		if (I.data().can('load')) I.data().load();
 		return this
-	},
-});
+	})

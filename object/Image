@@ -1,4 +1,7 @@
-An.object().named('Image').plural('Images').from(Widget,Resource, {
-	init: function(name) { return this.clone().load('img',name).instance() },
-	draw: function() { Screen.at(this.x,this.y).by(this.w,this.h).draw(this) },
-});
+An.object().named('Image').plural('Images').from(Widget,Resource).
+	does('init', function(Url) { 
+		return this.clone().load('img',Url).instance() 
+	}).
+	does('draw', function() { 
+		Screen.at(this.x(),this.y()).by(this.width(),this.height()).draw(this) 
+	})
