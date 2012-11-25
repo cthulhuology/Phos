@@ -1,0 +1,5 @@
+An.object().named('Daimond').plural('Daimonds').from(Rectangle,{
+	init: function() { return this.clone().by(100,100).instance().here() },
+	draw: function() { if(this.visible) Screen.save().color(this.r,this.g,this.b).as(this).rotate(45).fill().white().restore() },
+	bar: function() {},
+});
