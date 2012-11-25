@@ -1,34 +1,34 @@
-An.object().named('Movie').plural('Movies').from(Widget,Resource,{
-	init: function(name) {
-		var i = this.clone().copy({attached:false, div: $_('div')});
-		i.load('video',name,function($self) {
-			if ($self.attached) return;
-			$self.attached = true;
-			$self.div = $_('div');
-			$self.data.autobuffer = true;
-			$self.data.autoplay = false;
-			$self.div.style.position = 'absolute';
-			$self.div.style.display = "block";
-			$self.div.style.zIndex = 2;
-			$self.div.add($self.data);
-			_body.add($self.div);
+An.object().named('Movie').plural('Movies').from(Widget,Resource).
+	does('init', function(Url) {
+		var I = this.clone()
+		I.load('video',Url,function(I) {
+			I.data().autobuffer = true;
+			I.data().autoplay = false;
+			I.data().style.position = 'absolute';
+			I.data().style.display = "block";
+			I.data().style.zIndex = 2;
+			_body.add(I.data());
 			$('canvas').style.zIndex = 1;
 		});
-		return i.instance();
-	},
-	draw: function() {
-		this.div.style.display = this.visible ? "inline" : "none";
-		this.div.style.width = this.w;
-		this.div.style.height = this.h;
-		this.clamp(0,0,Display.w,Display.h);
-		this.div.style.top = this.y;
-		this.div.style.left = this.x;
-	},
-	play: function() { 
-		if (this.data.readyState != 4) return this;
-		this.data.play(); 
+		return I.instance();
+	}).
+	does('draw', function() {
+		this.data().style.display = this.visible() ? "inline" : "none";
+		this.data().style.width = this.width();
+		this.data().style.height = this.height();
+		this.clamp(0,0,Display.width(),Display.height());
+		this.div.style.top = this.y();
+		this.div.style.left = this.x();
+	}).
+	does('play', function() { 
+		if (this.data().readyState != 4) return this;
+		this.data().play(); 
 		return this;
-	},
-	pause: function() { this.data.pause(); return this },
-	free: function() { _body.removeChild(this.div); }
-});
+	}).
+	does('pause', function() { 
+		if(this.loaded()) this.data().pause()
+		return this 
+	}).
+	does('free', function() { 
+		_body.removeChild(this.data()) 
+	})
