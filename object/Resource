@@ -12,7 +12,7 @@ An.object().named('Resource').plural('Resources').from(Box).
 				I.by(I.data().width,I.data().height);
 			if (typeof(F)=="function") F(I);
 		}
-		I.data().src = i;	
+		I.data().src = U;	
 		if (I.data().can('load')) I.data().load();
 		return this
 	})

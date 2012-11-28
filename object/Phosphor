@@ -1,15 +1,11 @@
 An.object().named('Phosphor').from(Widget).
 	does('init', function() {
-		Sound.copy({
-			trash: a(Sound,'sounds/trash.aif'),
-			error: a(Sound,'sounds/error.wav'),
-			click: a(Sound,'sounds/click.wav'),
-		})
+		Sound.has('trash', a(Sound,'sounds/trash.aif')).
+			has('error', a(Sound,'sounds/error.wav')).
+			has('click', a(Sound,'sounds/click.wav'))
 		return this.has('help', a(Help,'images/help_button.png').at(Display.width()-100,10)).
 			has('inventory', an(Inventory)).
-			has('trash', a(Trash)).
-			at(0,Display.height()-64).
-			by(Display.width(),64).
+			has('trash', a(Trash).at(0,Display.height()-64).by(Display.width(),64)).
 			instance()
 	}).
 	does('press', function(E) { 
@@ -22,11 +18,11 @@ An.object().named('Phosphor').from(Widget).
 		global['here'] = E 
 	}).
 	does('down', function(E) {	// clicking on the screen not on a widget displays a block for editing
-		if (Widget.widgets.any(function(O) {
+		if (Widget.widgets().any(function(O) {
 			return O.can('on') && O != Phosphor && O != Display && E.on(O)
 		})) return;
 		if (E.button() < 2) return;
-		Sound.click.play();
-		a(Block).says('').at(E.x(),E.y()).by(100,24);
+		Sound.click().play()
+		a(Block).says('').at(E.x(),E.y()).by(100,24)
 	}).
 	init()
