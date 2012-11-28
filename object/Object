@@ -130,16 +130,16 @@ String.prototype.use = function() {
 	var M = Modules.shift()
 	var Url = I.append(M)
 	var F = function(T) {
-		if (!T) alert('Failed to load '.append(Url))
+		if (!T) console.error('Failed to load '.append(Url))
 		try { 
 			Function.prototype.constructor.apply(window,[T])()
 		} catch(E) { 
-			alert('Load error: '.append(E,':',T)) 
+			console.error('Load error: '.append(E,':',T)) 
 		}
 		if (Modules.length > 0 ) {
 			var M = modules.shift()
 			var Url = I.append(M)
-			alert(M)
+			console.error(M)
 			Url.get(F)
 		}
 	}

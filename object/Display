@@ -13,28 +13,28 @@ An.object().named('Display').from(Widget).
 		Screen.as(this.extent()).white().frame();
 	}).
 	does('create', function() {
-		this.has('canvas',$_('canvas');
-		this.canvas().id = 'canvas';
-		_body.style.margin = 0;
-		_body.appendChild(this.canvas());
-		this.canvas().width = this.width();
-		this.canvas().height = this.height();
-		return this;
+		this.has('canvas',$_('canvas'))
+		this.canvas().id = 'canvas'
+		_body.style.margin = 0
+		_body.appendChild(this.canvas())
+		this.canvas().width = this.width()
+		this.canvas().height = this.height()
+		return this
 	}).
 	does('init', function() {
 		this.has('canvas',$('canvas'))
-		if (this.canvas()) return this.at(0,0).by(this.canvas().width,this.canvas().height).instance();
-		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
+		if (this.canvas()) return this.at(0,0).by(this.canvas().width,this.canvas().height).instance()
+		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance()
 	}).
 	does('up', function(E) { 
 		if (this.selecting() && this.selected()) { 
 			these = this.selected().map(function(x) { return x.value() })
 			if (these.length >= 2 && these[0].can(these[1])) {
-				that = these.shift();
-				var M = that[these.shift()];
-				M.apply(that,these);
+				that = these.shift()
+				var M = that[these.shift()]
+				M.apply(that,these)
 			}
-			A.block().at(E.x(),E.y()).says(these);
+			A.block().at(E.x(),E.y()).says(these)
 		}
 		this.has('selected',[]).has('extent',flase).has('selecting',false).has('moving',false)
 	})
@@ -46,7 +46,7 @@ An.object().named('Display').from(Widget).
 	}).
 	does('move', function(E) { 
 		var I = this
-		if (this.moving()) return this.to(-(E.x()-this.moving().x()),-(E.y()-this.moving().y())); 
+		if (this.moving()) return this.to(-(E.x()-this.moving().x()),-(E.y()-this.moving().y())) 
 		if (this.selecting()) 
 			this.has('extent', A.box().at(Math.min(this.selecting().x(),E.x()),Math.min(this.selecting().y(),E.y())).
 				by(Math.abs(E.x() - this.selecting().x()),Math.abs(E.y()-this.selecting().y())))
