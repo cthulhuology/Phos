@@ -1,52 +1,58 @@
-An.object().named('Display').from(Widget, {
-	dx: 1,
-	dy: 1,
-	app: null,
-	canvas: null,
-	scroll: function(e) { 
-		this.to(e.dx/Display.dx,e.dy/Display.dy) 
-	}, // Override this if you don't want the canvas to scroll
-	draw: function() { 
+An.object().named('Display').from(Widget).
+	has('dx', 1).
+	has('dy', 1).
+	has('app', null).
+	has('canvas', null).
+	has('width',window.innerWidth).
+	has('height',window.innerHeight).
+	does('scroll', function(E) {  // Override this if you don't want the canvas to scroll
+		this.to(E.dx()/Display.dx(),E.dy()/Display.dy()) 
+	}).
+	does('draw', function() {  // Override to change the background
 		Screen.background(0,0,0) 
-		Screen.as(this.extent).white().frame();
-	}, // Override to change the background
-	create: function() {
-		this.canvas = $_('canvas');
-		this.canvas.id = 'canvas';
+		Screen.as(this.extent()).white().frame();
+	}).
+	does('create', function() {
+		this.has('canvas',$_('canvas');
+		this.canvas().id = 'canvas';
 		_body.style.margin = 0;
-		_body.appendChild(this.canvas);
-		this.canvas.width = this.w;
-		this.canvas.height = this.h;
+		_body.appendChild(this.canvas());
+		this.canvas().width = this.width();
+		this.canvas().height = this.height();
 		return this;
-	},
-	init: function() {
-		this.canvas = $('canvas');
-		if (this.canvas) return this.at(0,0).by(this.canvas.width,this.canvas.height).instance();
+	}).
+	does('init', function() {
+		this.has('canvas',$('canvas'))
+		if (this.canvas()) return this.at(0,0).by(this.canvas().width,this.canvas().height).instance();
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance();	
-	},
-	up: function(e) { 
-		if (this.selecting && this.selected) { 
-			these = this.selected.map(function(x) { return x.value() });
+	}).
+	does('up', function(E) { 
+		if (this.selecting() && this.selected()) { 
+			these = this.selected().map(function(x) { return x.value() })
 			if (these.length >= 2 && these[0].can(these[1])) {
 				that = these.shift();
-				var method = that[these.shift()];
-				method.apply(that,these);
+				var M = that[these.shift()];
+				M.apply(that,these);
 			}
-			A.block().at(e.x,e.y).says(these);
+			A.block().at(E.x(),E.y()).says(these);
 		}
-		this.selected = [];
-		this.extent = this.selecting = this.moving = false;
-	},
-	down: function(e) { 
-		if (this.selected) {  this.selected.every(function(v,i) { v.moving = e }) };
-		if (e.overlaps([Display])) return;
-		if (!Keyboard.shift) return this.moving = e;
-		this.selecting = e;
-	},
-	move: function(e) { 
-		var $self = this;
-		if (this.moving) return this.to(-(e.x-this.moving.x),-(e.y-this.moving.y)); 
-		if (this.selecting) this.extent = A.box().at(Math.min(this.selecting.x,e.x),Math.min(this.selecting.y,e.y)).by(Math.abs(e.x - this.selecting.x),Math.abs(e.y-this.selecting.y));
-		if (this.extent) Widgets.widgets.every(function(v,i) { if (v != $self && $self.extent.on(v) && !$self.selected.contains(v)) $self.selected.push(v) });
-	},
-}).init();
+		this.has('selected',[]).has('extent',flase).has('selecting',false).has('moving',false)
+	})
+	does('down', function(E) { 
+		if (this.selected()) this.selected().every(function(V,J) { V.has('moving',E) })
+		if (E.overlaps([Display])) return;
+		if (!Keyboard.shift()) return this.has('moving',E)
+		this.has('selecting',E)
+	}).
+	does('move', function(E) { 
+		var I = this
+		if (this.moving()) return this.to(-(E.x()-this.moving().x()),-(E.y()-this.moving().y())); 
+		if (this.selecting()) 
+			this.has('extent', A.box().at(Math.min(this.selecting().x(),E.x()),Math.min(this.selecting().y(),E.y())).
+				by(Math.abs(E.x() - this.selecting().x()),Math.abs(E.y()-this.selecting().y())))
+		if (this.extent()) 
+			Widgets.widgets().every(function(V,J) { 
+				if (V != I && I.extent().on(V) && !I.selected().contains(V)) I.has('selected', I.selected().concat(V)) 
+			})
+	}).
+	init()
