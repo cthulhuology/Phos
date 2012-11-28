@@ -1,6 +1,7 @@
 An.object().named('Widget').plural('Widgets').from(Box).
 	has('widgets', []).
 	has('visible', true).
+	has('moving',false).
 	has('parent',false).
 	has('children',false).
 	does('draw', function() {}).	// Override to draw

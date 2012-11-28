@@ -56,10 +56,10 @@ An.object().named('Keyboard').from(Device).
 	}).
 	does('key', function(K,B) {
 		return (Keyboard.modmap(K,B)) ? '':
-			typeof(Keyboard.keymap(k)) == 'string' ? 
-				Keyboard.keymap(k).charAt(Keyboard.shift() ? 1 : 0): 	
-			typeof(Keyboard.keymap(k)) == 'number' ?
-				Keyboard.keymap(k) : 
+			typeof(Keyboard.keymap(K)) == 'string' ? 
+				Keyboard.keymap(K).charAt(Keyboard.shift() ? 1 : 0): 	
+			typeof(Keyboard.keymap(K)) == 'number' ?
+				Keyboard.keymap(K) : 
 			'';
 	}).
 	does('keymap', function(K) {

@@ -1,19 +1,23 @@
 An.object().named('Resource').plural('Resources').from(Box).
+	has('loaded',false).
 	does('init', function() { 
-		return Resource.clone().has('loaded',false)
+		return Resource.clone()
 	}).
 	does('load', function(T,U,F) {
 		var I = this
-		console.log(I)
-		this.has('data', $_(T))
+		console.log("Loading ", U,  I)
+		this.has('data', document.createElement(T))
+		console.log(this.data())
+		this.data().src = U
 		this.data().onload = function () {
-			I.has('loaded',true)
+			console.log("Loaded ", U, I)
+			I.has('loaded',true);
 			(I.data().videoWidth) ? 
 				I.by(I.data().videoWidth,I.data().videoHeight):
 				I.by(I.data().width,I.data().height)
 			if (typeof(F)=="function") F(I)
 		}
-		this.data().src = U
+		this.has('loaded',true)
 		if (I.data().can('load')) I.data().load()
 		return this
 	})

@@ -1,1 +1,1 @@
-An.object().named('Names').from({ of: function(k) { return k.can('name') ? k.name() : undefined }});
+An.object().named('Names').from({ of: function(K) { return K.can('name') ? K.name() : undefined }});

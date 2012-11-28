@@ -37,9 +37,9 @@ Array.prototype.except = function (E) {
 }
 
 Array.prototype.collapse = function() { 
-	this.every(function(o,i) { 
-		if (o.expanded) o.expanded = o.expanded.collapse();
-		o.free();
+	this.every(function(O,J) { 
+		if (O.expanded()) O.has('expanded',O.expanded.collapse())
+		O.free()
 	})
 	return false
 }

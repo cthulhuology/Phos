@@ -1,10 +1,10 @@
 An.object().named('Box').plural('Boxes').
+	has('x',0).
+	has('y',0).
+	has('width',0).
+	has('height',0).
 	does('init', function() { 
-		return this.clone().
-			has('x',0).
-			has('y',0).
-			has('width',0).
-			has('height',0)
+		return this.clone()
 	}).
 	does('on', function(O) {
 		return O.is(Box) ? 
@@ -16,7 +16,7 @@ An.object().named('Box').plural('Boxes').
 	}).
 	does('overlaps', function(Excluding) {
 		var I = this
-		return Widget.widgets.any(function(O) { 
+		return Widget.widgets().any(function(O) { 
 			return O.can('on') && O != I && !Excluding.contains(O) && O.on(I) 
 		})
 	}).

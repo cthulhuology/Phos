@@ -1,6 +1,7 @@
 An.object().named('Trash').from(Widget).
 	does('init', function() { 
-		this.has('trash',an(Image,'images/trash.png').at(Display.width()-64,Display.height()-64).
+		this.has('trash',an(Image,'images/trash.png').
+			at(Display.width()-64,Display.height()-64).
 			has('down', false).
 			does('up', function(E) {
 				var O = null;
@@ -10,10 +11,10 @@ An.object().named('Trash').from(Widget).
 					}
 					
 					if (O.visible) { 
-						Sound.trash.play();
-						O.free();
+						Sound.trash().play();
+						O.free()
 					}
-				};
+				}
 			})
 		)
 	})

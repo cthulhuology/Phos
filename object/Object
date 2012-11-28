@@ -112,8 +112,8 @@ Object.prototype.module = function() {
 		var R = '{ '
 		this.each(function(V,K) { 
 			if (typeof(V) == 'function') R = R.append(K,': ',V,', ') 
-			if (typeof(V) == 'string') R = R.append(k,': "', V, '", ')
-			if (typeof(V) == 'number') R = R.append(k,': ', V, ', ')
+			if (typeof(V) == 'string') R = R.append(K,': "', V, '", ')
+			if (typeof(V) == 'number') R = R.append(K,': ', V, ', ')
 			if (typeof(V) == 'boolean') R = R.append(K,': ', V, ', ')
 			if (typeof(V) == 'object') R = R.append(K, ': ', V.name(), ', ')
 		})

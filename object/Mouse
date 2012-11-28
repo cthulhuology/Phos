@@ -7,8 +7,8 @@ An.object().named('Mouse').from(Device).
 		Mouse.dispatch('over',E) 
 	}).
 	does('move', function(E) { 
-		Mouse.has('x',E.x() + Display.x())
-		Mouse.has('y',E.y() + Display.y())
+		Mouse.has('x',E.x + Display.x())
+		Mouse.has('y',E.y + Display.y())
 		Mouse.dispatch('move',E) 
 	}).
 	does('down', function(E) { 
