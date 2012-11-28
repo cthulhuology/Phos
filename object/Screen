@@ -165,13 +165,20 @@ An.object().named('Screen').from(Box).
 			'rgba('.append(R,',',G,',',B,',',A,')'); 
 		return this;
 	}).
-	does('rotate', function(r) {
-		this.ctx.rotate(r)
-		return this },
-	save: function() {
-		this.ctx.save()
-		return this },
-	restore: function() {
-		this.ctx.restore()
-		return this },
-}).init();
+	does('rotate', function(R) {
+		this.ctx().rotate(R)
+		return this 
+	}).
+	does('translate', function(X,Y) {
+		this.ctx().translate(X,Y)
+		return this
+	}).
+	does('save', function() {
+		this.ctx().save()
+		return this 
+	}).
+	does('restore', function() {
+		this.ctx().restore()
+		return this 
+	}).
+	init()
