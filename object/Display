@@ -13,13 +13,10 @@ An.object().named('Display').from(Widget).
 		Screen.as(this.extent()).white().frame();
 	}).
 	does('create', function() {
-		console.log('setting up body')
 		_body.style.margin = 0
 		_body.appendChild(this.canvas())
-		console.log('initializing canvas ', this.canvas())
 		this.canvas().width = this.width()
 		this.canvas().height = this.height()
-		console.log('created display')
 		return this
 	}).
 	does('init', function() {

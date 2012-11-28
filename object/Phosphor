@@ -5,11 +5,11 @@ An.object().named('Phosphor').from(Widget).
 			error: a(Sound,'sounds/error.wav'),
 			click: a(Sound,'sounds/click.wav'),
 		})
-		return this.has('help', a(Help,'images/help_button.png').at(Display.w-100,10)).
+		return this.has('help', a(Help,'images/help_button.png').at(Display.width()-100,10)).
 			has('inventory', an(Inventory)).
 			has('trash', a(Trash)).
-			at(0,Display.h-64).
-			by(Display.w,64).
+			at(0,Display.height()-64).
+			by(Display.width(),64).
 			instance()
 	}).
 	does('press', function(E) { 

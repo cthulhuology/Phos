@@ -16,7 +16,7 @@ String.prototype.encode = function() {
 
 String.prototype.append = function() {
 	var retval = this
-	for (var i = 0; i < arguments.length; ++i) retval += arguments[i].toString()
+	for (var J = 0; J < arguments.length; ++J) retval += arguments[J].toString()
 	return retval 
 }
 
