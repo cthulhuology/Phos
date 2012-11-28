@@ -7,6 +7,6 @@ An.object().named('Graphic').plural('Graphics').from(Widget).
 		return this.	
 			has('red',Math.min(255,Math.max(0,1*R))). 
 			has('green',Math.min(255,Math.max(0,1*G))).
-			has('blue',Math.min(255,Math.max(0,1*B)).
+			has('blue',Math.min(255,Math.max(0,1*B))).
 			has('alpha',Math.min(1.0, Math.max(0,1*A)))
 	})

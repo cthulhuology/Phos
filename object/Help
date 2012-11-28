@@ -1,14 +1,15 @@
-An.object().named('Help').from(Image,{
-	down: function(e) {
-		if (!e.on(this) || this.blurb) return;
+An.object().named('Help').from(Image).
+	does('down', function(E) {
+		if (!E.on(this) || this.blurb) return;
 		Sound.click.play();
-		this.blurb = an(Image,'images/help.png').at(300,0);
-		this.blurb.down = function(e) { 
-			if(!e.on(this)) return;
-			Sound.click.play();
-			Phosphor.help.blurb = false;
+		this.has('blurb',an(Image,'images/help.png').at(300,0).does('down',function(E) { 
+			if(!E.on(this)) return;
+			Sound.click().play();
+			Phosphor.help().blurb() = false;
 			this.free();
-		};
-	},
-	show: function() { this.down(this); },
-});
+		}))
+	}).
+	does('show', function() { 
+		this.down(this); 
+	})
+

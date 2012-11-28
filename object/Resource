@@ -4,15 +4,16 @@ An.object().named('Resource').plural('Resources').from(Box).
 	}).
 	does('load', function(T,U,F) {
 		var I = this
-		I.has('data', $_(T))
-		I.data().onload = function () {
+		console.log(I)
+		this.has('data', $_(T))
+		this.data().onload = function () {
 			I.has('loaded',true)
 			(I.data().videoWidth) ? 
 				I.by(I.data().videoWidth,I.data().videoHeight):
-				I.by(I.data().width,I.data().height);
-			if (typeof(F)=="function") F(I);
+				I.by(I.data().width,I.data().height)
+			if (typeof(F)=="function") F(I)
 		}
-		I.data().src = U;	
-		if (I.data().can('load')) I.data().load();
+		this.data().src = U
+		if (I.data().can('load')) I.data().load()
 		return this
 	})
