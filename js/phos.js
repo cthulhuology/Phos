@@ -80,7 +80,7 @@ Object.prototype.use = function() {
 		try { 
 			eval('( function () { ' + txt + ' } )')(); 
 		} catch(e) { 
-			alert('Load error: ' + e + ':' + txt); ;
+			console.error('Load error: ' + e + ':' + txt); ;
 		}
 		if (modules.length) {
 			var module = modules.shift();

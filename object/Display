@@ -2,7 +2,7 @@ An.object().named('Display').from(Widget).
 	has('dx', 1).
 	has('dy', 1).
 	has('app', null).
-	has('canvas', null).
+	has('canvas', $_('canvas')).
 	has('width',window.innerWidth).
 	has('height',window.innerHeight).
 	does('scroll', function(E) {  // Override this if you don't want the canvas to scroll
@@ -13,17 +13,16 @@ An.object().named('Display').from(Widget).
 		Screen.as(this.extent()).white().frame();
 	}).
 	does('create', function() {
-		this.has('canvas',$_('canvas'))
-		this.canvas().id = 'canvas'
+		console.log('setting up body')
 		_body.style.margin = 0
 		_body.appendChild(this.canvas())
+		console.log('initializing canvas ', this.canvas())
 		this.canvas().width = this.width()
 		this.canvas().height = this.height()
+		console.log('created display')
 		return this
 	}).
 	does('init', function() {
-		this.has('canvas',$('canvas'))
-		if (this.canvas()) return this.at(0,0).by(this.canvas().width,this.canvas().height).instance()
 		return this.at(0,0).by(window.innerWidth, window.innerHeight).create().instance()
 	}).
 	does('up', function(E) { 
@@ -37,7 +36,7 @@ An.object().named('Display').from(Widget).
 			A.block().at(E.x(),E.y()).says(these)
 		}
 		this.has('selected',[]).has('extent',flase).has('selecting',false).has('moving',false)
-	})
+	}).
 	does('down', function(E) { 
 		if (this.selected()) this.selected().every(function(V,J) { V.has('moving',E) })
 		if (E.overlaps([Display])) return;

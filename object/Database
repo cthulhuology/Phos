@@ -4,7 +4,7 @@ An.object().named('Database').
 		try {
 			has('sql',openDatabase(Name,'','Phosphor Database',4096*4096))
 		} catch(E) {
-			alert(E);
+			console.error(E);
 		}
 		return this;
 	}).
@@ -20,6 +20,6 @@ An.object().named('Database').
 		this.has('results',R)
 	}).
 	does('failure', function(T,E) {
-		alert('Database Error: ' + E.message)
+		console.error('Database Error: ' + E.message)
 		this.has('error',E)
 	})

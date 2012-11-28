@@ -7,7 +7,7 @@ An.object().named('Screen').from(Box).
 	has('colorizer', false).
 	does('init', function() { 
 		return this.has('display',window.Display).
-			has('ctx',this.display().canvas.getContext('2d'))
+			has('ctx',this.display().canvas().getContext('2d'))
 	}).
 	does('as', function(B) { 	// Takes a Box
 		return this.at(B.x(),B.y()).by(B.width(),B.height()) 
@@ -25,7 +25,7 @@ An.object().named('Screen').from(Box).
 		return this.has('width',W).has('height',H)
 	}).
 	does('shot', function() {
-		_doc.location = this.canvas.toDataURL('image/png')
+		_doc.location = this.canvas().toDataURL('image/png')
 		return this
 	}).
 	does('radius', function(R) { 
