@@ -1,5 +1,4 @@
-An.object().
-	named('Box').plural('Boxes').
+An.object().named('Box').plural('Boxes').
 	does('init', function() { 
 		return this.clone().
 			has('x',0).
@@ -37,7 +36,7 @@ An.object().
 		return this.at(O.x(),O.y()).by(O.width(),O.height()) 
 	}).
 	does('clamp', function(X,Y,W,H) {
-		return this.has('x',Math.min(W - this.width), Math.max(X,this.x()))).
+		return this.has('x',Math.min(W - this.width), Math.max(X,this.x())).
 			has('y',Math.min(H - this.height(), Math.max(Y,this.y())))
 	}).
 	does('towards', function(X,Y) {
