@@ -1,4 +1,8 @@
 An.object().named('Mouse').from(Device).
+	has('x',0).
+	has('y',0).
+	has('dx',0).
+	has('dy',0).
 	does('over', function(E) { 
 		Mouse.dispatch('over',E) 
 	}).
