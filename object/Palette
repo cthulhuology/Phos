@@ -1,0 +1,15 @@
+An.object().named('Palette').
+does('red', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "red"; return this }).
+does('yellow', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "yellow"; return this }).
+does('green', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "green";  return this }).
+does('blue', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "blue"; return this }).
+does('orange', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "orange"; return this }).
+does('purple', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "purple"; return this }).
+does('black', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "black"; return this }).
+does('gray', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "gray"; return this }).
+does('white', function() { this.ctx().fillStyle = this.ctx().strokeStyle = "white"; return this }).
+does('color', function(R,G,B,A) { 
+	this.ctx().strokeStyle = this.ctx().fillStyle = (typeof(R) == 'string') ? R : 'rgba('.append(R,',',G,',',B,',',A,')')
+	return this
+}).
+does('background', function(R,G,B) { Display.canvas().style.background = 'rgb('.append(R,',',G,',',B,')'); return this })

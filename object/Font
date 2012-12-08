@@ -1,0 +1,11 @@
+An.object().named('Font').
+does('toString', function() { return ''.append(this.size(), 'px ', this.family()) }).
+does('init', function(F) { 
+	var X = F.split(' ');
+	if (X[0]) this.has('size', Math.floor(X[0]))
+	if (X[1]) this.has('family', X[1])
+	return this
+}).
+does('use', function() { 
+	Screen.ctx().font = this.toString()
+})
