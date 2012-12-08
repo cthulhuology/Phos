@@ -1,0 +1,2 @@
+
+Number.prototype.to = function(E,F) { var S = E < this.valueOf() ? -1 : 1; for (var J = this.valueOf(); J != E+S; J += S) F(J) }

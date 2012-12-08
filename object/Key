@@ -1,0 +1,21 @@
+An.object().from(Widget).named('Key').
+	has('letter','A').
+	has('width',48).
+	has('height',48).
+	has('x',100).
+	has('y',100).
+	does('draw', function() {
+		Screen.as(this).blue().frame().
+			at(this.x() + this.width()/2 - Screen.size()/4, this.y() + this.height()/2 + Screen.size()/4).print(this.letter())
+		return this
+	}).
+	does('down', function(E) {
+		if (!E.on(this)) return;
+		E.has('key',this.letter())
+		console.log("dispatching key" , E.key())
+		Keyboard.dispatch('press',E)
+	}).
+	does('up', function(E) {
+		E.has('key',this.letter())
+		Keyboard.dispatch('release',E)
+	})
