@@ -23,6 +23,6 @@ An.object().named('Phosphor').from(Widget).
 		})) return;
 		if (E.button() < 2) return;
 		Sound.click().play()
-		a(Block).says('').at(E.x(),E.y()).by(100,24)
+		A.block().says('').at(E.x(),E.y()).by(100,24)
 	}).
 	init()

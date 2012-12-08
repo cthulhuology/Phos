@@ -1,11 +1,12 @@
 An.object().named('Help').from(Image).
+	has('blurb',false).
 	does('down', function(E) {
-		if (!E.on(this) || this.blurb) return;
-		Sound.click.play();
+		if (!E.on(this) || this.blurb()) return;
+		Sound.click().play();
 		this.has('blurb',an(Image,'images/help.png').at(300,0).does('down',function(E) { 
 			if(!E.on(this)) return;
 			Sound.click().play();
-			Phosphor.help().blurb() = false;
+			Phosphor.help().has('blurb', false)
 			this.free();
 		}))
 	}).

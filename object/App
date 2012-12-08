@@ -1,10 +1,10 @@
 An.object().named('App').from(Device).
 	has('widgets',[]).
-	has('delay',1000).
+	has('delay',1000/30).
 	does('run', function () { 
 		Display.has('app',this)
 		Screen.clear();
-	//	this.dispatch('tick',{})
+		this.dispatch('tick',{})
 		this.dispatch('draw',{});
 		this.has('timer',setTimeout(function() { App.run() }, this.delay()));
 	}).

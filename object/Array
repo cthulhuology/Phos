@@ -1,5 +1,10 @@
+Array.prototype.empty = function() {
+	return this.length == 0
+}
+
 Array.prototype.every = function(F) {
-	for (var J = 0; J < this.length; ++J) F(this[J],J)
+	var I = this;
+	(0).to(this.length-1, function(J) { F(I[J],J) })
 	return this
 }
 
@@ -33,7 +38,9 @@ Array.prototype.and = function() {
 }
 
 Array.prototype.except = function (E) { 
-	for (var J = 0; J < this.length; ++J) if (this[J] == E) this.splice(J,1)	
+	var I = this;
+	(0).to(this.length-1, function(J) { if (I[J] == E) I.splice(J,1) })
+	return this
 }
 
 Array.prototype.collapse = function() { 

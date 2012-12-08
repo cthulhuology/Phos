@@ -1,24 +1,23 @@
-An.object().named('YouTube').from(Widget,{
-	init: function(id) {
-		var y = this.clone().instance();
-		y.id = id;
-		y.d = $_('div');	
-		y.d.innerHTML = '<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed src="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="425" height="344"></embed></object>';
-		y.d.style.position = 'absolute';
-		y.d.style.top = this.y;
-		y.d.style.left = this.x;
-		y.d.style.zIndex = 2;
-		y.w = y.d.style.width = 425;
-		y.h = y.d.style.height = 344;
-		_body.add(y.d);
-		return y;
-	},
-	draw: function() {
+An.object().named('YouTube').from(Widget).
+	does('init', function(id) {
+		var y = this.clone().instance()
+		y.id = id
+		y.d = document.createElement('div')	
+		y.d.innerHTML = '<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed src="http://www.youtube.com/v/' + y.id + '&color1=0xb1b1b1&color2=0xcfcfcf&hl=en&feature=player_embedded&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" allowScriptAccess="always" width="425" height="344"></embed></object>'
+		y.d.style.position = 'absolute'
+		y.d.style.top = this.y
+		y.d.style.left = this.x
+		y.d.style.zIndex = 2
+		y.w = y.d.style.width = 425
+		y.h = y.d.style.height = 344
+		_body.add(y.d)
+		return y
+	}).
+	does('draw', function() {
 		this.clamp(0,0,Display.w,Display.h);
 		this.d.style.top = this.y;
 		this.d.style.left = this.x;
-	},
-	play: function() { },
-	pause: function() { },
-	free: function() { _body.removeChild(this.d); }
-});
+	}).
+	does('play', function() { }).
+	does('pause', function() { }).
+	does('free', function() { _body.removeChild(this.d); })

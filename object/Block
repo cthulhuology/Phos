@@ -5,14 +5,14 @@ An.object().
 		return this.clone().
 			has('font','16 Arial').
 			has('background',"gray"). 
-			has('highlight',"white").
+			has('highlight',"black").
 			has('selection',"blue").
 			has('over', false).
 			has('moving', false). 
 			has('editing', false).
 			has('expanded', false). 
 			has('content', '').
-		 	instance() 
+		 	instance()
 	}).
 	does('says', function(T) { 
 		return this.has('content',T)
@@ -23,7 +23,7 @@ An.object().
 	}).
 	does('value', function() {
 		if (this.can('of')) return this.of(this.content())
-		Sound.click.play()
+		Sound.click().play()
 		return this.content().toString().eval()
 	}).
 	does('press', function(E) {
@@ -33,9 +33,9 @@ An.object().
 		this.has('content',
 			E.key() == Keyboard.enter() ? this.content().eval():
 			E.key() == Keyboard.backspace() ? 
-				this.content.length == 0 || Keyboard.shift() ? 
+				this.content().length == 0 || Keyboard.shift() ? 
 					this.done():
-					this.content.substring(0,this.content().length-1):
+					this.content().substring(0,this.content().length-1):
 			this.content().append(E.key()))
 		if (this.content() == undefined) this.free()
 	}).
@@ -44,17 +44,19 @@ An.object().
 	}).
 	does('draw', function() {
 		if (!this.visible()) return;
-		Screen[this.editing() || this.over() ? this.highlight() : this.selected() ? this.selection() : this.background()]()
+		Screen.save()
+		var Color = this.editing() || this.over() ? this.highlight() : this.selected() ? this.selection() : this.background()
+		Screen[Color]()
 		Screen.at(this.x(),this.y()+Screen.size()).by(this.width()-Screen.size(),this.height()).font(this.font()).print(this.content())
 		this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + Screen.size()),(Screen.y()+Display.y())-this.y() + Screen.size()/2)
-		Screen.at(this.x()-Screen.size()/2,this.y()).by(this.w(),this.h()).frame()
+		Screen.at(this.x()-Screen.size()/2,this.y()).by(this.width(),this.height()).frame().restore()
 	}).
 	does('down', function(E) { 		// right clicking on a Block instantiates a Mirror
 		if (!E.on(this)) return;
 		this.has('moving',E)
 		if (!this.content()) return;
 		if (E.button() < 2) return;
-		Sound.click.play()
+		Sound.click().play()
 		this.value().mirror()
 	}).
 	does('up', function(E) { 
@@ -65,8 +67,9 @@ An.object().
 			if (that.can('drop')) {
 				that.drop(this.value());
 				this.free();
-			} else if (this.content().isCall() && that.can(this.content().deparameterized())) {
-				 ('that.' + this.content()).eval()
+			} else if (this.content().toString().isCall() && that.can(this.content().deparameterized())) {
+				('that.' + this.content()).eval()
+				this.free()
 			}
 		}
 		this.has('moving',false)

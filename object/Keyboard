@@ -1,10 +1,16 @@
 An.object().named('Keyboard').from(Device).
 	has('backspace', -8).
-	has('enter', -13).
+	has('tab',9).
+	has('newline', 10).
+	has('enter', 13).
 	has('shift', false).
 	has('alt', false).
 	has('control',false).
 	has('command',false).
+	has('left',false).
+	has('right',false).
+	has('up',false).
+	has('down',false).
 	has('leftCommand', false).
 	has('rightCommand',false).
 	does('press',  function(E) { 
@@ -12,7 +18,7 @@ An.object().named('Keyboard').from(Device).
 		Keyboard.dispatch('press',E)
 	}).
 	does('reset', function(E) { 
-		Keyboard.modmap(e.keyCode,false)
+		Keyboard.modmap(E.keyCode,false)
 	}).
 	does('init', function() {
 		_root.when('keyup',Keyboard.reset).
@@ -22,6 +28,7 @@ An.object().named('Keyboard').from(Device).
 	does('modmap', function(K,B) { 
 		switch(K) {
 		case 16:
+			console.log("Shifting",B)
 			Keyboard.has('shift',B) 
 			return true
 		case 17:
@@ -39,15 +46,19 @@ An.object().named('Keyboard').from(Device).
 			Keyboard.has('command', Keyboard.leftCommand() || Keyboard.rightCommand()) 
 			return true
 		case 37:
+			console.log('left',B)
 			Keyboard.has('left',B)
 			return true
 		case 38:
+			console.log('up',B)
 			Keyboard.has('up',B)
 			return true
 		case 39:
+			console.log('right',B)
 			Keyboard.has('right',B)
 			return true
 		case 40:
+			console.log('down',B)
 			Keyboard.has('down',B)
 			return true
 		default:
@@ -66,9 +77,9 @@ An.object().named('Keyboard').from(Device).
 		var Keys = {
 		192: '`~', 49: '1!', 50: '2@', 51: '3#', 52: '4$', 53: '5%', 54: '6^', 55: '7&', 56: '8*', 57 : '9(', 48: '0)',  189: '-_', 187: '=+',
 		9: '\t\t', 81: 'qQ', 87: 'wW', 69: 'eE', 82: 'rR', '84' : 'tT', 89: 'yY', 85: 'uU', 73: 'iI', 79: 'oO', 80: 'pP', 219: '[{', 221: ']}', 220: '\\|',
-		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : -13,
+		65: 'aA', 83: 'sS', 68: 'dD', 70: 'fF', 71: 'gG', 72: 'hH', 74: 'jJ', 75: 'kK', 76: 'lL', 186: ';:', 222: '\'"', 13 : 13,
 		16: '', 90: 'zZ', 88: 'xX', 67: 'cC', 86: 'vV', 66: 'bB', 78: 'nN', 77: 'mM', 188: ',<', 190:'.>', 191: '/?',
-		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: -8, 10: -10, 61: '=+', 107: '++', 109: '-_',
+		17: '', 18: '',	91:'', 32: '  ', 93: '', 37: '', 38: '', 39: '', 40: '', 8: -8, 10: 10, 61: '=+', 107: '++', 109: '-_',
 		}
 		return Keys[K]
 	}).

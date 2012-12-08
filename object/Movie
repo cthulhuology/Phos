@@ -8,7 +8,7 @@ An.object().named('Movie').plural('Movies').from(Widget,Resource).
 			I.data().style.display = "block";
 			I.data().style.zIndex = 2;
 			_body.add(I.data());
-			$('canvas').style.zIndex = 1;
+			Display.canvas().style.zIndex = 1;
 		});
 		return I.instance();
 	}).

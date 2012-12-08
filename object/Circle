@@ -1,15 +1,22 @@
 An.object().named('Circle').plural('Circles').from(Graphic).
+	has('x',0).
+	has('y',0).
+	has('width',0).
+	has('height',0).
+	has('radius',0).
 	does('init', function() { 
 		return this.clone().size(20).instance().here() 
 	}).
 	does('draw', function() { 
 		var R = Screen.radius(); 	// save screen radius
 		if(this.visible()) 
-			Screen.color(this.red(),this.green(),this.blue(),this.alpha()).
-				radius(this.radius()).
-				at(this.x()+this.radius(),this.y()+this.radius()).
+			Screen.save().
+				color(this.red(),this.green(),this.blue(),this.alpha()).
+				radius(this.radius())
+			Screen.at(this.x()+this.radius(),this.y()+this.radius()).
 				circle().
-				radius(R) 
+				radius(R)
+			Screen.restore()
 	}).
 	does('size', function(R) {
 		this.by(R*2,R*2)

@@ -1,51 +1,76 @@
-An.object().named('Mirror').from(Widget,{
-	color: 'white',
-	reflect: function(o) {
-		var w = [];
-		var xo = x = Mouse.x; var yo = y = Mouse.y + 30;
-		o.each(function(v,k) {
-			// if (!k || !typeof(v)) return;
-			w.push(A.block().says(v.name ?  v.name() : k).at(x,y+30).by(200,20).copy({
-				childof: o,
-				property: k,
-				draw: function() {
-					Screen[this.over ? this.hl : this.bg]();
-					Screen.at(this.x,this.y+Screen.size).by(this.w-Screen.size,this.h).font(this.fnt).print(this.property.append(' : ', (typeof(this.childof[this.property]) == "function" ? '()' : this.childof[this.property])));
-					this.by(Math.max(this.w,(Screen.x+Display.x)-this.x + Screen.size),(Screen.y+Display.y)-this.y + Screen.size/2);
-					Screen.at(this.x-Screen.size/2,this.y).by(this.w,this.h).frame();
-				},
-				down: function(e) {
-					if(e.on(this) && e.button >= 2)
-						Mirror.reflect(this.childof[this.property]).at(this.x+this.w,this.y);
-				},
-				up: function() {},
-				move: function() {},
-				drop: function(v) {
-					this.childof[this.property] = v;
-				}
-			}));
-			y += 30;
-		});
-		return A.mirror().copy({ reflects: o, reflections: w }).at(xo,yo).by(200,30);
-	},
-	draw: function() {
-		Screen.color(this.color).at(this.x-Screen.size/2+5,this.y+20).print(this.reflects.name());
-	},
-	down: function(e) {
-		if (e.on(this)) this.moving = e;
-	},
-	move: function(e) {
-		if (!this.moving) return;
-		var dx = e.x - this.moving.x;
-		var dy = e.y - this.moving.y;
-		this.reflections.every(function(v) { v.to(dx,dy) });
-		this.to(dx,dy);
-		this.moving = e;
-	},
-	up: function(e) { this.moving = false; }
-});
+An.object().named('Mirror').from(Widget).
+	has('font','14 Arial').
+	has('highlight','black').
+	has('background','grey').
+	has('color', 'black').
+	does('reflect', function(O) {
+		var W = []
+		var Xo = X = this.x() || Mouse.x()
+		var Yo = Y = this.y() || Mouse.y() + 30
+		O.each(function(V,K) {
+			if (typeof(O[K]) != 'function') return;	// don't display non-behaviors
+			W.push(A.block().
+				says(V.name ?  V.name() : K).
+				at(X,Y+30).by(200,20).
+				has('mirrorOf', O).
+				has('property', K).
+				does('draw', function() {
+					Screen.save()
+					var Color = this.over() ? this.hilght() : this.background()
+					Screen[Color]()
+					Screen.at(this.x(),this.y()+Screen.size()).by(this.width()-Screen.size(),this.height()).
+						font(this.font()).print(this.property().append(' : ', 
+							O[K].dynamic ? 
+								O[K].params : 	// parameter list if dynamic
+								O[K]()		// evaluate if not
+							))
+					this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + Screen.size()),(Screen.y()+Display.y())-this.y() + Screen.size()/2)
+					Screen.at(this.x()-Screen.size/2,this.y()).by(this.width(),this.height()).frame().restore()
+				}).
+				does('down', function(E) {
+					if(E.on(this) && E.button >= 2)
+						Mirror.reflect(this.mirrorOf[this.property]).at(this.x()+this.width(),this.y())
+				}).
+				does('up', function() {}).
+				does('move', function() {}).
+				does('drop', function(V) {
+					this.mirrorOf().has(this.property(),V)
+				}))
+			Y += 30
+		})
+		return A.mirror().has('reflects',O).has('reflections', W).at(Xo,Yo).by(200,30)
+	}).
+	does('draw', function() {
+		if (this.reflections().length != this.reflects().slots()) {
+			var Reflectee = this.reflects()
+			this.free()
+			Mirror.reflect(Reflectee)
+		} else {
+			Screen.save().color(this.color()).at(this.x()-Screen.size()/2+5,this.y()+20).print(this.reflects().name()).restore()
+		}
+		return this
+	}).
+	does('down', function(E) {
+		if (E.on(this)) {
+			this.has('moving',E)
+			if (E.button() >= 2) Mirror.reflect(this.reflects().__proto__)
+		}
+	}).
+	does('move', function(E) {
+		if (!this.moving()) return;
+		var Dx = E.x() - this.moving().x()
+		var Dy = E.y() - this.moving().y()
+		this.reflections().every(function(V) { V.to(Dx,Dy) })
+		this.to(Dx,Dy)
+		this.has('moving',E)
+	}).
+	does('up', function(E) { this.has('moving',false) }).
+	does('free', function() { 
+		this.reflections().every(function(V) { V.free() })
+		return this.remove() 
+	})
 
 Object.prototype.mirror = function() {
-	return Mirror.reflect(this);
+	return Mirror.reflect(this)
 }
 

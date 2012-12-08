@@ -1,7 +1,6 @@
 An.object().
 	named('Device').plural('Devices').
 	does('dispatch', function(M,E) { 
-		console.log(M,E)
 		Widget.widgets().every(function(W,J) { 
 			try { if (W.can(M)) W[M](Event.init(E)) } 
 			catch(X) { console.error(X) } 

@@ -1,19 +1,16 @@
 An.object().named('Trash').from(Widget).
 	does('init', function() { 
+		var Me = this
 		this.has('trash',an(Image,'images/trash.png').
 			at(Display.width()-64,Display.height()-64).
 			has('down', false).
 			does('up', function(E) {
 				var O = null;
-				while(O = E.overlaps([Display,Phosphor,Trash,this])) {
-					for (var K in O) {
-						console.log(K,O[K])
-					}
-					
-					if (O.visible) { 
-						Sound.trash().play();
-						O.free()
-					}
+				if (! E.on(Me.trash())) return;
+				if (O = E.overlaps([Display,Phosphor,Trash,this])) {
+					console.log(O)
+					Sound.trash().play();
+					O.free()
 				}
 			})
 		)

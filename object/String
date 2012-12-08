@@ -30,7 +30,7 @@ String.prototype.name = function() {
 
 String.prototype.eval = function() {
 	var R = false
-	var Args = Array.prototype.slice.apply(arguments,0)
+	var Args = Array.prototype.slice.apply(arguments,[0])
 	var F = Function.prototype.constructor.apply(window,[ 'return ('.append(this,')') ])
 	try {
 		R = F.apply(window,Args)

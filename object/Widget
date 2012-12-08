@@ -1,66 +1,27 @@
-An.object().named('Widget').plural('Widgets').from(Box).
-	has('widgets', []).
-	has('visible', true).
-	has('moving',false).
-	has('parent',false).
-	has('children',false).
-	does('draw', function() {}).	// Override to draw
-	does('tick', function() {}).	// Override to update based on time
-	does('click', function() {}).
-	does('init', function() { 	// Override to init
-		return this.clone().instance().here() 
-	}).	
-	does('free', function() { 	// Override to custom cleanup 
-		return this.remove() 
-	}).
-	does('here', function() { 
-		return this.at(Mouse.x(),Mouse.y()) 
-	}).
-	does('remove',function() {
-		Widget.has('widgets', Widget.widgets().except(this))
-		return this.hide()
-	}).
-	does('instance', function() {
-		Widget.has('widgets', Widget.widgets().concat(this))
-		return this
-	}).
-	does('add', function(O) { 
-		if (!this.can('children')) return this
-		O.has('parent',this)
-		return this.has('children',this.children().concat(O));
-	}).
-	does('container', function() { 
-		return this.has('children',[])
-	}).
-	does('show', function () { 
-		return this.has('visible',true)
-	}).
-	does('hide', function () { 
-		return this.has('visible', false)
-	}).
-	does('down', function(E) { 
-		if(!E.on(this)) return;
-		if(this.can('click')) this.click()
-       		global['that'] = this 
-		this.has('moving',E)
-		if (Keyboard.shift()) that.init().to(that.width(),that.height())	// Copy constructor
-       		if(E.button() < 2) return;	// right click makes mirror
-		this.mirror()
-	}).
-	does('up', function(E) {		// drop to add
-		this.has('moving',false)
-		if (!E.on(this)) return;
-		var O = this.overlaps([Display,Phosphor,this]);
-		if (!O || !O.is('Graphic') || this == O) return; 
-		if (O.children().contains(this)) return;
-		O.add(this);
-	}).
-	does('move', function(E) {
-		if (!this.moving()) return;
-		var DX = E.x() - this.moving().x()
-		var DY = E.y() - this.moving().y()
-		this.to(DX,DY)
-		if (this.parent()) this.clamp(this.parent().x(),this.parent().y(),this.parent().x()+this.parent().width(),this.parent.y()+this.parent().height())
-		if (this.children()) this.children().every(function(O,J) { O.to(DX,DY)})
-		this.has('moving',E)
-	})
+An.object().named('Widget').plural('Widgets').from(Box).has('widgets', []).has('visible', true).has('moving',false).
+does('draw', function() {}).						// Override to draw
+does('tick', function() {}).						// Override to update based on time
+does('click', function() {}).
+does('init', function() { return this.clone().instance().here() }).	// Override to change instancing
+does('free', function() { return this.remove() }).			// Override to custom cleanup 
+does('here', function() { return this.at(Mouse.x(),Mouse.y()) }).
+does('remove',function() { Widget.has('widgets', Widget.widgets().except(this)); return this.hide() }).
+does('instance', function() { Widget.has('widgets', Widget.widgets().concat(this)); return this }).
+does('container', function() { return this.has('children',[]) }).
+does('show', function () { return this.has('visible',true) }).
+does('hide', function () { return this.has('visible', false) }).
+does('down', function(E) { 
+	if(!E.on(this)) return;
+	if(this.can('click')) this.click()
+       	global['that'] = this 
+	this.has('moving',E)
+       	if(E.button() == 2) this.mirror()
+}).
+does('up', function(E) {		
+	this.has('moving',false)
+}).
+does('move', function(E) {
+	if (!this.moving()) return;
+	this.to(E.x() - this.moving().x(),E.y() - this.moving().y())
+	this.has('moving',E)
+})

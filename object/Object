@@ -11,7 +11,15 @@ Object.prototype.the = function(I) { return I }
 
 Object.prototype.has = function(K,X) {
 	this[K] = function() { return X }
+	this[K].dynamic = false
 	return this
+}
+
+Object.prototype.does = function(V,F) { 
+	F.dynamic = true
+	F.params = F.parameters()
+	this[V] = F
+	return this 
 }
 
 Object.prototype.clone = function() {
@@ -23,11 +31,6 @@ Object.prototype.clone = function() {
 Object.prototype.copy = function(O) {
 	var I = this
 	O.each(function(V,K) { I[K] = V })
-	return this 
-}
-
-Object.prototype.does = function(V,F) { 
-	this[V] = F
 	return this 
 }
 
@@ -75,7 +78,11 @@ Object.prototype.names = function() {
 	return R 
 }
 
-Object.prototype.name = function() { return this.names()[0] }
+Object.prototype.name = function() { 
+	if (this.names()[0]) return this.names()[0]
+	var Kind = this.__proto__.name()
+	return (['A','E','I','O','U','Y'].contains(Kind.charAt(0)) ? 'an '.append(Kind) : 'a '.append(Kind))
+}
 Object.prototype.plural = function(I) { return window[I] = this }
 
 Object.prototype.named =  function(N) {

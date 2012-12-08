@@ -1,7 +1,7 @@
 An.object().named('Graphic').plural('Graphics').from(Widget).
-	has('red',255).
-	has('green',255).
-	has('blue', 255).
+	has('red',0).
+	has('green',0).
+	has('blue', 0).
 	has('alpha',1.0).
 	does('color', function(R,G,B,A) {
 		return this.	

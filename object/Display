@@ -2,18 +2,17 @@ An.object().named('Display').from(Widget).
 	has('dx', 1).
 	has('dy', 1).
 	has('app', null).
-	has('canvas', $_('canvas')).
+	has('canvas', document.createElement('canvas')).
 	has('width',window.innerWidth).
 	has('height',window.innerHeight).
 	has('selecting',false).
-	has('selected',false).
+	has('selected',[]).
 	has('extent',false).
 	does('scroll', function(E) {  // Override this if you don't want the canvas to scroll
 		this.to(E.dx()/Display.dx(),E.dy()/Display.dy()) 
 	}).
 	does('draw', function() {  // Override to change the background
-		Screen.background(0,0,0) 
-		Screen.as(this.extent()).white().frame();
+		Screen.background(255,255,255) 
 	}).
 	does('create', function() {
 		_body.style.margin = 0
@@ -38,7 +37,7 @@ An.object().named('Display').from(Widget).
 		this.has('selected',[]).has('extent',false).has('selecting',false).has('moving',false)
 	}).
 	does('down', function(E) { 
-		if (this.selected()) this.selected().every(function(V,J) { V.has('moving',E) })
+		if (!this.selected().empty()) this.selected().every(function(V,J) { V.has('moving',E) })
 		if (E.overlaps([Display])) return;
 		if (!Keyboard.shift()) return this.has('moving',E)
 		this.has('selecting',E)

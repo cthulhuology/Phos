@@ -25,8 +25,6 @@
 //	resources.  It is designed around the concept of a simple object oriented statemachine.
 //
 
-function $(x) { return document.getElementById(x) }
-function $_(x) { return document.createElement(x) }
 document.goto = function(x) { document.location.href = x }
 
 var _doc = document;
@@ -93,8 +91,9 @@ Object.prototype.use = function() {
 	
 _root.onload = function() {
 	_body = _doc.getElementsByTagName('body')[0];
-	use('Object','Array','String','Box','Widget','Component','Event','Device','Resource',
+	use('Object','Number','Array','String','Box','Widget','Component','Event','Device','Resource',
 		'Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
+		'Key','Page',
 		'Help','Inventory','Trash','Objects','Mirror','Phosphor',
 		'Names','HotKey','Block',
 		'Graphic','Rectangle','Circle','Daimond',

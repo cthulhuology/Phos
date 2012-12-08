@@ -1,4 +1,8 @@
-An.object().named('Blog').from(Image,{
-	show: function() { this.at(0,10).by(100,30).load('img','images/blog.png') },
-	down: function(e) { if (e.on(this)) _doc.goto('http://blog.dloh.org') },
-}).instance().show();
+An.object().named('Blog').from(Image).
+	does('show', function() { 
+		this.at(0,10).by(100,30).load('img','images/blog.png') 
+	}).
+	does('down', function(E) { 
+		if (E.on(this)) _doc.goto('http://blog.dloh.org') 
+	}).
+	instance().show()

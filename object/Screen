@@ -10,14 +10,15 @@ An.object().named('Screen').from(Box).
 			has('ctx',this.display().canvas().getContext('2d'))
 	}).
 	does('as', function(B) { 	// Takes a Box
+		if(!B.is(Box)) return this
 		return this.at(B.x(),B.y()).by(B.width(),B.height()) 
 	}).
 	does('to', function(X,Y) { 
 		return this.at(this.x()+X,this.y()+Y) 
 	}).
 	does('at', function(X,Y) {
-		this.has('x', X - this.display.x()).
-			has('y',Y - this.display.y()).
+		this.has('x', X - this.display().x()).
+			has('y',Y - this.display().y()).
 			ctx().moveTo(this.x(),this.y())
 		return this
 	}).
@@ -50,7 +51,7 @@ An.object().named('Screen').from(Box).
 	does('line', function() {
 		this.ctx().lineTo(this.x()+this.width(),this.y()+this.height())
 		this.ctx().stroke()
-		return this.to(this.w+this.display.x,this.h+this.display.y)
+		return this.to(this.width()+this.display().x(),this.h()+this.display().y())
 	}).
 	does('frame', function() {
 		var C = this.ctx()
@@ -91,8 +92,8 @@ An.object().named('Screen').from(Box).
 				I.has('x',Xo)
 				I.has('y', I.y() + Math.floor(I.size()))
 			}
-			C.fillText(x,I.x(),I.y())
-			I.x() += L + Math.floor(I.size()/2.0)	// Text + Space 
+			C.fillText(X,I.x(),I.y())
+			I.has('x', I.x() + L + Math.floor(I.size()/2.0))	// Text + Space 
 			Xm = Math.max(Xm,I.x())
 			Ym = Math.max(Ym,I.y());
 		});
@@ -107,35 +108,35 @@ An.object().named('Screen').from(Box).
 		return this 
 	}).
 	does('yellow', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "yellow"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "yellow"
 		return this
 	}).
 	does('green', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "green"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "green"
 		return this
 	}).
 	does('blue', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "blue"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "blue"
 		return this
 	}).
 	does('orange', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "orange"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "orange"
 		return this
 	}).
 	does('purple', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "purple" 
+		this.ctx().fillStyle = this.ctx().strokeStyle = "purple" 
 		return this
 	}).
 	does('black', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "black"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "black"
 		return this
 	}).
 	does('gray', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "gray"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "gray"
 		return this
 	}).
 	does('white', function() {
-		this.ctx.fillStyle = this.ctx.strokeStyle = "white"
+		this.ctx().fillStyle = this.ctx().strokeStyle = "white"
 		return this
 	}).
 	does('fill', function() {

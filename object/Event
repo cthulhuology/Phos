@@ -1,5 +1,6 @@
 An.object().named('Event').plural('Events').from(Box).
 	does('init', function(E) {
+		if (E.is(Event)) return E
 		return this.clone().
 			has('button', E.button).
 			has('key', Keyboard.key(E.keyCode, E.type == 'keydown')).
