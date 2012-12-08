@@ -1,38 +1,11 @@
 An.object().named('HotKey').
-	does('of', function(K) { this[K]() }).
-	// Block Widget hotkeys
-	does('x', function() { 
-		global['clipboard'] = global['editing'].content(); global['editing'].free() 
-	}).
-	does('c', function() { 
-		global['clipboard'] = global['editing'].content() 
-	}). 
-	does('v', function() { 
-		global['editing'].says(global['editing'].content().append(global['clipboard'])) 
-	}).
-	does('/', function() { 
-		Search.find() 
-	}).
-	does('s', function() { 
-		alert('CMD-S has been deprecated for now');
-		return;
-		// if (editing.childof == localStorage && !editing.valueof) 
-		// 	(localStorage[editing.content]).post('objects/' + Phosphor.abbr + '-' + editing.content,
-		// 		function(txt) {if (!txt) alert('Failed to save try again') }) 
-	}). 
-	// Phosphor Widget hotkeys
-	does('d', function() { 
-		if (global['editing'].content()) global['editing'].content().download() 
-	}).
-	does('o', function() { 
-		Display.at(0,0) 
-	}).
-	does('r', function() { 
-		_doc.goto(_doc.location) 
-	}).
-	does('h', function() { 
-		Phosphor.help().show() 
-	}).
-	does('i', function() { 
-		Phosphor.inventory().show() 
-	})
+does('of', function(K) { if(this.can(K)) this[K]() }).
+does('x', function() { global['clipboard'] = global['editing'].content(); global['editing'].free() }).
+does('c', function() { global['clipboard'] = global['editing'].content() }). 
+does('v', function() { global['editing'].says(global['editing'].content().append(global['clipboard'])) }).
+does('/', function() { Search.find() }).
+does('d', function() { if (global['editing'].content()) global['editing'].content().download() }).
+does('o', function() { Display.at(0,0) }).
+does('r', function() { _doc.goto(_doc.location) }).
+does('h', function() { Phosphor.help().show() }).
+does('i', function() { Phosphor.inventory().show() })

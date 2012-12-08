@@ -1,46 +1,27 @@
-An.object().named('Box').plural('Boxes').
-	has('x',0).
-	has('y',0).
-	has('width',0).
-	has('height',0).
-	does('init', function() { 
-		return this.clone()
-	}).
-	does('on', function(O) {
-		return O.is(Box) ? 
-			!( O.x()+O.width() < this.x()
-			|| O.x() > (this.x() + this.width()) 
-			|| O.y()+O.height() < this.y() 
-			|| O.y() > this.y() + this.height()):
-			false
-	}).
-	does('overlaps', function(Excluding) {
-		var I = this
-		return Widget.widgets().any(function(O) { 
-			return O.can('on') && O != I && !Excluding.contains(O) && O.on(I) 
-		})
-	}).
-	does('at', function(X,Y) {
-		return this.has('x',Math.floor(X)).has('y',Math.floor(Y))
-	}).
-	does('to', function(X,Y) {
-		return this.has('x',Math.floor(X + this.x())).has('y',Math.floor(Y + this.y()))
-	}).
-	does('by', function(W,H) {
-		return this.has('width',Math.floor(W)).has('height',Math.floor(H))
-	}).
-	does('scale', function(W,H) {
-		return this.has('width',this.width() * w).has('height',this.height()* H)
-	}).
-	does('as', function(O) { 
-		return this.at(O.x(),O.y()).by(O.width(),O.height()) 
-	}).
-	does('clamp', function(X,Y,W,H) {
-		return this.has('x',Math.min(W - this.width), Math.max(X,this.x())).
-			has('y',Math.min(H - this.height(), Math.max(Y,this.y())))
-	}).
-	does('towards', function(X,Y) {
-		var dx = X - this.x()
-		var dy = Y - this.y()
-		return this.to(dx ? dx/Math.abs(dx): 0,dy ? dy/Math.abs(dy) : 0)
-	})
+An.object().named('Box').plural('Boxes').has('x',0).has('y',0).has('width',0).has('height',0).
+does('init', function() { return this.clone() }).
+does('on', function(O) {
+	return O.is(Box) ? 
+		!( O.x()+O.width() < this.x()
+		|| O.x() > (this.x() + this.width()) 
+		|| O.y()+O.height() < this.y() 
+		|| O.y() > this.y() + this.height()):
+		false
+}).
+does('overlaps', function(Excluding) {
+	var I = this
+	return Widget.widgets().any(function(O) { return O.can('on') && O != I && !Excluding.contains(O) && O.on(I) }) 
+}).
+does('at', function(X,Y) { return this.has('x',Math.floor(X)).has('y',Math.floor(Y)) }).
+does('to', function(X,Y) { return this.has('x',Math.floor(X + this.x())).has('y',Math.floor(Y + this.y())) }).
+does('by', function(W,H) { return this.has('width',Math.floor(W)).has('height',Math.floor(H)) }).
+does('scale', function(W,H) { return this.has('width',this.width() * w).has('height',this.height()* H) }).
+does('as', function(O) { return this.at(O.x(),O.y()).by(O.width(),O.height()) }).
+does('clamp', function(X,Y,W,H) {
+	return this.has('x',Math.min(W - this.width), Math.max(X,this.x())).has('y',Math.min(H - this.height(), Math.max(Y,this.y())))
+}).
+does('towards', function(X,Y) {
+	var dx = X - this.x()
+	var dy = Y - this.y()
+	return this.to(dx ? dx/Math.abs(dx): 0,dy ? dy/Math.abs(dy) : 0)
+})

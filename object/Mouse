@@ -1,35 +1,16 @@
-An.object().named('Mouse').from(Device).
-	has('x',0).
-	has('y',0).
-	has('dx',0).
-	has('dy',0).
-	does('on', function(W) {
-		return this.x() >= W.x() && this.x() <= W.x() + W.width() && this.y() >= W.y() && this.y() <= W.y() + W.height()
-	}).
-	does('over', function(E) { 
-		Mouse.dispatch('over',E) 
-	}).
-	does('move', function(E) { 
-		Mouse.has('x',E.x + Display.x())
-		Mouse.has('y',E.y + Display.y())
-		Mouse.dispatch('move',E) 
-	}).
-	does('down', function(E) { 
-		Mouse.dispatch('down',E) 
-	}).
-	does('up', function(E) { 
-		Mouse.dispatch('up',E) 
-	}).
-	does('scroll', function(E) { 
-		Mouse.dispatch('scroll',E) 
-	}).
-	does('init', function () { 
-		_root.when('mouseover',Mouse.over).
-			when('mousemove',Mouse.move).
-			when('mousedown',Mouse.down).
-			when('mouseup',Mouse.up).
-			when('mousewheel',Mouse.scroll).
-			when('onscroll',Mouse.scroll)
-		return this;
-	}).
-	init()
+An.object().named('Mouse').from(Device).has('x',0).has('y',0).has('dx',0).has('dy',0).
+does('on', function(W) { return this.x() >= W.x() && this.x() <= W.x() + W.width() && this.y() >= W.y() && this.y() <= W.y() + W.height() }).
+does('over', function(E) { Mouse.dispatch('over',E) }).
+does('move', function(E) { Mouse.has('x',E.x + Display.x()).has('y',E.y + Display.y()).dispatch('move',E) }).
+does('down', function(E) { Mouse.dispatch('down',E) }).
+does('up', function(E) { Mouse.dispatch('up',E) }).
+does('scroll', function(E) { Mouse.dispatch('scroll',E) }).
+does('init', function () { 
+	_root.when('mouseover',Mouse.over).
+		when('mousemove',Mouse.move).
+		when('mousedown',Mouse.down).
+		when('mouseup',Mouse.up).
+		when('mousewheel',Mouse.scroll).
+		when('onscroll',Mouse.scroll)
+	return this;
+}).init()
