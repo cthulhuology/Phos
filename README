@@ -1,4 +1,4 @@
-README - Phos and Phosphor
+README - Phos 
 
 Copyright 2009,2010,2011,2012 David J. Goehrig <dave@nexttolast.com>
 All Rights Reserved
@@ -24,14 +24,14 @@ can act as a "class".  Instances of that "class" are spawned using the "clone()"
 ----------------------------------------------------------------------------------------------------
 Getting Started
 
-The easiest way to use Phosphor is to include in your HTML file:
+The easiest way to use Phos is to include in your HTML file:
 
 	<script src="/js"></script>
 
 ----------------------------------------------------------------------------------------------------
 Contributing
 
-Both Phos and Phosphor are licensed under the GPL3 license. A copy of the license can be found in
+Phos is licensed under the GPL3 license. A copy of the license can be found in
 the git repository and is available from the Free Software Foundation at:
 
 	 http://www.gnu.org/copyleft/gpl.html
@@ -41,13 +41,13 @@ If you'd like to submit your own fixes, extensions, or features please feel free
 	dave at nexttolast.com
 
 I'm always happy to incorporate good ideas, especially if they make things simpler, smaller, and
-faster.  If you'd like to use Phos or Phosphor in a commercial product, licensing and support
+faster.  If you'd like to use Phos in a commercial product, licensing and support
 arrangements can also be made to meet your needs.
 
 ----------------------------------------------------------------------------------------------------
 Keeping Up To Date
 
-The latest and greatest source code is always available for both Phos and Phosphor at:
+The latest and greatest source code is always available for Phos at:
 
 	http://github.com/cthulhuology/Phos/tree/master
 

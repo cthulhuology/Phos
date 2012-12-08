@@ -63,7 +63,7 @@ An.object().
 	does('up', function(E) { 
 		var I = this
 		if (this.moving() && (global['that'] = Widget.widgets().any(function(O,K) {
-			return ![ I, Display, Phosphor ].contains(O) && O.can('on') && O.on(I) 
+			return ![ I, Display, Desktop ].contains(O) && O.can('on') && O.on(I) 
 		}))) {
 			if (that.can('drop')) {
 				that.drop(this.value());

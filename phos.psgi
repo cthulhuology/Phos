@@ -40,7 +40,7 @@ my $phos_js = sub {
 	my @files = ('Object','Number','Array','String','Box','Widget','Component','Event','Device','Resource',
                'Palette','Font','Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
                'Key','Page',
-               'Help','Inventory','Trash','Objects','Mirror','Phosphor',
+               'Help','Inventory','Trash','Objects','Mirror','Desktop',
                'Names','HotKey','Block',
                'Graphic','Rectangle','Circle','Daimond',
                'Blog','Search','App'); 

@@ -7,7 +7,7 @@ An.object().named('Trash').from(Widget).
 			does('up', function(E) {
 				var O = null;
 				if (! E.on(Me.trash())) return;
-				if (O = E.overlaps([Display,Phosphor,Trash,this])) {
+				if (O = E.overlaps([Display,Desktop,Trash,this])) {
 					console.log(O)
 					Sound.trash().play();
 					O.free()

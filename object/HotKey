@@ -7,5 +7,5 @@ does('/', function() { Search.find() }).
 does('d', function() { if (global['editing'].content()) global['editing'].content().download() }).
 does('o', function() { Display.at(0,0) }).
 does('r', function() { _doc.goto(_doc.location) }).
-does('h', function() { Phosphor.help().show() }).
-does('i', function() { Phosphor.inventory().show() })
+does('h', function() { Desktop.help().show() }).
+does('i', function() { Desktop.inventory().show() })

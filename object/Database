@@ -2,7 +2,7 @@ An.object().named('Database').
 	has('callback',function() {} ).
 	does('init', function(Name) {
 		try {
-			has('sql',openDatabase(Name,'','Phosphor Database',4096*4096))
+			has('sql',openDatabase(Name,'','Phos Database',4096*4096))
 		} catch(E) {
 			console.error(E);
 		}
