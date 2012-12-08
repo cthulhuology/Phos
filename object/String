@@ -54,3 +54,47 @@ String.prototype.isCall = function() {
 	return /\w+\([^)]*\)$/.exec(this);
 }
 
+String.prototype.use = function() {
+	var I = this
+	var Modules = []
+	Modules.push.apply(Modules,arguments)
+	var M = Modules.shift()
+	var Url = I.append(M)
+	var F = function(T) {
+		if (!T) console.error('Failed to load '.append(Url))
+		try { 
+			Function.prototype.constructor.apply(window,[T])()
+		} catch(E) { 
+			console.error('Load error: '.append(E,':',T)) 
+		}
+		if (Modules.length > 0 ) {
+			var M = modules.shift()
+			var Url = I.append(M)
+			console.error(M)
+			Url.get(F)
+		}
+	}
+	Url.get(F)
+	return this
+}
+	
+String.prototype.request = function(M,F,D) {
+	var R = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest()
+	R.onreadystatechange = function () {
+		if (this.readyState != 4 || typeof(F) != "function") return false
+		if (this.status == 404) F(null)
+		if (this.status == 200) F(this.responseText)
+	}
+	R.open(M,this,true)
+	R.setRequestHeader('Content-Type','application/json')
+	R.send(D ? D : '')
+	return this
+}
+
+String.prototype.get = function(F) { 
+	return this.request("GET",F) 
+}
+
+String.prototype.post = function(D,F) { 
+	return this.request("POST",F,D) 
+}

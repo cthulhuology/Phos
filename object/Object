@@ -1,5 +1,60 @@
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Phos 
+//
+// Copyright (C) 2009,2010,2011,2012 David J. Goehrig
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////
 global = window
+document.goto = function(x) { document.location.href = x }
+
+var _doc = document
+var _root = window
+var _body = null
+window.onload = function() {
+	_body = document.querySelector('body');
+	'/object/'.use(navigator.userAgent.match(/AppleWebKit\/534/) ? 'Safari' :
+	navigator.userAgent.match(/Safari/) ? 'Safari' :
+	navigator.userAgent.match(/Chrome/) ? 'Chrome' :
+	navigator.userAgent.match(/Firefox/) ? 'Firefox' : 
+	'Opera')
+	Display.init()
+}
+
+var here;		// the last mouse position
+var that;		// the last thing selected
+var these;		// the targets of a selection
+var editing;		// the block we're editing
+var clipboard;		// the last object we cut or copied
+
+var A;
+var An = A = {
+	object: function() { return a({}) },
+	string: function() { return '' },
+	array: function() { return [] },
+};
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Event Functions
+_doc.onkeypress = function() { return false }; 			// Hack to break backspace
+_doc.oncontextmenu = function(e) { return false };			// Hack to remove popup menu
+_root.onresize = function() { _doc.location.href = _doc.location.href };
+
+function nop() {}
+
 
 Object.prototype.a = Object.prototype.an = function(I,V) { 
 	return I.can('init') ? 
@@ -128,51 +183,6 @@ Object.prototype.module = function() {
 	var R = 'function() { return '.append( this.toString(), ' }')
 	Object.prototype.toString = Ots
 	return R 
-}
-
-String.prototype.use = function() {
-	var I = this
-	var Modules = []
-	Modules.push.apply(Modules,arguments)
-	var M = Modules.shift()
-	var Url = I.append(M)
-	var F = function(T) {
-		if (!T) console.error('Failed to load '.append(Url))
-		try { 
-			Function.prototype.constructor.apply(window,[T])()
-		} catch(E) { 
-			console.error('Load error: '.append(E,':',T)) 
-		}
-		if (Modules.length > 0 ) {
-			var M = modules.shift()
-			var Url = I.append(M)
-			console.error(M)
-			Url.get(F)
-		}
-	}
-	Url.get(F)
-	return this
-}
-	
-String.prototype.request = function(M,F,D) {
-	var R = XMLHttpRequest ? new XMLHttpRequest(): _doc.createRequest()
-	R.onreadystatechange = function () {
-		if (this.readyState != 4 || typeof(F) != "function") return false
-		if (this.status == 404) F(null)
-		if (this.status == 200) F(this.responseText)
-	}
-	R.open(M,this,true)
-	R.setRequestHeader('Content-Type','application/json')
-	R.send(D ? D : '')
-	return this
-}
-
-String.prototype.get = function(F) { 
-	return this.request("GET",F) 
-}
-
-String.prototype.post = function(D,F) { 
-	return this.request("POST",F,D) 
 }
 
 Object.prototype.download = function() {

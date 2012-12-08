@@ -1,34 +1,29 @@
 An.object().named('Movie').plural('Movies').from(Widget,Resource).
-	does('init', function(Url) {
-		var I = this.clone()
-		I.load('video',Url,function(I) {
-			I.data().autobuffer = true;
-			I.data().autoplay = false;
-			I.data().style.position = 'absolute';
-			I.data().style.display = "block";
-			I.data().style.zIndex = 2;
-			_body.add(I.data());
-			Display.canvas().style.zIndex = 1;
-		});
-		return I.instance();
-	}).
-	does('draw', function() {
-		this.data().style.display = this.visible() ? "inline" : "none";
-		this.data().style.width = this.width();
-		this.data().style.height = this.height();
-		this.clamp(0,0,Display.width(),Display.height());
-		this.div.style.top = this.y();
-		this.div.style.left = this.x();
-	}).
-	does('play', function() { 
-		if (this.data().readyState != 4) return this;
-		this.data().play(); 
-		return this;
-	}).
-	does('pause', function() { 
-		if(this.loaded()) this.data().pause()
-		return this 
-	}).
-	does('free', function() { 
-		_body.removeChild(this.data()) 
-	})
+does('init', function(Url) {
+	var I = this.clone()
+	I.load('video',Url,function(I) {
+		I.data().autobuffer = true;
+		I.data().autoplay = false;
+		I.data().style.position = 'absolute';
+		I.data().style.display = "block";
+		I.data().style.zIndex = 2;
+		_body.add(I.data());
+		Display.canvas().style.zIndex = 1;
+	});
+	return I.instance();
+}).
+does('draw', function() {
+	this.data().style.display = this.visible() ? "inline" : "none";
+	this.data().style.width = this.width();
+	this.data().style.height = this.height();
+	this.clamp(0,0,Display.width(),Display.height());
+	this.div.style.top = this.y();
+	this.div.style.left = this.x();
+}).
+does('play', function() { 
+	if (this.data().readyState != 4) return this;
+	this.data().play(); 
+	return this;
+}).
+does('pause', function() { if(this.loaded()) this.data().pause(); return this  }).
+does('free', function() { _body.removeChild(this.data()) })

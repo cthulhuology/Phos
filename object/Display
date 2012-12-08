@@ -52,5 +52,4 @@ An.object().named('Display').from(Widget).
 			Widgets.widgets().every(function(V,J) { 
 				if (V != I && I.extent().on(V) && !I.selected().contains(V)) I.has('selected', I.selected().concat(V)) 
 			})
-	}).
-	init()
+	})

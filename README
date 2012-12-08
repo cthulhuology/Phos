@@ -1,6 +1,6 @@
 README - Phos and Phosphor
 
-Copyright 2009 David J. Goehrig <dave@nexttolast.com>
+Copyright 2009,2010,2011,2012 David J. Goehrig <dave@nexttolast.com>
 All Rights Reserved
 
 ----------------------------------------------------------------------------------------------------
@@ -11,12 +11,12 @@ what it does is provide a coherent API for building interactive components.  It 
 widget / drawing / event statemachine which seeks to minimize the overall complexity of the derived
 applications.
 
-Phosphor is a javascript development environment that allows the programmer to directly manipulate
+Phos is also a javascript development environment that allows the programmer to directly manipulate
 the contents of live javascript objects.  The basic concept is that each text block can either be
 evaluated (by pressing enter) or inspected (by right clicking).  For properties of objects, their
 values can be set by changing the contents of the slot and then pressing enter.
 
-Together Phos and Phosphor allow for the development of rich internet applications, in a dynamic and
+Together Phos allows for the development of rich internet applications, in a dynamic and
 exploratory fashion.  The user can either extend existing objects, or create new derived objects 
 using "classy objects".  Rather than a traditional javascript prototype based inheritance, any object
 can act as a "class".  Instances of that "class" are spawned using the "clone()" method.
@@ -24,31 +24,9 @@ can act as a "class".  Instances of that "class" are spawned using the "clone()"
 ----------------------------------------------------------------------------------------------------
 Getting Started
 
-The easiest way to use Phosphor is to include both phos.js and phosphor.js in your HTML file:
+The easiest way to use Phosphor is to include in your HTML file:
 
-	<script src="phos.js"></script>
-	<script src="phosphor.js"></script> 
-
-Then you initialize the system by invoking phos's boot function when the body loads:
-
-	<body onload="boot(); Phosphor.init()">
-
-This will by default add a canvas to the body object and set it to full window size.  If you'd like 
-to preset the canvas side simply add a canvas element with the id='canvas'.
-
-	<canvas id="canvas" height="320" width="240"></canvas>
-
-You can then use the Phosphor system in your very little 320x240 canvas.  
-
-----------------------------------------------------------------------------------------------------
-Tutorials
-
-For a brief tutorial on how to use the Phosphor environment open the file Tutorial.html.  Under
-Mac OS X you can open the file from the command line using:
-
-	open Tutorial.html
-
-Since Phos and Phosphor can be embedded into any HTML page, 
+	<script src="/js"></script>
 
 ----------------------------------------------------------------------------------------------------
 Contributing
