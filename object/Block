@@ -3,7 +3,7 @@ An.object().
 	from(Widget).
 	does('init', function() { 
 		return this.clone().
-			has('font','16 Arial').
+			has('font',A.font('16 Monaco')).
 			has('background',"gray"). 
 			has('highlight',"black").
 			has('selection',"blue").
@@ -47,9 +47,10 @@ An.object().
 		Screen.save()
 		var Color = this.editing() || this.over() ? this.highlight() : this.selected() ? this.selection() : this.background()
 		Screen[Color]()
-		Screen.at(this.x(),this.y()+Screen.size()).by(this.width()-Screen.size(),this.height()).font(this.font()).print(this.content())
-		this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + Screen.size()),(Screen.y()+Display.y())-this.y() + Screen.size()/2)
-		Screen.at(this.x()-Screen.size()/2,this.y()).by(this.width(),this.height()).frame().restore()
+		this.font().use()
+		Screen.at(this.x(),this.y()+this.font().size()).by(this.width()-this.font().size(),this.height()).print(this.content())
+		this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + this.font().size()),(Screen.y()+Display.y())-this.y() + this.font().size()/2)
+		Screen.at(this.x()-this.font().size()/2,this.y()).by(this.width(),this.height()).frame().restore()
 	}).
 	does('down', function(E) { 		// right clicking on a Block instantiates a Mirror
 		if (!E.on(this)) return;

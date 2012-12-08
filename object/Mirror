@@ -1,74 +1,71 @@
-An.object().named('Mirror').from(Widget).
-	has('font','14 Arial').
-	has('highlight','black').
-	has('background','grey').
-	has('color', 'black').
-	does('reflect', function(O) {
-		var W = []
-		var Xo = X = this.x() || Mouse.x()
-		var Yo = Y = this.y() || Mouse.y() + 30
-		O.each(function(V,K) {
-			if (typeof(O[K]) != 'function') return;	// don't display non-behaviors
-			W.push(A.block().
-				says(V.name ?  V.name() : K).
-				at(X,Y+30).by(200,20).
-				has('mirrorOf', O).
-				has('property', K).
-				does('draw', function() {
-					Screen.save()
-					var Color = this.over() ? this.hilght() : this.background()
-					Screen[Color]()
-					Screen.at(this.x(),this.y()+Screen.size()).by(this.width()-Screen.size(),this.height()).
-						font(this.font()).print(this.property().append(' : ', 
-							O[K].dynamic ? 
-								O[K].params : 	// parameter list if dynamic
-								O[K]()		// evaluate if not
-							))
-					this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + Screen.size()),(Screen.y()+Display.y())-this.y() + Screen.size()/2)
-					Screen.at(this.x()-Screen.size/2,this.y()).by(this.width(),this.height()).frame().restore()
-				}).
-				does('down', function(E) {
-					if(E.on(this) && E.button >= 2)
-						Mirror.reflect(this.mirrorOf[this.property]).at(this.x()+this.width(),this.y())
-				}).
-				does('up', function() {}).
-				does('move', function() {}).
-				does('drop', function(V) {
-					this.mirrorOf().has(this.property(),V)
-				}))
-			Y += 30
-		})
-		return A.mirror().has('reflects',O).has('reflections', W).at(Xo,Yo).by(200,30)
-	}).
-	does('draw', function() {
-		if (this.reflections().length != this.reflects().slots()) {
-			var Reflectee = this.reflects()
-			this.free()
-			Mirror.reflect(Reflectee)
-		} else {
-			Screen.save().color(this.color()).at(this.x()-Screen.size()/2+5,this.y()+20).print(this.reflects().name()).restore()
-		}
-		return this
-	}).
-	does('down', function(E) {
-		if (E.on(this)) {
-			this.has('moving',E)
-			if (E.button() >= 2) Mirror.reflect(this.reflects().__proto__)
-		}
-	}).
-	does('move', function(E) {
-		if (!this.moving()) return;
-		var Dx = E.x() - this.moving().x()
-		var Dy = E.y() - this.moving().y()
-		this.reflections().every(function(V) { V.to(Dx,Dy) })
-		this.to(Dx,Dy)
-		this.has('moving',E)
-	}).
-	does('up', function(E) { this.has('moving',false) }).
-	does('free', function() { 
-		this.reflections().every(function(V) { V.free() })
-		return this.remove() 
+An.object().named('Mirror').from(Widget).has('font',A.font('14 Arial')).has('highlight','black').has('background','grey').has('color', 'black').
+does('reflect', function(O) {
+	var W = []
+	var Xo = X = this.x() || Mouse.x()
+	var Yo = Y = this.y() || Mouse.y() + 30
+	O.each(function(V,K) {
+		if (typeof(O[K]) != 'function') return;	// don't display non-behaviors
+		W.push(A.block().
+		says(V.name ?  V.name() : K).
+		at(X,Y+30).by(200,20).
+		has('mirrorOf', O).
+		has('property', K).
+		does('draw', function() {
+			Screen.save()
+			var Color = this.over() ? this.hilght() : this.background()
+			Screen[Color]()
+			Mirror.font().use()
+			Screen.at(this.x(),this.y()+Mirror.font().size()).by(this.width()-Mirror.font().size(),this.height()).
+			print(this.property().append(' : ', 
+				O[K].dynamic ? 
+					O[K].params : 	// parameter list if dynamic
+					O[K]()		// evaluate if not
+			))
+			this.by(Math.max(this.width(),(Screen.x()+Display.x())-this.x() + Mirror.font().size()),(Screen.y()+Display.y())-this.y() + Mirror.font().size()/2)
+			Screen.at(this.x()-Mirror.font().size/2,this.y()).by(this.width(),this.height()).frame().restore()
+		}).
+		does('down', function(E) {
+			if(E.on(this) && E.button >= 2)
+				Mirror.reflect(this.mirrorOf[this.property]).at(this.x()+this.width(),this.y())
+		}).
+		does('up', function() {}).
+		does('move', function() {}).
+		does('drop', function(V) { this.mirrorOf().has(this.property(),V) }))
+		Y += 30
 	})
+	return A.mirror().has('reflects',O).has('reflections', W).at(Xo,Yo).by(200,30)
+}).
+does('draw', function() {
+	if (this.reflections().length != this.reflects().slots()) {
+		var Reflectee = this.reflects()
+		this.free()
+		Mirror.reflect(Reflectee)
+	} else {
+		Screen.save()
+		this.font().use()
+		Screen.color(this.color()).at(this.x()-Mirror.font().size()/2+5,this.y()+20).print(this.reflects().name()).restore()
+	}
+	return this
+}).
+does('down', function(E) {
+	if (E.on(this)) {
+		this.has('moving',E)
+		if (E.button() >= 2) Mirror.reflect(this.reflects().__proto__)
+	}
+}).
+does('move', function(E) {
+	if (!this.moving()) return;
+	var Dx = E.x() - this.moving().x()
+	var Dy = E.y() - this.moving().y()
+	this.reflections().every(function(V) { V.to(Dx,Dy) })
+	this.to(Dx,Dy)
+	this.has('moving',E)
+}).
+does('up', function(E) { this.has('moving',false) }).
+does('free', function() { 
+	this.reflections().every(function(V) { V.free() })
+	return this.remove() 
+})
 
 Object.prototype.mirror = function() {
 	return Mirror.reflect(this)

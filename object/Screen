@@ -1,185 +1,79 @@
-An.object().named('Screen').from(Box).
-	has('ctx', null).
-	has('display', null).
-	has('curvature', 5).
-	has('size', 16).
-	has('family', 'Arial').
-	has('colorizer', false).
-	does('init', function() { 
-		return this.has('display',window.Display).
-			has('ctx',this.display().canvas().getContext('2d'))
-	}).
-	does('as', function(B) { 	// Takes a Box
-		if(!B.is(Box)) return this
-		return this.at(B.x(),B.y()).by(B.width(),B.height()) 
-	}).
-	does('to', function(X,Y) { 
-		return this.at(this.x()+X,this.y()+Y) 
-	}).
-	does('at', function(X,Y) {
-		this.has('x', X - this.display().x()).
-			has('y',Y - this.display().y()).
-			ctx().moveTo(this.x(),this.y())
-		return this
-	}).
-	does('by', function(W,H) {
-		return this.has('width',W).has('height',H)
-	}).
-	does('shot', function() {
-		_doc.location = this.canvas().toDataURL('image/png')
-		return this
-	}).
-	does('radius', function(R) { 
-		if (R !== undefined) this.has('curvature',R)
-		return this.curvature()
-	}).
-	does('lineWidth', function(W) {
-		this.ctx().lineWidth = W
-		return this 
-	}).
-	does('font', function(F) {
-		var X = F.split(' ');
-		if (X[0]) this.has('size', Math.floor(X[0]))
-		if (X[1]) this.has('family', X[1])
-		this.ctx().font = this.size().toString().append('px ',this.family())
-		return this
-	}).
-	does('stroke', function() { 
-		this.ctx().stroke()
-		return this 
-	}).
-	does('line', function() {
-		this.ctx().lineTo(this.x()+this.width(),this.y()+this.height())
-		this.ctx().stroke()
-		return this.to(this.width()+this.display().x(),this.h()+this.display().y())
-	}).
-	does('frame', function() {
-		var C = this.ctx()
-		C.beginPath()
-		C.moveTo(this.x()+this.curvature(),this.y())
-		C.lineTo(this.x()+this.width()-2*this.curvature(),this.y())
-		C.arcTo(this.x()+this.width(),this.y(),this.x()+this.width(),this.y()+this.curvature(),this.curvature())
-		C.lineTo(this.x()+this.width(),this.y()+this.height()-2*this.curvature())
-		C.arcTo(this.x()+this.width(),this.y()+this.height(),this.x()+this.width()-this.curvature(),this.y()+this.height(),this.curvature())
-		C.lineTo(this.x()+this.curvature(),this.y()+this.height())
-		C.arcTo(this.x(),this.y()+this.height(),this.x(),this.y()+this.height()-this.curvature(),this.curvature())
-		C.lineTo(this.x(),this.y()+this.curvature())
-		C.arcTo(this.x(),this.y(),this.x()+this.curvature(),this.y(),this.curvature())
-		C.stroke()
-		C.closePath()
-		this.to(this.width(),this.height())
-		return this
-	}).
-	does('circle', function() {
-		var C = this.ctx()
-		C.beginPath()
-		C.arc(this.x(),this.y(),this.curvature(),0,Math.PI*2,true);
-		C.closePath();
-		C.fill();
-		return this;
-	}).
-	does('print', function (T) {
-		if (!_doc) return this
-		var C = this.ctx()
-		var Xo = this.x()
-		var Xm = Xo
-		var Ym = this.y()
-		var I = this
-		var W = (""+ T).split("\n");
-		W.every(function(X,J) {
-			var L = Math.floor(C.measureText(X).width);
-			if (I.x() + L + I.size()/2 > Xo + I.width()) {	// Line Wrap
-				I.has('x',Xo)
-				I.has('y', I.y() + Math.floor(I.size()))
-			}
-			C.fillText(X,I.x(),I.y())
-			I.has('x', I.x() + L + Math.floor(I.size()/2.0))	// Text + Space 
-			Xm = Math.max(Xm,I.x())
-			Ym = Math.max(Ym,I.y());
-		});
-		return I.has('x',Xm).has('y',Ym)
-	}).
-	does('draw', function (I) {
-		if (I.loaded()) this.ctx().drawImage(I.data(),0,0,I.width(),I.height(),this.x(),this.y(),this.width(),this.height())
-		return this
-	}).
-	does('red', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "red"
-		return this 
-	}).
-	does('yellow', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "yellow"
-		return this
-	}).
-	does('green', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "green"
-		return this
-	}).
-	does('blue', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "blue"
-		return this
-	}).
-	does('orange', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "orange"
-		return this
-	}).
-	does('purple', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "purple" 
-		return this
-	}).
-	does('black', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "black"
-		return this
-	}).
-	does('gray', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "gray"
-		return this
-	}).
-	does('white', function() {
-		this.ctx().fillStyle = this.ctx().strokeStyle = "white"
-		return this
-	}).
-	does('fill', function() {
-		var C = this.ctx()
-		C.beginPath()
-		C.rect(this.x(),this.y(),this.width(),this.height())
-		C.fill()
-		C.closePath()
-		return this
-	}).
-	does('rect', function() {
-		this.ctx().rect(this.x(),this.y(),this.width(),this.height())
-		this.ctx().stroke()
-		return this
-	}).
-	does('clear', function() {
-		this.ctx().clearRect(0,0,this.display().width(),this.display().height())
-		return this 
-	}).
-	does('background', function(r,g,b) { 
-		this.display().canvas().style.background = 'rgb('.append(r,',',g,',',b,')')
-		return this
-	}).
-	does('color', function(R,G,B,A) {
-		this.ctx().strokeStyle = this.ctx().fillStyle = (typeof(R) == 'string') ?
-			R :
-			'rgba('.append(R,',',G,',',B,',',A,')'); 
-		return this;
-	}).
-	does('rotate', function(R) {
-		this.ctx().rotate(R)
-		return this 
-	}).
-	does('translate', function(X,Y) {
-		this.ctx().translate(X,Y)
-		return this
-	}).
-	does('save', function() {
-		this.ctx().save()
-		return this 
-	}).
-	does('restore', function() {
-		this.ctx().restore()
-		return this 
-	}).
-	init()
+An.object().named('Screen').from(Box).from(Palette).has('curvature', 5).has('font', A.font('16 Arial')).
+does('init', function() { return this.has('ctx',Display.canvas().getContext('2d')) }).
+does('as', function(B) { return !B.is(Box) ? this : this.at(B.x(),B.y()).by(B.width(),B.height()) }).
+does('to', function(X,Y) { return this.at(this.x()+X,this.y()+Y) }).
+does('at', function(X,Y) { this.has('x', X - Display.x()).has('y',Y - Display.y()).ctx().moveTo(this.x(),this.y()); return this }).
+does('by', function(W,H) { return this.has('width',W).has('height',H) }).
+does('shot', function() { _doc.location = this.canvas().toDataURL('image/png'); return this }).
+does('radius', function(R) { if (R !== undefined) this.has('curvature',R); return this.curvature() }).
+does('lineWidth', function(W) { this.ctx().lineWidth = W; return this }).
+does('stroke', function() { this.ctx().stroke(); return this }).
+does('line', function() {
+	this.ctx().lineTo(this.x()+this.width(),this.y()+this.height())
+	this.ctx().stroke()
+	return this.to(this.width()+Display.x(),this.h()+Display.y())
+}).
+does('frame', function() {
+	var C = this.ctx()
+	C.beginPath()
+	C.moveTo(this.x()+this.curvature(),this.y())
+	C.lineTo(this.x()+this.width()-2*this.curvature(),this.y())
+	C.arcTo(this.x()+this.width(),this.y(),this.x()+this.width(),this.y()+this.curvature(),this.curvature())
+	C.lineTo(this.x()+this.width(),this.y()+this.height()-2*this.curvature())
+	C.arcTo(this.x()+this.width(),this.y()+this.height(),this.x()+this.width()-this.curvature(),this.y()+this.height(),this.curvature())
+	C.lineTo(this.x()+this.curvature(),this.y()+this.height())
+	C.arcTo(this.x(),this.y()+this.height(),this.x(),this.y()+this.height()-this.curvature(),this.curvature())
+	C.lineTo(this.x(),this.y()+this.curvature())
+	C.arcTo(this.x(),this.y(),this.x()+this.curvature(),this.y(),this.curvature())
+	C.stroke()
+	C.closePath()
+	this.to(this.width(),this.height())
+	return this
+}).
+does('circle', function() {
+	var C = this.ctx()
+	C.beginPath()
+	C.arc(this.x(),this.y(),this.curvature(),0,Math.PI*2,true);
+	C.closePath();
+	C.fill();
+	return this;
+}).
+does('print', function (T) {
+	if (!_doc) return this
+	var C = this.ctx()
+	var Xo = this.x()
+	var Xm = Xo
+	var Ym = this.y()
+	var I = this
+	var W = (""+ T).split("\n");
+	W.every(function(X,J) {
+		var L = Math.floor(C.measureText(X).width);
+		if (I.x() + L + I.font().size()/2 > Xo + I.width()) {	// Line Wrap
+			I.has('x',Xo)
+			I.has('y', I.y() + Math.floor(I.font().size()))
+		}
+		C.fillText(X,I.x(),I.y())
+		I.has('x', I.x() + L + Math.floor(I.font().size()/2.0))	// Text + Space 
+		Xm = Math.max(Xm,I.x())
+		Ym = Math.max(Ym,I.y());
+	});
+	return I.has('x',Xm).has('y',Ym)
+}).
+does('draw', function (I) {
+	if (I.loaded()) this.ctx().drawImage(I.data(),0,0,I.width(),I.height(),this.x(),this.y(),this.width(),this.height())
+	return this
+}).
+does('fill', function() {
+	var C = this.ctx()
+	C.beginPath()
+	C.rect(this.x(),this.y(),this.width(),this.height())
+	C.fill()
+	C.closePath()
+	return this
+}).
+does('rect', function() { this.ctx().rect(this.x(),this.y(),this.width(),this.height()); this.ctx().stroke(); return this }).
+does('clear', function() { this.ctx().clearRect(0,0,Display.width(),Display.height()); return this }).
+does('rotate', function(R) { this.ctx().rotate(R); return this }).
+does('translate', function(X,Y) { this.ctx().translate(X,Y); return this }).
+does('save', function() { this.ctx().save(); return this }).
+does('restore', function() { this.ctx().restore(); return this }).init()

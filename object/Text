@@ -1,16 +1,9 @@
-An.object().named('Text').plural('Texts').from(Widget).
-	has('color', 'rgb(0,0,0)').
-	has('font', '16px Arial').
-	has('content','').
-	has('visible',true).
-	does('init', function(text) {
-		return this.clone().has('content', text).instance().here() 
-	}).
-	does('draw', function() {
-		if (this.visible) 
-			Screen.as(this).font(this.font).color(this.color).print(this.toString());
-	}).
-	does('print', function(p) { 
-		Screen.font(this.font).color(this.color).at(this.x,this.y).print(p);
-	}).
-	does('toString', function() { return this.text })
+An.object().named('Text').plural('Texts').from(Widget).has('color', 'rgb(0,0,0)').has('font', A.font('16px Arial')).has('content','').
+does('init', function(text) { return this.clone().has('content', text).instance().here() }).
+does('draw', function() {
+	if (!this.visible()) return;
+	Screen.save()
+	this.font().use()
+	Screen.as(this).color(this.color).print(this.toString()).restore()
+}).
+does('toString', function() { return ''.append(this.content()) })

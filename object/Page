@@ -1,67 +1,60 @@
-An.object().named('Page').plural('Pages').from(Widget).has('width',128*10).has('height',32*16).has('font','16 Monaco').has('cursor',0).
+An.object().named('Page').plural('Pages').from(Widget).has('width',128*10).has('height',32*16).has('font',A.font('16 Monaco')).has('cursor',0).
 has('inserting',true).has('size',128*32).has('columns',128).
 does('init', function() { return this.clone().has('memory',new Uint8Array(this.size())).clear().instance().here() }).
 does('draw', function() {
-	Screen.save().font(this.font()).as(this).save().color(64,64,64,0.1).fill().restore()
+	Screen.save().as(this).save().color(64,64,64,0.1).fill().restore()
+	this.font().use()
 	for (var J = 0; J < this.size(); ++J) 
 		Screen.at(this.x() + (J%this.columns())*10,this.y() + Math.floor(J/this.columns())*16 + 16).print(String.fromCharCode(this.memory()[J]))
-		Screen.at(this.x() + (this.cursor()%this.columns())*10,this.y() + Math.floor(this.cursor()/this.columns())*16).by(10,16).color(64,64,64,0.5).fill()
-		Screen.restore()
-	}).
-	does('clear', function() {
-		this.has('cursor',0)
-		for (var J = 0; J < this.size(); ++J)
-			this.memory()[J] = ' '
-		return this
-	}).
-	does('write', function(K) {
-		switch (K) {
-			case Keyboard.backspace():
-				for (var J = this.cursor()-1; J <= Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1);++J) 
-					this.memory()[J] = this.memory()[J+1]
-				this.memory()[Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1)] = 32
-				this.has('cursor', Math.max(this.cursor() -1,0))
-				break
-			case '\n':
-			case Keyboard.newline():
-			case '\r':
-			case Keyboard.enter():
-				this.has('cursor',Math.min(this.size()-1,Math.floor((this.cursor() + this.columns())/this.columns())*this.columns()))
-				break;
-			case '\t':
-			case Keyboard.tab():
-				this.has('cursor',Math.min(this.size()-1,this.cursor() + (8 - (this.cursor() % 8))))
-				break;
-			case '':
-				if (Keyboard.left())
-					this.has('cursor', Math.max(0,this.cursor()-1))
-				if (Keyboard.right())
-					this.has('cursor', Math.min(this.size()-1,this.cursor()+1))
-				if (Keyboard.up())
-					this.has('cursor', Math.max(0,this.cursor()-this.columns()))
-				if (Keyboard.down())
-					this.has('cursor', Math.min(this.size()-1,this.cursor()+this.columns()))
-				break
-			default:
-				if (this.inserting()) 
-					for (var J = Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1); J > this.cursor(); --J) 
-						this.memory()[J] = this.memory()[J-1]
-				this.memory()[this.cursor()] = K.charCodeAt(0)
-				this.has('cursor',Math.min(this.size()-1,this.cursor()+1))
-		}
-		return this
-	}).
-	does('print', function(T) {
-		for (var J = 0; J < T.length && J < this.size()-1; ++J) this.write(T[J])
-		return this
-	}).
-	does('load', function(U) {
-		var I = this
-		this.clear()
-		U.get(function(T) { I.print(T) })
-		return this
-	}).
-	does('press', function(E) {
-		if (!Mouse.on(this)) return;
-		return this.write(E.key())
-	})
+	Screen.at(this.x() + (this.cursor()%this.columns())*10,this.y() + Math.floor(this.cursor()/this.columns())*16).by(10,16).color(64,64,64,0.5).fill().restore()
+}).
+does('clear', function() {
+	var I = this
+	this.has('cursor',0);
+	(0).to(this.size()-1, function(J) { I.memory()[J] = ' ' })
+	return this
+}).
+does('write', function(K) {
+	switch (K) {
+		case Keyboard.backspace():
+			for (var J = this.cursor()-1; J <= Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1);++J) 
+				this.memory()[J] = this.memory()[J+1]
+			this.memory()[Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1)] = 32
+			this.has('cursor', Math.max(this.cursor() -1,0))
+			break
+		case '\n':
+		case Keyboard.newline():
+		case '\r':
+		case Keyboard.enter():
+			this.has('cursor',Math.min(this.size()-1,Math.floor((this.cursor() + this.columns())/this.columns())*this.columns()))
+			break;
+		case '\t':
+		case Keyboard.tab():
+			this.has('cursor',Math.min(this.size()-1,this.cursor() + (8 - (this.cursor() % 8))))
+			break;
+		case '':
+			if (Keyboard.left()) this.has('cursor', Math.max(0,this.cursor()-1))
+			if (Keyboard.right()) this.has('cursor', Math.min(this.size()-1,this.cursor()+1))
+			if (Keyboard.up()) this.has('cursor', Math.max(0,this.cursor()-this.columns()))
+			if (Keyboard.down()) this.has('cursor', Math.min(this.size()-1,this.cursor()+this.columns()))
+			break
+		default:
+			if (this.inserting()) 
+				for (var J = Math.min(this.size()-1, this.columns()*Math.floor((this.cursor() + this.columns())/this.columns())-1); J > this.cursor(); --J) 
+					this.memory()[J] = this.memory()[J-1]
+			this.memory()[this.cursor()] = K.charCodeAt(0)
+			this.has('cursor',Math.min(this.size()-1,this.cursor()+1))
+	}
+	return this
+}).
+does('print', function(T) {
+	for (var J = 0; J < T.length && J < this.size()-1; ++J) this.write(T[J])
+	return this
+}).
+does('load', function(U) {
+	var I = this
+	this.clear()
+	U.get(function(T) { I.print(T) })
+	return this
+}).
+does('press', function(E) { return !Mouse.on(this) ? this : this.write(E.key()) })

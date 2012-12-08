@@ -92,7 +92,7 @@ Object.prototype.use = function() {
 _root.onload = function() {
 	_body = _doc.getElementsByTagName('body')[0];
 	use('Object','Number','Array','String','Box','Widget','Component','Event','Device','Resource',
-		'Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
+		'Palette','Font','Display','Keyboard','Mouse','Screen','Text','Sound','Image','Movie',
 		'Key','Page',
 		'Help','Inventory','Trash','Objects','Mirror','Phosphor',
 		'Names','HotKey','Block',
